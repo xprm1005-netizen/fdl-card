@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 290" width="320" height="290">
+  <!-- Shadow/base -->
+  <ellipse cx="160" cy="282" rx="72" ry="8" fill="rgba(0,0,0,0.2)"/>
+  <!-- Head -->
+  <circle cx="160" cy="44" r="34" fill="rgba(255,255,255,0.18)"/>
+  <!-- Neck -->
+  <rect x="148" y="76" width="24" height="20" rx="6" fill="rgba(255,255,255,0.16)"/>
+  <!-- Jersey/Torso -->
+  <path d="M96 96 C90 96 78 102 74 116 L64 196 L108 200 L116 148 L160 154 L204 148 L212 200 L256 196 L246 116 C242 102 230 96 224 96 Z" fill="rgba(255,255,255,0.18)"/>
+  <!-- Jersey number area hint -->
+  <rect x="140" y="120" width="40" height="28" rx="4" fill="rgba(255,255,255,0.06)"/>
+  <!-- Left arm -->
+  <path d="M96 98 L62 168 L78 174 L110 110 Z" fill="rgba(255,255,255,0.15)"/>
+  <!-- Right arm -->
+  <path d="M224 98 L258 168 L242 174 L210 110 Z" fill="rgba(255,255,255,0.15)"/>
+  <!-- Left leg upper -->
+  <path d="M108 198 L96 258 L116 262 L128 200 Z" fill="rgba(255,255,255,0.16)"/>
+  <!-- Right leg upper -->
+  <path d="M212 198 L224 258 L204 262 L192 200 Z" fill="rgba(255,255,255,0.16)"/>
+  <!-- Left shin -->
+  <rect x="94" y="256" width="22" height="24" rx="4" fill="rgba(255,255,255,0.14)"/>
+  <!-- Right shin -->
+  <rect x="204" y="256" width="22" height="24" rx="4" fill="rgba(255,255,255,0.14)"/>
+  <!-- Left shoe -->
+  <ellipse cx="105" cy="283" rx="18" ry="7" fill="rgba(255,255,255,0.13)"/>
+  <!-- Right shoe -->
+  <ellipse cx="215" cy="283" rx="18" ry="7" fill="rgba(255,255,255,0.13)"/>
+</svg>

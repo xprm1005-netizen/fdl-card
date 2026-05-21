@@ -220,6 +220,32 @@ CREATE POLICY "print_jobs_deny" ON public.print_jobs
   FOR ALL USING (false);
 
 -- =====================================================
+-- Premium Templates
+-- =====================================================
+
+ALTER TABLE public.card_templates
+  ADD COLUMN IF NOT EXISTS is_premium BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS price INTEGER NOT NULL DEFAULT 0;
+
+-- Academy-level template unlocks (purchased premium templates)
+CREATE TABLE IF NOT EXISTS public.academy_template_unlocks (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  academy_id  UUID NOT NULL REFERENCES public.academies(id) ON DELETE CASCADE,
+  template_id UUID NOT NULL REFERENCES public.card_templates(id) ON DELETE CASCADE,
+  unlocked_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  payment_key TEXT,
+  UNIQUE(academy_id, template_id)
+);
+CREATE INDEX IF NOT EXISTS idx_unlocks_academy ON public.academy_template_unlocks(academy_id);
+
+ALTER TABLE public.academy_template_unlocks ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "unlocks_academy_read" ON public.academy_template_unlocks
+  FOR SELECT USING (academy_id = my_academy_id());
+CREATE POLICY "unlocks_academy_insert" ON public.academy_template_unlocks
+  FOR INSERT WITH CHECK (academy_id = my_academy_id());
+
+-- =====================================================
 -- Storage Buckets (run in Supabase dashboard SQL editor)
 -- =====================================================
 

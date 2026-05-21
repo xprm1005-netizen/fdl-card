@@ -8,66 +8,116 @@ import StatsInputPanel from '../../components/card/StatsInputPanel';
 import Btn from '../../components/ui/Btn';
 import { C, ff, radius } from '../../tokens';
 
-const CARD_W = 400;
-const CARD_H = 560;
+const W = 400;
+const H = 560;
+
+function makeBase(slug, colors, borderColor, glowColor, glowBlur, accentColor, labelColor, extra = {}) {
+  return {
+    id: slug, slug, name: slug.charAt(0).toUpperCase() + slug.slice(1),
+    is_premium: extra.is_premium || false,
+    price: extra.price || 0,
+    config: {
+      width: W, height: H,
+      background: { colors },
+      border: { color: borderColor, width: 3, glowColor, glowBlur },
+      overall: { x: 20, y: 14, fontSize: 62, fill: accentColor },
+      position: { x: 20, y: 80, fontSize: 15, fill: accentColor },
+      playerPhoto: { x: 40, y: 105, width: 320, height: 290 },
+      playerName: { x: W / 2, y: 398, fontSize: 24, fill: extra.nameFill || '#FFFFFF', width: 340 },
+      teamColorBar: { y: 436, height: 9 },
+      stats: {
+        paddingX: 20, y: 456, rowHeight: 24,
+        valueFontSize: 17, valueColor: accentColor,
+        labelFontSize: 10, labelColor,
+        cols: 6,
+      },
+      decorations: extra.decorations || [],
+    },
+  };
+}
 
 const TEMPLATES = [
-  {
-    id: 'gold',
-    slug: 'gold',
-    name: 'Gold',
-    config: {
-      width: CARD_W, height: CARD_H,
-      background: { colors: ['#1a1000', '#3d2b00', '#1a1000'] },
-      border: { color: '#FFD700', width: 3, glowColor: 'rgba(255,215,0,0.4)', glowBlur: 20 },
-      playerPhoto: { x: 60, y: 100, width: 280, height: 290 },
-      overall: { x: 28, y: 22, fontSize: 58, fill: '#FFD700' },
-      position: { x: 28, y: 90, fontSize: 17, fill: '#FFD700' },
-      playerName: { x: CARD_W / 2, y: 410, fontSize: 28, fill: '#FFFFFF', width: 340 },
-      teamColorBar: { y: 448, height: 4 },
-      stats: { paddingX: 20, y: 462, rowHeight: 22, valueFontSize: 14, valueColor: '#FFD700', labelFontSize: 9, labelColor: '#A0A0A0', cols: 6 },
-      watermark: { x: CARD_W / 2, y: 548, fontSize: 8, fill: 'rgba(255,255,255,0.15)' },
+  makeBase(
+    'gold',
+    ['#140c00', '#3a2000', '#140c00'],
+    '#FFD700', 'rgba(255,215,0,0.42)', 22,
+    '#FFD700', '#A08040',
+    {
+      decorations: [
+        { type: 'rect', x: 210, y: -60, width: 320, height: 150, fill: 'rgba(255,215,0,0.05)', rotation: -32 },
+        { type: 'circle', x: 360, y: 500, radius: 80, fill: 'rgba(255,215,0,0.03)' },
+      ],
     },
-  },
-  {
-    id: 'chrome',
-    slug: 'chrome',
-    name: 'Chrome',
-    config: {
-      width: CARD_W, height: CARD_H,
-      background: { colors: ['#0d0d0d', '#1e2530', '#0d0d0d'] },
-      border: { color: '#B0C4DE', width: 3, glowColor: 'rgba(176,196,222,0.3)', glowBlur: 20 },
-      playerPhoto: { x: 60, y: 100, width: 280, height: 290 },
-      overall: { x: 28, y: 22, fontSize: 58, fill: '#B0C4DE' },
-      position: { x: 28, y: 90, fontSize: 17, fill: '#B0C4DE' },
-      playerName: { x: CARD_W / 2, y: 410, fontSize: 28, fill: '#E8EDF2', width: 340 },
-      teamColorBar: { y: 448, height: 4 },
-      stats: { paddingX: 20, y: 462, rowHeight: 22, valueFontSize: 14, valueColor: '#B0C4DE', labelFontSize: 9, labelColor: '#8898AA', cols: 6 },
-      watermark: { x: CARD_W / 2, y: 548, fontSize: 8, fill: 'rgba(255,255,255,0.15)' },
+  ),
+  makeBase(
+    'chrome',
+    ['#080c10', '#141e2a', '#0a1018'],
+    '#B0C4DE', 'rgba(176,196,222,0.3)', 22,
+    '#B0C4DE', '#708090',
+    {
+      nameFill: '#E8EDF2',
+      decorations: [
+        { type: 'rect', x: 0, y: 145, width: W, height: 1, fill: 'rgba(176,196,222,0.06)' },
+        { type: 'rect', x: 0, y: 225, width: W, height: 1, fill: 'rgba(176,196,222,0.05)' },
+        { type: 'rect', x: 0, y: 305, width: W, height: 1, fill: 'rgba(176,196,222,0.06)' },
+        { type: 'rect', x: 0, y: 385, width: W, height: 1, fill: 'rgba(176,196,222,0.05)' },
+      ],
     },
-  },
-  {
-    id: 'legend',
-    slug: 'legend',
-    name: 'Legend',
-    config: {
-      width: CARD_W, height: CARD_H,
-      background: { colors: ['#0f0015', '#2a003d', '#0f0015'] },
-      border: { color: '#E040FB', width: 3, glowColor: 'rgba(224,64,251,0.45)', glowBlur: 28 },
-      playerPhoto: { x: 60, y: 100, width: 280, height: 290 },
-      overall: { x: 28, y: 22, fontSize: 58, fill: '#E040FB' },
-      position: { x: 28, y: 90, fontSize: 17, fill: '#E040FB' },
-      playerName: { x: CARD_W / 2, y: 410, fontSize: 28, fill: '#FFFFFF', width: 340 },
-      teamColorBar: { y: 448, height: 4 },
-      stats: { paddingX: 20, y: 462, rowHeight: 22, valueFontSize: 14, valueColor: '#E040FB', labelFontSize: 9, labelColor: '#CE93D8', cols: 6 },
-      watermark: { x: CARD_W / 2, y: 548, fontSize: 8, fill: 'rgba(255,255,255,0.15)' },
+  ),
+  makeBase(
+    'legend',
+    ['#0c0014', '#220038', '#0c0014'],
+    '#E040FB', 'rgba(224,64,251,0.48)', 30,
+    '#E040FB', '#CE93D8',
+    {
+      decorations: [
+        { type: 'circle', x: 50, y: 480, radius: 90, fill: 'rgba(224,64,251,0.04)' },
+        { type: 'circle', x: 360, y: 460, radius: 70, fill: 'rgba(224,64,251,0.04)' },
+      ],
     },
-  },
+  ),
+  makeBase(
+    'fire',
+    ['#0d0000', '#3a0600', '#8a1800', '#200000'],
+    '#FF4500', 'rgba(255,69,0,0.6)', 32,
+    '#FF6B00', '#FF9060',
+    {
+      is_premium: true, price: 3900,
+      decorations: [
+        { type: 'rect', x: 140, y: -40, width: 320, height: 180, fill: 'rgba(255,80,0,0.07)', rotation: -35 },
+        { type: 'rect', x: 200, y: -20, width: 240, height: 130, fill: 'rgba(255,120,0,0.05)', rotation: -25 },
+        { type: 'circle', x: 200, y: 295, radius: 200, fill: 'rgba(255,60,0,0.04)' },
+      ],
+    },
+  ),
+  makeBase(
+    'ice',
+    ['#000d14', '#001830', '#003040', '#000d14'],
+    '#00CFFF', 'rgba(0,207,255,0.52)', 32,
+    '#00CFFF', '#80E8FF',
+    {
+      is_premium: true, price: 3900,
+      nameFill: '#E8F8FF',
+      decorations: [
+        { type: 'rect', x: 0, y: 130, width: W, height: 2, fill: 'rgba(0,207,255,0.08)' },
+        { type: 'rect', x: 0, y: 215, width: W, height: 2, fill: 'rgba(0,207,255,0.06)' },
+        { type: 'rect', x: 0, y: 300, width: W, height: 2, fill: 'rgba(0,207,255,0.08)' },
+        { type: 'rect', x: 0, y: 385, width: W, height: 2, fill: 'rgba(0,207,255,0.06)' },
+        { type: 'rect', x: 310, y: -30, width: 110, height: 90, fill: 'rgba(0,207,255,0.05)', rotation: -48 },
+      ],
+    },
+  ),
 ];
 
 const MOCK_PLAYER = { name: '김민준', position: 'ST', jersey_number: 10, id: 'demo-001' };
+const MOCK_ACADEMY = { name: 'FDL FC', logo_url: null };
 const DEFAULT_STATS = { pac: 80, dri: 75, phy: 72, acc: 78, tac: 68, psy: 70 };
 const STEPS = ['템플릿 선택', '능력치 입력', '카드 완성'];
+
+const ACCENT_MAP = {
+  gold: '#FFD700', chrome: '#B0C4DE', legend: '#E040FB',
+  fire: '#FF6B00', ice: '#00CFFF',
+};
 
 export default function DemoCardPage() {
   const navigate = useNavigate();
@@ -77,7 +127,7 @@ export default function DemoCardPage() {
   const [stats, setStats] = useState(DEFAULT_STATS);
   const [showBack, setShowBack] = useState(false);
 
-  const accent = { gold: '#FFD700', chrome: '#B0C4DE', legend: '#E040FB' }[template.slug] || '#FFD700';
+  const accent = ACCENT_MAP[template.slug] || '#FFD700';
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, color: C.white, fontFamily: ff.body }}>
@@ -136,9 +186,9 @@ export default function DemoCardPage() {
               </button>
             </div>
             {showBack ? (
-              <CardBack template={template} player={MOCK_PLAYER} stats={stats} teamColor={accent} scale={0.65} />
+              <CardBack template={template} player={MOCK_PLAYER} stats={stats} academy={MOCK_ACADEMY} teamColor={accent} scale={0.65} />
             ) : (
-              <CardCanvas ref={canvasRef} template={template} player={MOCK_PLAYER} stats={stats} teamColor={accent} scale={0.65} />
+              <CardCanvas ref={canvasRef} template={template} player={MOCK_PLAYER} stats={stats} academy={MOCK_ACADEMY} teamColor={accent} scale={0.65} />
             )}
           </div>
 
@@ -147,7 +197,12 @@ export default function DemoCardPage() {
             {step === 0 && (
               <div>
                 <h2 style={{ margin: '0 0 20px', fontSize: 22, fontWeight: 800 }}>템플릿 선택</h2>
-                <TemplateSelector templates={TEMPLATES} selected={template} onSelect={setTemplate} />
+                <TemplateSelector
+                  templates={TEMPLATES}
+                  selected={template}
+                  onSelect={setTemplate}
+                  onPremiumClick={(t) => alert(`🔒 ${t.name} 프리미엄 템플릿 (${t.price?.toLocaleString()}원)\n회원가입 후 구매할 수 있습니다.`)}
+                />
                 <div style={{ marginTop: 24 }}>
                   <Btn style={{ width: '100%' }} onClick={() => setStep(1)}>
                     다음 — 능력치 입력 <ChevronRight size={16} />

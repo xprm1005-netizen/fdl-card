@@ -35,6 +35,7 @@ export default function CardCreatePage() {
   const [saving, setSaving] = useState(false);
   const [savedCard, setSavedCard] = useState(null);
   const [showBack, setShowBack] = useState(false);
+  const [premiumModal, setPremiumModal] = useState(null);
 
   useEffect(() => {
     Promise.all([getPlayer(playerId), getTemplates()]).then(([p, t]) => {
@@ -92,6 +93,61 @@ export default function CardCreatePage() {
   return (
     <AppShell>
       <Topbar title={`${player.name} 카드 만들기`} back />
+
+      {/* Premium template modal */}
+      {premiumModal && (
+        <div
+          onClick={() => setPremiumModal(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 24,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 20, padding: '28px 24px', maxWidth: 320, width: '100%',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: 36, marginBottom: 12 }}>🔒</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 6 }}>
+              {premiumModal.name} 프리미엄 템플릿
+            </div>
+            <div style={{ fontSize: 14, color: '#888', marginBottom: 20, lineHeight: 1.6 }}>
+              이 템플릿은 프리미엄 전용입니다.<br />
+              결제 후 잠금 해제하여 사용할 수 있습니다.
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFD700', marginBottom: 20 }}>
+              {premiumModal.price?.toLocaleString()}원
+            </div>
+            <button
+              onClick={() => { setPremiumModal(null); alert('결제 서비스 준비 중입니다. 곧 오픈됩니다! 🎉'); }}
+              style={{
+                width: '100%', background: '#FFD700', color: '#000',
+                border: 'none', borderRadius: 10, padding: '12px 0',
+                fontWeight: 800, fontSize: 15, cursor: 'pointer',
+                fontFamily: 'inherit', marginBottom: 10,
+              }}
+            >
+              결제하기
+            </button>
+            <button
+              onClick={() => setPremiumModal(null)}
+              style={{
+                width: '100%', background: 'none', color: '#888',
+                border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10,
+                padding: '10px 0', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
       <div style={{ padding: '20px', maxWidth: 1100, margin: '0 auto' }}>
 
         {/* Step indicator */}
@@ -126,6 +182,7 @@ export default function CardCreatePage() {
                   templates={templates}
                   selected={selectedTemplate}
                   onSelect={setSelectedTemplate}
+                  onPremiumClick={setPremiumModal}
                 />
                 <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
                   <Btn onClick={() => setStep(2)} disabled={!selectedTemplate}>다음 단계 →</Btn>
@@ -210,6 +267,7 @@ export default function CardCreatePage() {
                   template={selectedTemplate}
                   player={player}
                   stats={stats}
+                  academy={academy}
                   teamColor={teamColor}
                   scale={canvasScale}
                 />
@@ -219,6 +277,7 @@ export default function CardCreatePage() {
                   template={selectedTemplate}
                   player={player}
                   stats={stats}
+                  academy={academy}
                   teamColor={teamColor}
                   scale={canvasScale}
                 />
