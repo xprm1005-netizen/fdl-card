@@ -1,7 +1,7 @@
 export function calcOverall(stats) {
   if (!stats) return 0;
-  const { shooting = 0, passing = 0, speed = 0, dribbling = 0, physical = 0 } = stats;
-  return Math.round((shooting + passing + speed + dribbling + physical) / 5);
+  const { pac = 0, dri = 0, phy = 0, acc = 0, tac = 0, psy = 0 } = stats;
+  return Math.round((pac + dri + phy + acc + tac + psy) / 6);
 }
 
 export function formatKRW(amount) {

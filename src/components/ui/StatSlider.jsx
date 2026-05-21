@@ -1,13 +1,5 @@
 import { C } from '../../tokens';
 
-const STAT_LABELS = {
-  shooting:  '슈팅',
-  passing:   '패스',
-  speed:     '스피드',
-  dribbling: '드리블',
-  physical:  '피지컬',
-};
-
 function getColor(val) {
   if (val >= 85) return '#00E676';
   if (val >= 70) return '#FFD700';
@@ -15,8 +7,8 @@ function getColor(val) {
   return '#FF5252';
 }
 
-export default function StatSlider({ statKey, value, onChange }) {
-  const label = STAT_LABELS[statKey] || statKey;
+export default function StatSlider({ statKey, label: labelProp, value, onChange }) {
+  const label = labelProp || statKey.toUpperCase();
   const color = getColor(value);
 
   return (

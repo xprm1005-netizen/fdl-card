@@ -46,23 +46,21 @@ export default function LandingPage() {
         </Btn>
       </div>
 
-      {/* Demo link */}
-      <button
-        onClick={() => navigate('/demo')}
-        style={{
-          marginTop: 32,
-          background: 'none',
-          border: 'none',
-          color: C.gray,
-          fontSize: 13,
-          cursor: 'pointer',
-          fontFamily: ff.body,
-          textDecoration: 'underline',
-          textDecorationColor: C.border,
-        }}
-      >
-        로그인 없이 둘러보기 →
-      </button>
+      {/* Bottom links */}
+      <div style={{ marginTop: 32, display: 'flex', gap: 20, justifyContent: 'center' }}>
+        <button
+          onClick={() => navigate('/demo')}
+          style={{ background: 'none', border: 'none', color: C.gray, fontSize: 13, cursor: 'pointer', fontFamily: ff.body, textDecoration: 'underline', textDecorationColor: C.border }}
+        >
+          로그인 없이 둘러보기 →
+        </button>
+        <button
+          onClick={() => navigate('/pricing')}
+          style={{ background: 'none', border: 'none', color: C.gold, fontSize: 13, cursor: 'pointer', fontFamily: ff.body, textDecoration: 'underline', textDecorationColor: C.goldMed }}
+        >
+          가격 안내 →
+        </button>
+      </div>
     </div>
   );
 }

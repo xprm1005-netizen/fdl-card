@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 import CardCanvas from '../../components/card/CardCanvas';
+import CardBack from '../../components/card/CardBack';
 import TemplateSelector from '../../components/card/TemplateSelector';
 import StatsInputPanel from '../../components/card/StatsInputPanel';
 import Btn from '../../components/ui/Btn';
@@ -17,32 +18,15 @@ const TEMPLATES = [
     name: 'Gold',
     config: {
       width: CARD_W, height: CARD_H,
-      background: { colors: ['#3D2B00', '#1A1200', '#0D0900'] },
-      border: { color: '#FFD700', width: 3, glowColor: '#FFD700', glowBlur: 30 },
-      playerPhoto: { x: 50, y: 80, width: 300, height: 300, shadowColor: '#FFD70060', shadowBlur: 20 },
-      overall: { x: 18, y: 36, fontSize: 52, fill: '#FFD700' },
-      position: { x: 18, y: 94, fontSize: 18, fill: '#FFD700' },
-      playerName: { x: CARD_W / 2, y: 392, fontSize: 32, fill: '#FFD700', width: 360 },
-      teamColorBar: { y: 430, height: 4 },
-      stats: { paddingX: 20, y: 448, rowHeight: 22, valueFontSize: 22, valueColor: '#FFD700', labelFontSize: 11, labelColor: '#C8A000' },
-      watermark: { x: CARD_W / 2, y: 538, fontSize: 9, fill: 'rgba(255,215,0,0.25)' },
-    },
-  },
-  {
-    id: 'toty',
-    slug: 'toty',
-    name: 'TOTY',
-    config: {
-      width: CARD_W, height: CARD_H,
-      background: { colors: ['#001A26', '#000D14', '#000608'] },
-      border: { color: '#00E5FF', width: 3, glowColor: '#00E5FF', glowBlur: 35 },
-      playerPhoto: { x: 50, y: 80, width: 300, height: 300, shadowColor: '#00E5FF60', shadowBlur: 25 },
-      overall: { x: 18, y: 36, fontSize: 52, fill: '#00E5FF' },
-      position: { x: 18, y: 94, fontSize: 18, fill: '#00E5FF' },
-      playerName: { x: CARD_W / 2, y: 392, fontSize: 32, fill: '#00E5FF', width: 360 },
-      teamColorBar: { y: 430, height: 4 },
-      stats: { paddingX: 20, y: 448, rowHeight: 22, valueFontSize: 22, valueColor: '#00E5FF', labelFontSize: 11, labelColor: '#0099B0' },
-      watermark: { x: CARD_W / 2, y: 538, fontSize: 9, fill: 'rgba(0,229,255,0.25)' },
+      background: { colors: ['#1a1000', '#3d2b00', '#1a1000'] },
+      border: { color: '#FFD700', width: 3, glowColor: 'rgba(255,215,0,0.4)', glowBlur: 20 },
+      playerPhoto: { x: 60, y: 100, width: 280, height: 290 },
+      overall: { x: 28, y: 22, fontSize: 58, fill: '#FFD700' },
+      position: { x: 28, y: 90, fontSize: 17, fill: '#FFD700' },
+      playerName: { x: CARD_W / 2, y: 410, fontSize: 28, fill: '#FFFFFF', width: 340 },
+      teamColorBar: { y: 448, height: 4 },
+      stats: { paddingX: 20, y: 462, rowHeight: 22, valueFontSize: 14, valueColor: '#FFD700', labelFontSize: 9, labelColor: '#A0A0A0', cols: 6 },
+      watermark: { x: CARD_W / 2, y: 548, fontSize: 8, fill: 'rgba(255,255,255,0.15)' },
     },
   },
   {
@@ -51,15 +35,15 @@ const TEMPLATES = [
     name: 'Chrome',
     config: {
       width: CARD_W, height: CARD_H,
-      background: { colors: ['#1C2333', '#0D1220', '#070C18'] },
-      border: { color: '#B0C4DE', width: 3, glowColor: '#B0C4DE', glowBlur: 20 },
-      playerPhoto: { x: 50, y: 80, width: 300, height: 300, shadowColor: '#B0C4DE50', shadowBlur: 15 },
-      overall: { x: 18, y: 36, fontSize: 52, fill: '#B0C4DE' },
-      position: { x: 18, y: 94, fontSize: 18, fill: '#B0C4DE' },
-      playerName: { x: CARD_W / 2, y: 392, fontSize: 32, fill: '#FFFFFF', width: 360 },
-      teamColorBar: { y: 430, height: 4 },
-      stats: { paddingX: 20, y: 448, rowHeight: 22, valueFontSize: 22, valueColor: '#FFFFFF', labelFontSize: 11, labelColor: '#8A9BB0' },
-      watermark: { x: CARD_W / 2, y: 538, fontSize: 9, fill: 'rgba(176,196,222,0.25)' },
+      background: { colors: ['#0d0d0d', '#1e2530', '#0d0d0d'] },
+      border: { color: '#B0C4DE', width: 3, glowColor: 'rgba(176,196,222,0.3)', glowBlur: 20 },
+      playerPhoto: { x: 60, y: 100, width: 280, height: 290 },
+      overall: { x: 28, y: 22, fontSize: 58, fill: '#B0C4DE' },
+      position: { x: 28, y: 90, fontSize: 17, fill: '#B0C4DE' },
+      playerName: { x: CARD_W / 2, y: 410, fontSize: 28, fill: '#E8EDF2', width: 340 },
+      teamColorBar: { y: 448, height: 4 },
+      stats: { paddingX: 20, y: 462, rowHeight: 22, valueFontSize: 14, valueColor: '#B0C4DE', labelFontSize: 9, labelColor: '#8898AA', cols: 6 },
+      watermark: { x: CARD_W / 2, y: 548, fontSize: 8, fill: 'rgba(255,255,255,0.15)' },
     },
   },
   {
@@ -68,23 +52,21 @@ const TEMPLATES = [
     name: 'Legend',
     config: {
       width: CARD_W, height: CARD_H,
-      background: { colors: ['#200028', '#100014', '#08000C'] },
-      border: { color: '#E040FB', width: 3, glowColor: '#E040FB', glowBlur: 35 },
-      playerPhoto: { x: 50, y: 80, width: 300, height: 300, shadowColor: '#E040FB60', shadowBlur: 25 },
-      overall: { x: 18, y: 36, fontSize: 52, fill: '#E040FB' },
-      position: { x: 18, y: 94, fontSize: 18, fill: '#E040FB' },
-      playerName: { x: CARD_W / 2, y: 392, fontSize: 32, fill: '#E040FB', width: 360 },
-      teamColorBar: { y: 430, height: 4 },
-      stats: { paddingX: 20, y: 448, rowHeight: 22, valueFontSize: 22, valueColor: '#E040FB', labelFontSize: 11, labelColor: '#9C00B8' },
-      watermark: { x: CARD_W / 2, y: 538, fontSize: 9, fill: 'rgba(224,64,251,0.25)' },
+      background: { colors: ['#0f0015', '#2a003d', '#0f0015'] },
+      border: { color: '#E040FB', width: 3, glowColor: 'rgba(224,64,251,0.45)', glowBlur: 28 },
+      playerPhoto: { x: 60, y: 100, width: 280, height: 290 },
+      overall: { x: 28, y: 22, fontSize: 58, fill: '#E040FB' },
+      position: { x: 28, y: 90, fontSize: 17, fill: '#E040FB' },
+      playerName: { x: CARD_W / 2, y: 410, fontSize: 28, fill: '#FFFFFF', width: 340 },
+      teamColorBar: { y: 448, height: 4 },
+      stats: { paddingX: 20, y: 462, rowHeight: 22, valueFontSize: 14, valueColor: '#E040FB', labelFontSize: 9, labelColor: '#CE93D8', cols: 6 },
+      watermark: { x: CARD_W / 2, y: 548, fontSize: 8, fill: 'rgba(255,255,255,0.15)' },
     },
   },
 ];
 
-const MOCK_PLAYER = { name: '김민준', position: 'ST', jersey_number: 10 };
-
-const DEFAULT_STATS = { shooting: 78, passing: 74, speed: 82, dribbling: 76, physical: 70 };
-
+const MOCK_PLAYER = { name: '김민준', position: 'ST', jersey_number: 10, id: 'demo-001' };
+const DEFAULT_STATS = { pac: 80, dri: 75, phy: 72, acc: 78, tac: 68, psy: 70 };
 const STEPS = ['템플릿 선택', '능력치 입력', '카드 완성'];
 
 export default function DemoCardPage() {
@@ -93,10 +75,9 @@ export default function DemoCardPage() {
   const [step, setStep] = useState(0);
   const [template, setTemplate] = useState(TEMPLATES[0]);
   const [stats, setStats] = useState(DEFAULT_STATS);
+  const [showBack, setShowBack] = useState(false);
 
-  const accent = {
-    gold: '#FFD700', toty: '#00E5FF', chrome: '#B0C4DE', legend: '#E040FB',
-  }[template.slug] || '#FFD700';
+  const accent = { gold: '#FFD700', chrome: '#B0C4DE', legend: '#E040FB' }[template.slug] || '#FFD700';
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, color: C.white, fontFamily: ff.body }}>
@@ -108,10 +89,7 @@ export default function DemoCardPage() {
         background: `${C.bg}ee`, backdropFilter: 'blur(12px)',
         borderBottom: `1px solid ${C.border}`,
       }}>
-        <button
-          onClick={() => navigate('/')}
-          style={{ background: 'none', border: 'none', color: C.sub, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 14 }}
-        >
+        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: C.sub, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, fontFamily: 'inherit' }}>
           <ChevronLeft size={16} /> 홈
         </button>
         <div style={{ fontSize: 11, color: C.gold, letterSpacing: 3, fontWeight: 800 }}>⚽ FDL CARD — 데모</div>
@@ -123,9 +101,7 @@ export default function DemoCardPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 40 }}>
           {STEPS.map((label, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-              }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                 <div style={{
                   width: 32, height: 32, borderRadius: '50%',
                   background: i < step ? C.gold : i === step ? `linear-gradient(135deg, ${accent}, ${accent}aa)` : C.card,
@@ -147,19 +123,23 @@ export default function DemoCardPage() {
           ))}
         </div>
 
-        {/* Main layout */}
         <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {/* Live card preview (always visible) */}
-          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-            <div style={{ fontSize: 11, color: C.sub, letterSpacing: 2 }}>실시간 미리보기</div>
-            <CardCanvas
-              ref={canvasRef}
-              template={template}
-              player={MOCK_PLAYER}
-              stats={stats}
-              teamColor={accent}
-              scale={0.65}
-            />
+          {/* Live card preview */}
+          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ fontSize: 11, color: C.sub, letterSpacing: 2 }}>실시간 미리보기</div>
+              <button
+                onClick={() => setShowBack((b) => !b)}
+                style={{ background: 'none', border: `1px solid ${C.border}`, borderRadius: 6, padding: '3px 10px', color: C.sub, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}
+              >
+                <RotateCcw size={11} /> {showBack ? '앞면' : '뒷면'}
+              </button>
+            </div>
+            {showBack ? (
+              <CardBack template={template} player={MOCK_PLAYER} stats={stats} teamColor={accent} scale={0.65} />
+            ) : (
+              <CardCanvas ref={canvasRef} template={template} player={MOCK_PLAYER} stats={stats} teamColor={accent} scale={0.65} />
+            )}
           </div>
 
           {/* Step content */}
@@ -167,11 +147,7 @@ export default function DemoCardPage() {
             {step === 0 && (
               <div>
                 <h2 style={{ margin: '0 0 20px', fontSize: 22, fontWeight: 800 }}>템플릿 선택</h2>
-                <TemplateSelector
-                  templates={TEMPLATES}
-                  selected={template}
-                  onSelect={setTemplate}
-                />
+                <TemplateSelector templates={TEMPLATES} selected={template} onSelect={setTemplate} />
                 <div style={{ marginTop: 24 }}>
                   <Btn style={{ width: '100%' }} onClick={() => setStep(1)}>
                     다음 — 능력치 입력 <ChevronRight size={16} />
@@ -185,12 +161,8 @@ export default function DemoCardPage() {
                 <h2 style={{ margin: '0 0 20px', fontSize: 22, fontWeight: 800 }}>능력치 입력</h2>
                 <StatsInputPanel stats={stats} onChange={setStats} />
                 <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
-                  <Btn variant="ghost" onClick={() => setStep(0)} style={{ flex: 1 }}>
-                    <ChevronLeft size={16} /> 이전
-                  </Btn>
-                  <Btn onClick={() => setStep(2)} style={{ flex: 2 }}>
-                    완성 확인 <ChevronRight size={16} />
-                  </Btn>
+                  <Btn variant="ghost" onClick={() => setStep(0)} style={{ flex: 1 }}><ChevronLeft size={16} /> 이전</Btn>
+                  <Btn onClick={() => setStep(2)} style={{ flex: 2 }}>완성 확인 <ChevronRight size={16} /></Btn>
                 </div>
               </div>
             )}
@@ -198,36 +170,12 @@ export default function DemoCardPage() {
             {step === 2 && (
               <div>
                 <h2 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 800 }}>카드 완성!</h2>
-                <p style={{ color: C.sub, fontSize: 14, marginBottom: 24 }}>
-                  실제 서비스에서는 이 카드를 장바구니에 담고 결제 후 7일 이내 실물 배송됩니다.
-                </p>
+                <p style={{ color: C.sub, fontSize: 14, marginBottom: 24 }}>앞면·뒷면 버튼으로 카드를 확인해보세요. 실제 서비스에서 주문 시 7영업일 이내 실물 배송됩니다.</p>
 
-                {/* Summary */}
+                {/* Pricing summary */}
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: radius.xl, padding: 20, marginBottom: 20 }}>
-                  <div style={{ fontSize: 12, color: C.sub, letterSpacing: 1, marginBottom: 12 }}>선수 정보</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ color: C.sub, fontSize: 14 }}>이름</span>
-                    <span style={{ fontWeight: 700 }}>{MOCK_PLAYER.name}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ color: C.sub, fontSize: 14 }}>포지션</span>
-                    <span style={{ fontWeight: 700 }}>{MOCK_PLAYER.position}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: C.sub, fontSize: 14 }}>템플릿</span>
-                    <span style={{ fontWeight: 700, color: accent }}>{template.name}</span>
-                  </div>
-                </div>
-
-                {/* Pricing */}
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: radius.xl, padding: 20, marginBottom: 24 }}>
-                  <div style={{ fontSize: 12, color: C.sub, letterSpacing: 1, marginBottom: 12 }}>가격 안내</div>
-                  {[
-                    { qty: '1장', price: '6,900원' },
-                    { qty: '5장', price: '24,900원', badge: '인기' },
-                    { qty: '11장', price: '49,900원', badge: 'BEST' },
-                    { qty: '20장', price: '89,000원', badge: '최저가' },
-                  ].map((p) => (
+                  <div style={{ fontSize: 12, color: C.sub, letterSpacing: 1, marginBottom: 12 }}>셀프 서비스 가격</div>
+                  {[{ qty: '1장', price: '6,900원' }, { qty: '5장', price: '24,900원', badge: '인기' }, { qty: '11장', price: '49,900원', badge: 'BEST' }, { qty: '20장', price: '89,000원', badge: '최저가' }].map((p) => (
                     <div key={p.qty} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 15, fontWeight: 700 }}>{p.qty}</span>
@@ -239,16 +187,14 @@ export default function DemoCardPage() {
                 </div>
 
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <Btn variant="ghost" onClick={() => setStep(1)} style={{ flex: 1 }}>
-                    <ChevronLeft size={16} /> 수정
-                  </Btn>
-                  <Btn onClick={() => navigate('/signup')} style={{ flex: 2 }}>
-                    회원가입 후 주문하기
-                  </Btn>
+                  <Btn variant="ghost" onClick={() => setStep(1)} style={{ flex: 1 }}><ChevronLeft size={16} /> 수정</Btn>
+                  <Btn onClick={() => navigate('/signup')} style={{ flex: 2 }}>회원가입 후 주문하기</Btn>
                 </div>
-                <p style={{ textAlign: 'center', fontSize: 12, color: C.gray, marginTop: 12 }}>
-                  데모 페이지입니다 — 실제 주문은 회원가입 후 가능합니다
-                </p>
+                <div style={{ textAlign: 'center', marginTop: 10 }}>
+                  <button onClick={() => navigate('/pricing')} style={{ background: 'none', border: 'none', color: C.gold, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>
+                    원스톱 패키지 가격 보기 →
+                  </button>
+                </div>
               </div>
             )}
           </div>

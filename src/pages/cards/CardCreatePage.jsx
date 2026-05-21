@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Download, Save } from 'lucide-react';
+import { ShoppingCart, Download, Save, RotateCcw } from 'lucide-react';
 import AppShell from '../../components/layout/AppShell';
 import Topbar from '../../components/layout/Topbar';
 import Btn from '../../components/ui/Btn';
 import CardCanvas from '../../components/card/CardCanvas';
+import CardBack from '../../components/card/CardBack';
 import TemplateSelector from '../../components/card/TemplateSelector';
 import StatsInputPanel from '../../components/card/StatsInputPanel';
 import { C, radius } from '../../tokens';
@@ -15,7 +16,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { useIsMd } from '../../lib/utils';
 
-const DEFAULT_STATS = { shooting: 75, passing: 72, speed: 78, dribbling: 73, physical: 71 };
+const DEFAULT_STATS = { pac: 75, dri: 70, phy: 70, acc: 75, tac: 70, psy: 70 };
 const PRICES = { 1: 6900, 5: 24900, 11: 49900, 20: 89000 };
 
 export default function CardCreatePage() {
@@ -33,6 +34,7 @@ export default function CardCreatePage() {
   const [step, setStep] = useState(1); // 1: template, 2: stats, 3: preview
   const [saving, setSaving] = useState(false);
   const [savedCard, setSavedCard] = useState(null);
+  const [showBack, setShowBack] = useState(false);
 
   useEffect(() => {
     Promise.all([getPlayer(playerId), getTemplates()]).then(([p, t]) => {
@@ -190,17 +192,37 @@ export default function CardCreatePage() {
           </div>
 
           {/* Right: card preview */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-            <div style={{ fontSize: 12, color: C.sub, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>실시간 미리보기</div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ fontSize: 12, color: C.sub, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>실시간 미리보기</div>
+              {selectedTemplate && (
+                <button
+                  onClick={() => setShowBack((b) => !b)}
+                  style={{ background: 'none', border: `1px solid ${C.border}`, borderRadius: 6, padding: '3px 10px', color: C.sub, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}
+                >
+                  <RotateCcw size={12} /> {showBack ? '앞면' : '뒷면'}
+                </button>
+              )}
+            </div>
             {selectedTemplate && (
-              <CardCanvas
-                ref={canvasRef}
-                template={selectedTemplate}
-                player={player}
-                stats={stats}
-                teamColor={teamColor}
-                scale={canvasScale}
-              />
+              showBack ? (
+                <CardBack
+                  template={selectedTemplate}
+                  player={player}
+                  stats={stats}
+                  teamColor={teamColor}
+                  scale={canvasScale}
+                />
+              ) : (
+                <CardCanvas
+                  ref={canvasRef}
+                  template={selectedTemplate}
+                  player={player}
+                  stats={stats}
+                  teamColor={teamColor}
+                  scale={canvasScale}
+                />
+              )
             )}
           </div>
         </div>

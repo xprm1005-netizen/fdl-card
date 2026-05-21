@@ -2,7 +2,8 @@ import StatSlider from '../ui/StatSlider';
 import { C, radius } from '../../tokens';
 import { calcOverall } from '../../lib/utils';
 
-const STAT_KEYS = ['shooting', 'passing', 'speed', 'dribbling', 'physical'];
+const STAT_KEYS = ['pac', 'dri', 'phy', 'acc', 'tac', 'psy'];
+const STAT_LABELS = { pac: '스피드', dri: '드리블', phy: '피지컬', acc: '정확도', tac: '전술이해', psy: '멘탈' };
 
 function getOverallColor(val) {
   if (val >= 85) return '#00E676';
@@ -41,7 +42,8 @@ export default function StatsInputPanel({ stats, onChange }) {
           <StatSlider
             key={key}
             statKey={key}
-            value={stats[key] || 70}
+            label={STAT_LABELS[key]}
+            value={stats[key] ?? 70}
             onChange={(val) => setStat(key, val)}
           />
         ))}

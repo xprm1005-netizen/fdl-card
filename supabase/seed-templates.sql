@@ -1,4 +1,4 @@
--- FDL CARD — 4 Card Templates Seed Data
+-- FDL CARD — 3 Card Templates Seed Data (v2: 6 stats)
 -- Run this after schema.sql
 
 INSERT INTO public.card_templates (name, slug, sort_order, config) VALUES
@@ -26,53 +26,19 @@ INSERT INTO public.card_templates (name, slug, sort_order, config) VALUES
   "stats": {
     "y": 462,
     "rowHeight": 22,
-    "labelFontSize": 10,
-    "valueFontSize": 15,
+    "labelFontSize": 9,
+    "valueFontSize": 14,
     "labelColor": "#A0A0A0",
     "valueColor": "#FFD700",
-    "keys": ["SHO","PAS","SPD","DRI","PHY"],
-    "cols": 5,
+    "keys": ["PAC","DRI","PHY","ACC","TAC","PSY"],
+    "cols": 6,
     "paddingX": 20
   },
   "watermark": { "x": 200, "y": 548, "fontSize": 8, "fill": "rgba(255,255,255,0.15)", "align": "center" }
 }'),
 
--- 2. TOTY
-('TOTY', 'toty', 2, '{
-  "width": 400,
-  "height": 560,
-  "background": {
-    "type": "gradient",
-    "colors": ["#00101a", "#003344", "#00101a"],
-    "direction": "vertical"
-  },
-  "border": {
-    "color": "#00E5FF",
-    "width": 3,
-    "glowColor": "rgba(0,229,255,0.4)",
-    "glowBlur": 25
-  },
-  "playerPhoto": { "x": 60, "y": 100, "width": 280, "height": 290 },
-  "overall": { "x": 28, "y": 22, "fontSize": 58, "fill": "#00E5FF", "fontStyle": "bold" },
-  "position": { "x": 28, "y": 90, "fontSize": 17, "fill": "#00E5FF" },
-  "playerName": { "x": 200, "y": 410, "fontSize": 28, "fill": "#FFFFFF", "align": "center", "width": 340 },
-  "teamColorBar": { "y": 448, "height": 4 },
-  "stats": {
-    "y": 462,
-    "rowHeight": 22,
-    "labelFontSize": 10,
-    "valueFontSize": 15,
-    "labelColor": "#80D8FF",
-    "valueColor": "#00E5FF",
-    "keys": ["SHO","PAS","SPD","DRI","PHY"],
-    "cols": 5,
-    "paddingX": 20
-  },
-  "watermark": { "x": 200, "y": 548, "fontSize": 8, "fill": "rgba(255,255,255,0.15)", "align": "center" }
-}'),
-
--- 3. Chrome
-('Chrome', 'chrome', 3, '{
+-- 2. Chrome
+('Chrome', 'chrome', 2, '{
   "width": 400,
   "height": 560,
   "background": {
@@ -94,19 +60,19 @@ INSERT INTO public.card_templates (name, slug, sort_order, config) VALUES
   "stats": {
     "y": 462,
     "rowHeight": 22,
-    "labelFontSize": 10,
-    "valueFontSize": 15,
+    "labelFontSize": 9,
+    "valueFontSize": 14,
     "labelColor": "#8898AA",
     "valueColor": "#B0C4DE",
-    "keys": ["SHO","PAS","SPD","DRI","PHY"],
-    "cols": 5,
+    "keys": ["PAC","DRI","PHY","ACC","TAC","PSY"],
+    "cols": 6,
     "paddingX": 20
   },
   "watermark": { "x": 200, "y": 548, "fontSize": 8, "fill": "rgba(255,255,255,0.15)", "align": "center" }
 }'),
 
--- 4. Legend
-('Legend', 'legend', 4, '{
+-- 3. Legend
+('Legend', 'legend', 3, '{
   "width": 400,
   "height": 560,
   "background": {
@@ -128,12 +94,12 @@ INSERT INTO public.card_templates (name, slug, sort_order, config) VALUES
   "stats": {
     "y": 462,
     "rowHeight": 22,
-    "labelFontSize": 10,
-    "valueFontSize": 15,
+    "labelFontSize": 9,
+    "valueFontSize": 14,
     "labelColor": "#CE93D8",
     "valueColor": "#E040FB",
-    "keys": ["SHO","PAS","SPD","DRI","PHY"],
-    "cols": 5,
+    "keys": ["PAC","DRI","PHY","ACC","TAC","PSY"],
+    "cols": 6,
     "paddingX": 20
   },
   "watermark": { "x": 200, "y": 548, "fontSize": 8, "fill": "rgba(255,255,255,0.15)", "align": "center" }
@@ -142,3 +108,6 @@ INSERT INTO public.card_templates (name, slug, sort_order, config) VALUES
 ON CONFLICT (slug) DO UPDATE SET
   config = EXCLUDED.config,
   sort_order = EXCLUDED.sort_order;
+
+-- Remove TOTY template if exists
+DELETE FROM public.card_templates WHERE slug = 'toty';

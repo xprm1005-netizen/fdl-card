@@ -48,7 +48,7 @@ CREATE TABLE public.player_cards (
   academy_id  UUID NOT NULL REFERENCES public.academies(id) ON DELETE CASCADE,
   player_id   UUID NOT NULL REFERENCES public.players(id) ON DELETE CASCADE,
   template_id UUID NOT NULL REFERENCES public.card_templates(id),
-  stats       JSONB NOT NULL DEFAULT '{"shooting":75,"passing":70,"speed":75,"dribbling":70,"physical":70}',
+  stats       JSONB NOT NULL DEFAULT '{"pac":75,"dri":70,"phy":70,"acc":75,"tac":70,"psy":70}',
   overall     SMALLINT NOT NULL DEFAULT 72,
   preview_url TEXT,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),

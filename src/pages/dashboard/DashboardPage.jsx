@@ -30,7 +30,7 @@ function StatCard({ label, value, icon: Icon, color = C.gold }) {
 
 const QUICK_ACTIONS = [
   { label: '선수 등록', icon: Plus,    color: C.gold,   bg: 'rgba(255,215,0,0.08)',   to: '/players/new' },
-  { label: '카드 만들기', icon: CreditCard, color: C.toty, bg: 'rgba(0,229,255,0.08)', to: '/players' },
+  { label: '팀 일괄 등록', icon: Users, color: C.toty, bg: 'rgba(0,229,255,0.08)', to: '/players/new-team' },
   { label: '랭킹 보기',  icon: Trophy,  color: C.legend, bg: 'rgba(224,64,251,0.08)', to: '/ranking' },
   { label: '주문 조회',  icon: Package, color: C.green,  bg: 'rgba(0,230,118,0.08)',  to: '/orders' },
 ];

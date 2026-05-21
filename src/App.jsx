@@ -29,6 +29,8 @@ const AdminAcademies    = lazy(() => import('./pages/admin/AdminAcademiesPage'))
 const AdminTemplates    = lazy(() => import('./pages/admin/AdminTemplatesPage'));
 const DemoCardPage      = lazy(() => import('./pages/demo/DemoCardPage'));
 const RankingPage       = lazy(() => import('./pages/ranking/RankingPage'));
+const TeamRegisterPage  = lazy(() => import('./pages/players/TeamRegisterPage'));
+const PricingPage       = lazy(() => import('./pages/pricing/PricingPage'));
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@fdlcard.com';
 
@@ -116,7 +118,9 @@ export default function App() {
           <Route path="/admin/templates" element={<AdminRoute><AdminTemplates /></AdminRoute>} />
 
           <Route path="/demo" element={<DemoCardPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/ranking" element={<Protected><RankingPage /></Protected>} />
+          <Route path="/players/new-team" element={<Protected><TeamRegisterPage /></Protected>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

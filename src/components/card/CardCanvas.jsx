@@ -3,7 +3,7 @@ import { Stage, Layer, Rect, Text, Image, Line } from 'react-konva';
 import useImage from 'use-image';
 import { calcOverall } from '../../lib/utils';
 
-const STAT_SHORT = { shooting: 'SHO', passing: 'PAS', speed: 'SPD', dribbling: 'DRI', physical: 'PHY' };
+const STAT_SHORT = { pac: 'PAC', dri: 'DRI', phy: 'PHY', acc: 'ACC', tac: 'TAC', psy: 'PSY' };
 
 function GradientRect({ x, y, width, height, colors }) {
   const ref = useRef(null);
@@ -40,8 +40,9 @@ function PlayerImage({ src, cfg }) {
 }
 
 function StatsRow({ cfg, stats, teamColor }) {
-  const keys = ['shooting', 'passing', 'speed', 'dribbling', 'physical'];
-  const colW = (400 - cfg.paddingX * 2) / 5;
+  const keys = ['pac', 'dri', 'phy', 'acc', 'tac', 'psy'];
+  const cols = cfg.cols || 6;
+  const colW = (400 - cfg.paddingX * 2) / cols;
 
   return keys.map((key, i) => {
     const x = cfg.paddingX + colW * i + colW / 2;
@@ -163,8 +164,8 @@ const CardCanvas = forwardRef(function CardCanvas({ template, player, stats, tea
           <StatsRow cfg={cfg.stats} stats={stats} teamColor={teamColor} />
 
           {/* Separator lines between stats */}
-          {[1, 2, 3, 4].map((i) => {
-            const colW = (cfg.width - cfg.stats.paddingX * 2) / 5;
+          {[1, 2, 3, 4, 5].map((i) => {
+            const colW = (cfg.width - cfg.stats.paddingX * 2) / (cfg.stats.cols || 6);
             const x = cfg.stats.paddingX + colW * i;
             return (
               <Line
