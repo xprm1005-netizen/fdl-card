@@ -1,45 +1,116 @@
 import { useRef, forwardRef, useImperativeHandle } from 'react';
-import { Stage, Layer, Rect, Text, Image, Line, Circle } from 'react-konva';
+import { Stage, Layer, Rect, Text, Image, Line, Circle, Group } from 'react-konva';
 import useImage from 'use-image';
 import { calcOverall } from '../../lib/utils';
 
-const STAT_SHORT = { pac: 'PAC', dri: 'DRI', phy: 'PHY', acc: 'ACC', tac: 'TAC', psy: 'PSY' };
 const PLACEHOLDER_URL = '/player-placeholder.svg';
+const FDL_LOGO_URL = '/brand/fdl-logo.png';
+const BLACK = '#070807';
+const WHITE = '#F8FAF4';
 
-function BgGradient({ width, height, colors }) {
-  const stops = colors.flatMap((c, i) => [i / (colors.length - 1), c]);
-  return (
-    <Rect
-      x={0} y={0} width={width} height={height}
-      fillLinearGradientStartPoint={{ x: 0, y: 0 }}
-      fillLinearGradientEndPoint={{ x: 0, y: height }}
-      fillLinearGradientColorStops={stops}
-    />
-  );
+const VARIANTS = {
+  gold: {
+    title: ['THE', 'SPEED', 'STAR'],
+    accent: '#62FF7E',
+    panel: '#62FF7E',
+    paper: '#F1F3ED',
+    photoA: '#EBEEE8',
+    photoB: '#C7CCC6',
+    photoC: '#F2F4EF',
+    marker: '#203E2A',
+    label: '#31402D',
+    glow: 'rgba(98,255,126,0.16)',
+  },
+  chrome: {
+    title: ['THE', 'PLAY', 'MAKER'],
+    accent: '#DCE7EF',
+    panel: '#DCE7EF',
+    paper: '#F4F7F8',
+    photoA: '#EEF3F4',
+    photoB: '#B8C4CA',
+    photoC: '#F6FAFB',
+    marker: '#26343A',
+    label: '#334048',
+    glow: 'rgba(220,231,239,0.16)',
+  },
+  legend: {
+    title: ['THE', 'TEAM', 'LEADER'],
+    accent: '#C77DFF',
+    panel: '#C77DFF',
+    paper: '#F5EFFA',
+    photoA: '#F3EAF9',
+    photoB: '#CDB7DD',
+    photoC: '#FAF6FD',
+    marker: '#35213E',
+    label: '#43294D',
+    glow: 'rgba(199,125,255,0.2)',
+  },
+  rising: {
+    title: ['RISING', 'PRO', 'CARD'],
+    accent: '#BFFF35',
+    panel: '#BFFF35',
+    paper: '#F3F8E7',
+    photoA: '#F4F8EA',
+    photoB: '#D2E2A8',
+    photoC: '#FAFDF2',
+    marker: '#334410',
+    label: '#34420F',
+    glow: 'rgba(191,255,53,0.28)',
+  },
+  matchday: {
+    title: ['MATCH', 'DAY', 'HERO'],
+    accent: '#31E6C5',
+    panel: '#31E6C5',
+    paper: '#EAF8F5',
+    photoA: '#ECF8F5',
+    photoB: '#9FD8CD',
+    photoC: '#F6FFFC',
+    marker: '#0E4138',
+    label: '#0C443A',
+    glow: 'rgba(49,230,197,0.24)',
+  },
+};
+
+function getVariant(slug) {
+  return VARIANTS[slug] || VARIANTS.gold;
 }
 
-function PlayerPhoto({ src, cfg }) {
-  const effectiveSrc = src || PLACEHOLDER_URL;
-  const [img] = useImage(effectiveSrc, 'anonymous');
-  if (!img) return null;
+function PlayerPhoto({ src, x, y, width, height }) {
+  const [img] = useImage(src || PLACEHOLDER_URL, 'anonymous');
+  if (!img) {
+    return (
+      <Rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill="#D7DBD2"
+      />
+    );
+  }
+
+  const ratio = img.width / img.height;
+  const boxRatio = width / height;
+  const drawW = ratio > boxRatio ? width : height * ratio;
+  const drawH = ratio > boxRatio ? width / ratio : height;
+
   return (
     <Image
       image={img}
-      x={cfg.x}
-      y={cfg.y}
-      width={cfg.width}
-      height={cfg.height}
-      shadowColor="rgba(0,0,0,0.4)"
-      shadowBlur={12}
-      shadowOpacity={0.6}
-      shadowOffsetY={4}
+      x={x + (width - drawW) / 2}
+      y={y + height - drawH}
+      width={drawW}
+      height={drawH}
+      shadowColor="rgba(0,0,0,0.24)"
+      shadowBlur={10}
+      shadowOpacity={0.45}
+      shadowOffsetY={5}
     />
   );
 }
 
-function AcademyLogo({ academy, x, y, size, accentColor }) {
+function AcademyMark({ academy, x, y, size }) {
   const [img, status] = useImage(academy?.logo_url || '', 'anonymous');
-
   if (academy?.logo_url && status === 'loaded' && img) {
     return (
       <Image
@@ -54,91 +125,88 @@ function AcademyLogo({ academy, x, y, size, accentColor }) {
   }
 
   return (
-    <>
-      <Rect
-        x={x} y={y} width={size} height={size}
-        fill={`${accentColor}1A`}
-        stroke={`${accentColor}4D`}
-        strokeWidth={1.5}
-        cornerRadius={8}
+    <Group x={x} y={y}>
+      <Rect width={size} height={size} fill={WHITE} cornerRadius={8} />
+      <Circle x={size * 0.5} y={size * 0.34} radius={size * 0.22} fill="#2B65C9" opacity={0.9} />
+      <Circle x={size * 0.34} y={size * 0.52} radius={size * 0.16} fill="#53B47A" opacity={0.95} />
+      <Circle x={size * 0.64} y={size * 0.58} radius={size * 0.12} fill="#79D0FF" opacity={0.95} />
+      <Text
+        text="FOOTBALL"
+        x={2}
+        y={size - 22}
+        width={size - 4}
+        align="center"
+        fontSize={7}
+        fontFamily="Arial"
+        fontStyle="bold"
+        fill="#295A7C"
       />
       <Text
-        text="F"
-        x={x} y={y + Math.round(size * 0.12)}
-        width={size} align="center"
-        fontSize={Math.round(size * 0.58)}
-        fontFamily="'Bebas Neue', Impact, sans-serif"
-        fill={accentColor}
-        opacity={0.65}
+        text="DATALAB"
+        x={2}
+        y={size - 13}
+        width={size - 4}
+        align="center"
+        fontSize={7}
+        fontFamily="Arial"
+        fontStyle="bold"
+        fill="#2D2F32"
       />
-    </>
+    </Group>
   );
 }
 
-function Decorations({ decorations }) {
-  if (!decorations?.length) return null;
-  return decorations.map((d, i) => {
-    if (d.type === 'rect') {
-      return (
-        <Rect
-          key={i}
-          x={d.x} y={d.y}
-          width={d.width} height={d.height}
-          fill={d.fill}
-          rotation={d.rotation || 0}
-        />
-      );
-    }
-    if (d.type === 'circle') {
-      return <Circle key={i} x={d.x} y={d.y} radius={d.radius} fill={d.fill} />;
-    }
-    if (d.type === 'line') {
-      return (
-        <Line
-          key={i}
-          points={d.points}
-          stroke={d.stroke}
-          strokeWidth={d.strokeWidth || 1}
-        />
-      );
-    }
-    return null;
-  });
+function FdlLogo({ x, y, width, height }) {
+  const [img] = useImage(FDL_LOGO_URL, 'anonymous');
+  if (!img) {
+    return (
+      <Text text="FDL" x={x} y={y} width={width} align="center" fontSize={24} fontFamily="'Bebas Neue', Impact, sans-serif" letterSpacing={4} fill={BLACK} />
+    );
+  }
+
+  return (
+    <Image
+      image={img}
+      x={x}
+      y={y}
+      width={width}
+      height={height}
+      crop={{ x: 300, y: 365, width: 680, height: 285 }}
+    />
+  );
 }
 
-function StatsRow({ cfg, stats }) {
-  const keys = ['pac', 'dri', 'phy', 'acc', 'tac', 'psy'];
-  const cols = cfg.cols || 6;
-  const colW = (400 - cfg.paddingX * 2) / cols;
-
-  return keys.map((key, i) => {
-    const cx = cfg.paddingX + colW * i + colW / 2;
-    return [
+function StatCell({ x, y, label, value, labelColor }) {
+  return (
+    <Group x={x} y={y}>
       <Text
-        key={`val-${key}`}
-        text={String(stats[key] || 0)}
-        x={cx - 22} y={cfg.y}
-        width={44} align="center"
-        fontSize={cfg.valueFontSize}
+        text={String(value ?? 0)}
+        x={0}
+        y={0}
+        width={44}
+        align="center"
+        fontSize={25}
         fontFamily="'Bebas Neue', Impact, sans-serif"
         fontStyle="bold"
-        fill={cfg.valueColor}
-      />,
+        fill={BLACK}
+      />
       <Text
-        key={`lbl-${key}`}
-        text={STAT_SHORT[key]}
-        x={cx - 22} y={cfg.y + cfg.rowHeight}
-        width={44} align="center"
-        fontSize={cfg.labelFontSize}
+        text={label}
+        x={0}
+        y={27}
+        width={44}
+        align="center"
+        fontSize={10}
         fontFamily="Arial"
-        fill={cfg.labelColor}
-      />,
-    ];
-  });
+        fontStyle="bold"
+        fill={labelColor}
+      />
+    </Group>
+  );
 }
 
 const CardCanvas = forwardRef(function CardCanvas(
-  { template, player, stats, academy, teamColor, scale = 1 },
+  { template, player, stats, academy, scale = 1 },
   ref,
 ) {
   const stageRef = useRef(null);
@@ -150,19 +218,14 @@ const CardCanvas = forwardRef(function CardCanvas(
   if (!template?.config) return null;
 
   const cfg = template.config;
-  const overall = calcOverall(stats);
-  const photoSrc = player?.photo_bg_removed_url || player?.photo_url || null;
-  const accentColor = cfg.border?.color || '#FFD700';
   const W = cfg.width;
   const H = cfg.height;
-
-  // Derived positions
-  const ph = cfg.playerPhoto;
-  const jerseyX = ph.x + ph.width - 42;
-  const jerseyY = ph.y + ph.height - 28;
-  const logoX = W - 14 - 66;
-  const logoY = 14;
-  const nameBarY = cfg.playerName.y - 8;
+  const variant = getVariant(template.slug);
+  const overall = calcOverall(stats);
+  const photoSrc = player?.photo_bg_removed_url || player?.photo_url || null;
+  const position = player?.position || 'CB';
+  const playerName = player?.name || '손흥민';
+  const academyName = academy?.name || 'ABCDE FG CLUB';
 
   return (
     <div style={{ transform: `scale(${scale})`, transformOrigin: 'top center', display: 'inline-block' }}>
@@ -171,149 +234,137 @@ const CardCanvas = forwardRef(function CardCanvas(
         width={W}
         height={H}
         style={{
-          borderRadius: 16,
+          borderRadius: 22,
           overflow: 'hidden',
-          boxShadow: `0 0 48px ${cfg.border?.glowColor || 'rgba(255,215,0,0.3)'}`,
+          boxShadow: `0 22px 60px rgba(0,0,0,0.65), 0 0 36px ${variant.glow}`,
         }}
       >
         <Layer>
-          {/* Background gradient */}
-          <BgGradient width={W} height={H} colors={cfg.background.colors} />
+          {/* outer black body */}
+          <Rect x={0} y={0} width={W} height={H} fill={BLACK} cornerRadius={24} />
+          <Rect x={11} y={11} width={W - 22} height={H - 22} fill={variant.paper} cornerRadius={12} />
 
-          {/* Template decorations (behind player) */}
-          <Decorations decorations={cfg.decorations} />
-
-          {/* Border glow */}
+          {/* subtle photo background */}
           <Rect
-            x={0} y={0} width={W} height={H}
-            stroke={cfg.border.color}
-            strokeWidth={cfg.border.width}
-            shadowColor={cfg.border.glowColor}
-            shadowBlur={cfg.border.glowBlur}
-            cornerRadius={16}
+            x={11}
+            y={72}
+            width={W - 22}
+            height={H - 168}
+            fillLinearGradientStartPoint={{ x: 0, y: 72 }}
+            fillLinearGradientEndPoint={{ x: W, y: H - 168 }}
+            fillLinearGradientColorStops={[0, variant.photoA, 0.5, variant.photoB, 1, variant.photoC]}
           />
+          <Line points={[40, 78, 212, 340]} stroke="rgba(255,255,255,0.45)" strokeWidth={20} />
+          <Line points={[116, 78, 288, 340]} stroke="rgba(255,255,255,0.35)" strokeWidth={12} />
+          <Line points={[260, 80, 120, 330]} stroke="rgba(0,0,0,0.05)" strokeWidth={28} />
 
-          {/* Top watermark */}
+          {/* top lime title band */}
+          <Rect x={11} y={35} width={W - 22} height={96} fill={variant.accent} cornerRadius={[10, 10, 0, 0]} />
           <Text
-            text="FDL CARD"
-            x={0} y={5} width={W} align="center"
-            fontSize={8} fontFamily="Arial"
-            fill="rgba(255,255,255,0.10)"
-            letterSpacing={4}
+            text={variant.title[0]}
+            x={28}
+            y={54}
+            fontSize={24}
+            fontFamily="'Bebas Neue', Impact, sans-serif"
+            fontStyle="bold"
+            fill={BLACK}
           />
-
-          {/* OVR number */}
+          <Text
+            text={variant.title[1]}
+            x={28}
+            y={77}
+            fontSize={24}
+            fontFamily="'Bebas Neue', Impact, sans-serif"
+            fontStyle="bold"
+            fill={BLACK}
+          />
+          <Text
+            text={variant.title[2]}
+            x={28}
+            y={100}
+            fontSize={24}
+            fontFamily="'Bebas Neue', Impact, sans-serif"
+            fontStyle="bold"
+            fill={BLACK}
+          />
           <Text
             text={String(overall)}
-            x={cfg.overall.x} y={cfg.overall.y}
-            fontSize={cfg.overall.fontSize}
+            x={208}
+            y={39}
+            width={102}
+            align="right"
+            fontSize={74}
             fontFamily="'Bebas Neue', Impact, sans-serif"
             fontStyle="bold"
-            fill={cfg.overall.fill}
-            shadowColor={cfg.overall.fill}
-            shadowBlur={16}
-            shadowOpacity={0.45}
+            fill={BLACK}
           />
-          {/* OVR label */}
           <Text
-            text="OVR"
-            x={cfg.overall.x}
-            y={cfg.overall.y + cfg.overall.fontSize - 10}
-            fontSize={10}
+            text={position}
+            x={317}
+            y={81}
+            width={50}
+            fontSize={18}
+            fontFamily="'Bebas Neue', Impact, sans-serif"
+            fill={BLACK}
+          />
+
+          {/* player photo */}
+          <PlayerPhoto src={photoSrc} x={42} y={108} width={288} height={270} />
+
+          {/* lower white identity strip */}
+          <Rect x={11} y={365} width={W - 22} height={78} fill={WHITE} />
+          <AcademyMark academy={academy} x={32} y={376} size={64} />
+          <Text
+            text={academyName.toUpperCase()}
+            x={113}
+            y={380}
+            fontSize={9}
             fontFamily="Arial"
-            fill={`${accentColor}80`}
-            letterSpacing={2}
-          />
-
-          {/* Position */}
-          <Text
-            text={player?.position || 'ST'}
-            x={cfg.position.x} y={cfg.position.y}
-            fontSize={cfg.position.fontSize}
-            fontFamily="'Bebas Neue', Impact, sans-serif"
-            fill={cfg.position.fill}
-            letterSpacing={2}
-          />
-
-          {/* Top band divider */}
-          <Line
-            points={[0, 100, W, 100]}
-            stroke="rgba(255,255,255,0.06)"
-            strokeWidth={1}
-          />
-
-          {/* Academy logo (top-right) */}
-          <AcademyLogo
-            academy={academy}
-            x={logoX} y={logoY}
-            size={66}
-            accentColor={accentColor}
-          />
-
-          {/* Player photo or placeholder */}
-          <PlayerPhoto src={photoSrc} cfg={ph} />
-
-          {/* Jersey number badge */}
-          <Rect
-            x={jerseyX} y={jerseyY}
-            width={40} height={22}
-            fill={`${accentColor}CC`}
-            cornerRadius={4}
-          />
-          <Text
-            text={`#${player?.jersey_number || '0'}`}
-            x={jerseyX} y={jerseyY + 4}
-            width={40} align="center"
-            fontSize={12}
-            fontFamily="'Bebas Neue', Impact, sans-serif"
             fontStyle="bold"
-            fill="#000000"
+            fill="#4C4C4C"
           />
-
-          {/* Name bar background */}
-          <Rect
-            x={0} y={nameBarY}
-            width={W} height={46}
-            fill="rgba(0,0,0,0.62)"
-          />
-
-          {/* Player name */}
           <Text
-            text={(player?.name || 'PLAYER').toUpperCase()}
-            x={cfg.playerName.x - (cfg.playerName.width || 340) / 2}
-            y={cfg.playerName.y}
-            width={cfg.playerName.width || 340}
-            align="center"
-            fontSize={cfg.playerName.fontSize}
-            fontFamily="'Bebas Neue', Impact, sans-serif"
-            fill={cfg.playerName.fill}
-            letterSpacing={2}
+            text={playerName}
+            x={111}
+            y={395}
+            width={178}
+            fontSize={24}
+            fontFamily="'Pretendard Variable', 'Pretendard', Arial, sans-serif"
+            fontStyle="900"
+            fill={BLACK}
           />
-
-          {/* Team color accent bar */}
-          <Rect
-            x={0} y={cfg.teamColorBar.y}
-            width={W} height={cfg.teamColorBar.height}
-            fill={teamColor || accentColor}
-            opacity={0.9}
+          <Text
+            text={playerName}
+            x={235}
+            y={414}
+            width={80}
+            fontSize={8}
+            fontFamily="Arial"
+            fill="#595959"
           />
+          <Rect x={327} y={382} width={45} height={52} fill="#EEF1EA" cornerRadius={7} />
+          <Text text="AGE" x={327} y={390} width={45} align="center" fontSize={9} fontFamily="Arial" fontStyle="bold" fill={BLACK} />
+          <Text text={String(player?.age || '10')} x={327} y={403} width={45} align="center" fontSize={24} fontFamily="'Bebas Neue', Impact, sans-serif" fontStyle="bold" fill={BLACK} />
 
-          {/* Stats */}
-          <StatsRow cfg={cfg.stats} stats={stats} />
+          {/* stats panel */}
+          <Rect x={11} y={443} width={W - 22} height={102} fill={variant.panel} cornerRadius={[0, 0, 12, 12]} />
+          <Circle x={34} y={464} radius={11} fill={variant.marker} opacity={0.9} />
+          <Text text="MY STATS" x={51} y={456} fontSize={9} fontFamily="Arial" fontStyle="bold" fill={BLACK} />
+          <Text text="150cm · 45kg · 9" x={51} y={468} fontSize={8} fontFamily="Arial" fill={variant.label} />
+          <FdlLogo x={26} y={502} width={82} height={42} />
 
-          {/* Stat column separators */}
-          {[1, 2, 3, 4, 5].map((i) => {
-            const cW = (W - cfg.stats.paddingX * 2) / (cfg.stats.cols || 6);
-            const sx = cfg.stats.paddingX + cW * i;
-            return (
-              <Line
-                key={i}
-                points={[sx, cfg.stats.y - 6, sx, cfg.stats.y + cfg.stats.rowHeight + cfg.stats.labelFontSize + 4]}
-                stroke="rgba(255,255,255,0.07)"
-                strokeWidth={1}
-              />
-            );
-          })}
+          <StatCell x={128} y={458} label="PAC" value={stats?.pac} labelColor={variant.label} />
+          <StatCell x={183} y={458} label="DRI" value={stats?.dri} labelColor={variant.label} />
+          <StatCell x={238} y={458} label="PHY" value={stats?.phy} labelColor={variant.label} />
+          <StatCell x={128} y={507} label="ACC" value={stats?.acc} labelColor={variant.label} />
+          <StatCell x={183} y={507} label="TACT" value={stats?.tac} labelColor={variant.label} />
+          <StatCell x={238} y={507} label="PSYCH" value={stats?.psy} labelColor={variant.label} />
+
+          <Text text="©FDL" x={0} y={535} width={W} align="center" fontSize={7} fontFamily="Arial" fill="#344432" />
+
+          {/* glass and inner outline */}
+          <Rect x={11} y={11} width={W - 22} height={H - 22} stroke="rgba(0,0,0,0.22)" strokeWidth={1} cornerRadius={12} />
+          <Rect x={0} y={0} width={W} height={H} stroke="#1F221F" strokeWidth={12} cornerRadius={24} />
         </Layer>
       </Stage>
     </div>

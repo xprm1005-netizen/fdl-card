@@ -20,10 +20,20 @@ export async function getPlayer(id) {
   return data;
 }
 
-export async function createPlayer({ academyId, name, position, jerseyNumber }) {
+export async function createPlayer({ academyId, name, position, jerseyNumber, age }) {
+  const payload = {
+    academy_id: academyId,
+    name,
+    position,
+    jersey_number: jerseyNumber,
+  };
+  if (age !== undefined && age !== null && age !== '') {
+    payload.age = Number(age);
+  }
+
   const { data, error } = await supabase
     .from('players')
-    .insert({ academy_id: academyId, name, position, jersey_number: jerseyNumber })
+    .insert(payload)
     .select()
     .single();
   if (error) throw error;

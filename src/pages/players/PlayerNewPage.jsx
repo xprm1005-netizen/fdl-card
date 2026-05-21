@@ -9,14 +9,13 @@ import BgRemovalStatus from '../../components/player/BgRemovalStatus';
 import { C, radius } from '../../tokens';
 import { useAuthStore } from '../../store/authStore';
 import { createPlayer, uploadPlayerPhoto } from '../../services/players.service';
-import { supabase } from '../../lib/supabase';
 
 const POSITIONS = ['GK','CB','LB','RB','CDM','CM','CAM','LW','RW','CF','ST'];
 
 export default function PlayerNewPage() {
   const { academy } = useAuthStore();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', position: 'ST', jerseyNumber: '' });
+  const [form, setForm] = useState({ name: '', position: 'ST', jerseyNumber: '', age: '' });
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
   const [bgStatus, setBgStatus] = useState('none');
@@ -44,6 +43,7 @@ export default function PlayerNewPage() {
         name: form.name,
         position: form.position,
         jerseyNumber: Number(form.jerseyNumber),
+        age: form.age ? Number(form.age) : null,
       });
       setPlayerId(player.id);
 
@@ -106,7 +106,7 @@ export default function PlayerNewPage() {
 
           <Input label="선수 이름 *" placeholder="홍길동" value={form.name} onChange={(e) => set('name', e.target.value)} />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
             <Select label="포지션 *" value={form.position} onChange={(e) => set('position', e.target.value)}>
               {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
             </Select>
@@ -117,6 +117,14 @@ export default function PlayerNewPage() {
               placeholder="10"
               value={form.jerseyNumber}
               onChange={(e) => set('jerseyNumber', e.target.value)}
+            />
+            <Input
+              label="나이"
+              type="number"
+              min={4} max={30}
+              placeholder="10"
+              value={form.age}
+              onChange={(e) => set('age', e.target.value)}
             />
           </div>
 

@@ -4,7 +4,6 @@ import { Users, ChevronRight, CheckCircle, Plus, Trash2 } from 'lucide-react';
 import AppShell from '../../components/layout/AppShell';
 import Topbar from '../../components/layout/Topbar';
 import Btn from '../../components/ui/Btn';
-import Input from '../../components/ui/Input';
 import { C, ff, radius } from '../../tokens';
 import { useAuthStore } from '../../store/authStore';
 import { createPlayer } from '../../services/players.service';
@@ -13,7 +12,7 @@ const POSITIONS = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'CF',
 const PRESET_SIZES = [5, 11, 15, 20];
 
 function makePlayer(idx) {
-  return { name: '', position: 'ST', jersey_number: String(idx + 1) };
+  return { name: '', position: 'ST', jersey_number: String(idx + 1), age: '' };
 }
 
 export default function TeamRegisterPage() {
@@ -67,6 +66,7 @@ export default function TeamRegisterPage() {
             name: p.name.trim(),
             position: p.position,
             jerseyNumber: Number(p.jersey_number),
+            age: p.age ? Number(p.age) : null,
           })
         )
       );
@@ -150,17 +150,18 @@ export default function TeamRegisterPage() {
             </div>
 
             {/* Column headers */}
-            <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 100px 70px 32px', gap: 8, marginBottom: 8, padding: '0 4px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr 88px 64px 60px 32px', gap: 8, marginBottom: 8, padding: '0 4px' }}>
               <div style={{ fontSize: 11, color: C.gray }}>#</div>
               <div style={{ fontSize: 11, color: C.gray }}>이름 *</div>
               <div style={{ fontSize: 11, color: C.gray }}>포지션</div>
               <div style={{ fontSize: 11, color: C.gray }}>등번호 *</div>
+              <div style={{ fontSize: 11, color: C.gray }}>나이</div>
               <div />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
               {players.map((p, idx) => (
-                <div key={idx} style={{ display: 'grid', gridTemplateColumns: '28px 1fr 100px 70px 32px', gap: 8, alignItems: 'center' }}>
+                <div key={idx} style={{ display: 'grid', gridTemplateColumns: '28px 1fr 88px 64px 60px 32px', gap: 8, alignItems: 'center' }}>
                   <div style={{ fontSize: 12, color: C.gray, textAlign: 'center' }}>{idx + 1}</div>
                   <input
                     value={p.name}
@@ -191,6 +192,19 @@ export default function TeamRegisterPage() {
                     value={p.jersey_number}
                     onChange={(e) => updatePlayer(idx, 'jersey_number', e.target.value)}
                     placeholder="#"
+                    style={{
+                      background: C.surface, border: `1px solid ${C.border}`,
+                      borderRadius: radius.md, padding: '9px 10px',
+                      color: C.white, fontSize: 14, fontFamily: 'inherit',
+                      outline: 'none', width: '100%', boxSizing: 'border-box', textAlign: 'center',
+                    }}
+                  />
+                  <input
+                    type="number"
+                    min={4} max={30}
+                    value={p.age}
+                    onChange={(e) => updatePlayer(idx, 'age', e.target.value)}
+                    placeholder="10"
                     style={{
                       background: C.surface, border: `1px solid ${C.border}`,
                       borderRadius: radius.md, padding: '9px 10px',

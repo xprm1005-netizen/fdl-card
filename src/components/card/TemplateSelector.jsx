@@ -1,11 +1,11 @@
 import { C, radius } from '../../tokens';
 
 const TEMPLATE_COLORS = {
-  gold:   { accent: '#FFD700', glow: 'rgba(255,215,0,0.3)' },
-  chrome: { accent: '#B0C4DE', glow: 'rgba(176,196,222,0.2)' },
-  legend: { accent: '#E040FB', glow: 'rgba(224,64,251,0.3)' },
-  fire:   { accent: '#FF4500', glow: 'rgba(255,69,0,0.4)' },
-  ice:    { accent: '#00CFFF', glow: 'rgba(0,207,255,0.35)' },
+  gold:     { accent: '#62FF7E', glow: 'rgba(98,255,126,0.28)', title: ['THE', 'SPEED', 'STAR'] },
+  chrome:   { accent: '#DCE7EF', glow: 'rgba(220,231,239,0.22)', title: ['THE', 'PLAY', 'MAKER'] },
+  legend:   { accent: '#C77DFF', glow: 'rgba(199,125,255,0.30)', title: ['THE', 'TEAM', 'LEADER'] },
+  rising:   { accent: '#BFFF35', glow: 'rgba(191,255,53,0.36)', title: ['RISING', 'PRO', 'CARD'] },
+  matchday: { accent: '#31E6C5', glow: 'rgba(49,230,197,0.32)', title: ['MATCH', 'DAY', 'HERO'] },
 };
 
 export default function TemplateSelector({ templates, selected, onSelect, onPremiumClick }) {
@@ -69,19 +69,43 @@ export default function TemplateSelector({ templates, selected, onSelect, onPrem
             ) : (
               <div style={{
                 width: '100%', aspectRatio: '400/560',
-                background: `linear-gradient(160deg, ${tc.accent}20, transparent)`,
+                background: '#070807',
                 borderRadius: 8, marginBottom: 10,
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
-                border: `1px solid ${tc.accent}30`,
+                display: 'flex', flexDirection: 'column',
+                border: `1px solid ${tc.accent}50`,
+                overflow: 'hidden',
+                boxShadow: `inset 0 0 0 5px #1f221f`,
               }}>
-                <span style={{
-                  fontSize: 28, fontFamily: "'Bebas Neue', Impact, sans-serif",
-                  color: tc.accent, opacity: 0.75, letterSpacing: 2,
+                <div style={{
+                  margin: '11px 9px 0',
+                  height: '23%',
+                  background: tc.accent,
+                  borderRadius: '4px 4px 0 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0 10px',
+                  color: '#070807',
                 }}>
-                  {t.name.toUpperCase()}
-                </span>
+                  <div style={{ fontFamily: "'Bebas Neue', Impact, sans-serif", fontSize: 17, lineHeight: 0.86, textAlign: 'left' }}>
+                    {(tc.title || [t.name]).map((line) => <div key={line}>{line}</div>)}
+                  </div>
+                  <div style={{ fontFamily: "'Bebas Neue', Impact, sans-serif", fontSize: 34, fontWeight: 900 }}>70</div>
+                </div>
+                <div style={{
+                  margin: '0 9px',
+                  flex: 1,
+                  background: `linear-gradient(135deg, #eff2ed, ${tc.accent}18 45%, #c9cec7)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <div style={{ width: '42%', height: '68%', borderRadius: 999, background: `${tc.accent}38`, filter: 'blur(1px)' }} />
+                </div>
+                <div style={{ margin: '0 9px', height: '14%', background: '#F8FAF4' }} />
+                <div style={{ margin: '0 9px 10px', height: '19%', background: tc.accent, borderRadius: '0 0 4px 4px' }} />
                 {isPremium && (
-                  <span style={{ fontSize: 11, color: tc.accent, opacity: 0.6 }}>
+                  <span style={{ position: 'absolute', left: 26, bottom: 63, fontSize: 10, color: '#070807', opacity: 0.65, fontWeight: 900 }}>
                     {(t.price / 1000).toLocaleString()}원~
                   </span>
                 )}

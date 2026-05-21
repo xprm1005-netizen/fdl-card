@@ -21,6 +21,7 @@ CREATE TABLE public.players (
   name                 TEXT NOT NULL,
   position             TEXT NOT NULL CHECK (position IN ('GK','CB','LB','RB','CDM','CM','CAM','LW','RW','ST','CF')),
   jersey_number        SMALLINT NOT NULL CHECK (jersey_number BETWEEN 1 AND 99),
+  age                  SMALLINT CHECK (age BETWEEN 4 AND 30),
   photo_url            TEXT,
   photo_bg_removed_url TEXT,
   bg_removal_status    TEXT NOT NULL DEFAULT 'none'

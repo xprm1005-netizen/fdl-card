@@ -13,7 +13,7 @@ const H = 560;
 
 function makeBase(slug, colors, borderColor, glowColor, glowBlur, accentColor, labelColor, extra = {}) {
   return {
-    id: slug, slug, name: slug.charAt(0).toUpperCase() + slug.slice(1),
+    id: slug, slug, name: extra.name || slug.charAt(0).toUpperCase() + slug.slice(1),
     is_premium: extra.is_premium || false,
     price: extra.price || 0,
     config: {
@@ -39,9 +39,9 @@ function makeBase(slug, colors, borderColor, glowColor, glowBlur, accentColor, l
 const TEMPLATES = [
   makeBase(
     'gold',
-    ['#140c00', '#3a2000', '#140c00'],
-    '#FFD700', 'rgba(255,215,0,0.42)', 22,
-    '#FFD700', '#A08040',
+    ['#071008', '#12351E', '#071008'],
+    '#62FF7E', 'rgba(98,255,126,0.42)', 22,
+    '#62FF7E', '#31402D',
     {
       decorations: [
         { type: 'rect', x: 210, y: -60, width: 320, height: 150, fill: 'rgba(255,215,0,0.05)', rotation: -32 },
@@ -51,9 +51,9 @@ const TEMPLATES = [
   ),
   makeBase(
     'chrome',
-    ['#080c10', '#141e2a', '#0a1018'],
-    '#B0C4DE', 'rgba(176,196,222,0.3)', 22,
-    '#B0C4DE', '#708090',
+    ['#080c10', '#20282D', '#0a1018'],
+    '#DCE7EF', 'rgba(220,231,239,0.3)', 22,
+    '#DCE7EF', '#708090',
     {
       nameFill: '#E8EDF2',
       decorations: [
@@ -66,9 +66,9 @@ const TEMPLATES = [
   ),
   makeBase(
     'legend',
-    ['#0c0014', '#220038', '#0c0014'],
-    '#E040FB', 'rgba(224,64,251,0.48)', 30,
-    '#E040FB', '#CE93D8',
+    ['#0c0014', '#2A1435', '#0c0014'],
+    '#C77DFF', 'rgba(199,125,255,0.48)', 30,
+    '#C77DFF', '#CE93D8',
     {
       decorations: [
         { type: 'circle', x: 50, y: 480, radius: 90, fill: 'rgba(224,64,251,0.04)' },
@@ -77,46 +77,45 @@ const TEMPLATES = [
     },
   ),
   makeBase(
-    'fire',
-    ['#0d0000', '#3a0600', '#8a1800', '#200000'],
-    '#FF4500', 'rgba(255,69,0,0.6)', 32,
-    '#FF6B00', '#FF9060',
+    'rising',
+    ['#111407', '#2D3F08', '#111407'],
+    '#BFFF35', 'rgba(191,255,53,0.62)', 34,
+    '#BFFF35', '#CFEF7A',
     {
-      is_premium: true, price: 3900,
+      name: 'Rising Pro',
+      is_premium: true, price: 3900, nameFill: '#F8FFE9',
       decorations: [
-        { type: 'rect', x: 140, y: -40, width: 320, height: 180, fill: 'rgba(255,80,0,0.07)', rotation: -35 },
-        { type: 'rect', x: 200, y: -20, width: 240, height: 130, fill: 'rgba(255,120,0,0.05)', rotation: -25 },
-        { type: 'circle', x: 200, y: 295, radius: 200, fill: 'rgba(255,60,0,0.04)' },
+        { type: 'rect', x: 140, y: -40, width: 320, height: 180, fill: 'rgba(191,255,53,0.07)', rotation: -35 },
+        { type: 'circle', x: 200, y: 295, radius: 200, fill: 'rgba(191,255,53,0.04)' },
       ],
     },
   ),
   makeBase(
-    'ice',
-    ['#000d14', '#001830', '#003040', '#000d14'],
-    '#00CFFF', 'rgba(0,207,255,0.52)', 32,
-    '#00CFFF', '#80E8FF',
+    'matchday',
+    ['#00110E', '#07372F', '#00110E'],
+    '#31E6C5', 'rgba(49,230,197,0.52)', 32,
+    '#31E6C5', '#83F3DD',
     {
+      name: 'Match Day',
       is_premium: true, price: 3900,
-      nameFill: '#E8F8FF',
+      nameFill: '#E8FFF9',
       decorations: [
-        { type: 'rect', x: 0, y: 130, width: W, height: 2, fill: 'rgba(0,207,255,0.08)' },
-        { type: 'rect', x: 0, y: 215, width: W, height: 2, fill: 'rgba(0,207,255,0.06)' },
-        { type: 'rect', x: 0, y: 300, width: W, height: 2, fill: 'rgba(0,207,255,0.08)' },
-        { type: 'rect', x: 0, y: 385, width: W, height: 2, fill: 'rgba(0,207,255,0.06)' },
-        { type: 'rect', x: 310, y: -30, width: 110, height: 90, fill: 'rgba(0,207,255,0.05)', rotation: -48 },
+        { type: 'rect', x: 0, y: 130, width: W, height: 2, fill: 'rgba(49,230,197,0.08)' },
+        { type: 'rect', x: 0, y: 300, width: W, height: 2, fill: 'rgba(49,230,197,0.08)' },
+        { type: 'rect', x: 310, y: -30, width: 110, height: 90, fill: 'rgba(49,230,197,0.05)', rotation: -48 },
       ],
     },
   ),
 ];
 
-const MOCK_PLAYER = { name: '김민준', position: 'ST', jersey_number: 10, id: 'demo-001' };
+const MOCK_PLAYER = { name: '김민준', position: 'ST', jersey_number: 10, age: 10, id: 'demo-001' };
 const MOCK_ACADEMY = { name: 'FDL FC', logo_url: null };
 const DEFAULT_STATS = { pac: 80, dri: 75, phy: 72, acc: 78, tac: 68, psy: 70 };
 const STEPS = ['템플릿 선택', '능력치 입력', '카드 완성'];
 
 const ACCENT_MAP = {
-  gold: '#FFD700', chrome: '#B0C4DE', legend: '#E040FB',
-  fire: '#FF6B00', ice: '#00CFFF',
+  gold: '#62FF7E', chrome: '#DCE7EF', legend: '#C77DFF',
+  rising: '#BFFF35', matchday: '#31E6C5',
 };
 
 export default function DemoCardPage() {

@@ -50,6 +50,7 @@ export default function CardDetailPage() {
             template={card.card_templates}
             player={card.players}
             stats={card.stats}
+            academy={academy}
             teamColor={teamColor}
             scale={0.85}
           />

@@ -19,6 +19,8 @@ export default function SignupPage() {
     passwordConfirm: '',
     primaryColor: '#FFD700',
   });
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -33,10 +35,16 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      await signUp({ email: form.email, password: form.password, academyName: form.academyName, primaryColor: form.primaryColor });
+      const signed = await signUp({
+        email: form.email,
+        password: form.password,
+        academyName: form.academyName,
+        primaryColor: form.primaryColor,
+        logoFile,
+      });
       const { user, academy } = await loadCurrentUser();
       setUser(user);
-      setAcademy(academy);
+      setAcademy(signed.academy || academy);
       navigate('/dashboard');
     } catch (err) {
       setError(err.message || '회원가입 중 오류가 발생했습니다.');
@@ -62,6 +70,41 @@ export default function SignupPage() {
             onChange={(e) => set('academyName', e.target.value)}
             required
           />
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span style={{ fontSize: 13, color: C.sub, fontWeight: 500 }}>아카데미 로고</span>
+            <label style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              background: C.card, border: `1px solid ${C.border}`,
+              borderRadius: radius.md, padding: 12, cursor: 'pointer',
+            }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: 10,
+                background: C.card2, border: `1px solid ${C.border}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                overflow: 'hidden', color: C.gray, fontSize: 11,
+              }}>
+                {logoPreview ? (
+                  <img src={logoPreview} alt="로고 미리보기" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : 'LOGO'}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: C.white, fontSize: 14, fontWeight: 700 }}>카드에 들어갈 로고 선택</div>
+                <div style={{ color: C.sub, fontSize: 12, marginTop: 3 }}>선택하지 않으면 FDL 기본 마크가 표시됩니다.</div>
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setLogoFile(file);
+                  setLogoPreview(URL.createObjectURL(file));
+                }}
+              />
+            </label>
+          </div>
 
           {/* Team color picker */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
