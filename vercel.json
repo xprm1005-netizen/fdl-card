@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/players/remove-bg.js": { "maxDuration": 30 },
+    "api/orders/confirm-payment.js": { "maxDuration": 15 },
+    "api/orders/create.js": { "maxDuration": 10 },
+    "api/orders/webhook-toss.js": { "maxDuration": 10 },
+    "api/admin/update-order.js": { "maxDuration": 10 },
+    "api/admin/create-print-job.js": { "maxDuration": 15 },
+    "api/admin/shipping.js": { "maxDuration": 10 }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
