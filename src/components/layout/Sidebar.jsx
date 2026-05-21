@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Users, CreditCard, ShoppingCart, Package, Settings, LogOut, Shield } from 'lucide-react';
+import { Home, Users, Trophy, ShoppingCart, Package, Settings, LogOut, Shield } from 'lucide-react';
 import { C, radius } from '../../tokens';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
@@ -8,10 +8,11 @@ import { signOut } from '../../services/auth.service';
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@fdlcard.com';
 
 const NAV = [
-  { to: '/dashboard', icon: CreditCard, label: '대시보드' },
-  { to: '/players',   icon: Users,       label: '선수 관리' },
-  { to: '/orders',    icon: Package,     label: '주문 현황' },
-  { to: '/settings',  icon: Settings,    label: '설정' },
+  { to: '/dashboard', icon: Home,     label: '대시보드' },
+  { to: '/players',   icon: Users,    label: '선수 관리' },
+  { to: '/ranking',   icon: Trophy,   label: '랭킹' },
+  { to: '/orders',    icon: Package,  label: '주문 현황' },
+  { to: '/settings',  icon: Settings, label: '마이페이지' },
 ];
 
 export default function Sidebar() {
