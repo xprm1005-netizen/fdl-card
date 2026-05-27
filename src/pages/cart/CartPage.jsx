@@ -33,16 +33,18 @@ export default function CartPage() {
                   display: 'flex', gap: 16, alignItems: 'center',
                 }}>
                   {item.card?.preview_url ? (
-                    <img src={item.card.preview_url} alt="카드" style={{ width: 64, height: 90, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }} />
+                    <img src={item.card.preview_url} alt="카드" style={{ width: 56, height: 78, objectFit: 'cover', borderRadius: 6, flexShrink: 0, boxShadow: '0 4px 16px rgba(0,0,0,0.5)' }} />
                   ) : (
-                    <div style={{ width: 64, height: 90, background: C.card2, borderRadius: 6, flexShrink: 0 }} />
+                    <div style={{ width: 56, height: 78, background: C.card2, borderRadius: 6, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontSize: 20 }}>🃏</span>
+                    </div>
                   )}
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 15, fontWeight: 700, color: C.white, marginBottom: 4 }}>
-                      {item.card?.players?.name || '선수 카드'}
+                      {item.card?.playerName || item.card?.players?.name || '선수 카드'}
                     </div>
                     <div style={{ fontSize: 13, color: C.sub }}>
-                      {item.card?.card_templates?.name || 'Gold'} 카드
+                      {item.card?.card_templates?.name || item.card?.template?.name || 'Gold'} 카드
                     </div>
                     <div style={{ fontSize: 14, color: C.gold, fontWeight: 700, marginTop: 4 }}>
                       {formatKRW(item.unitPrice)} / 장

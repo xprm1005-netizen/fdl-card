@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { calcOverall } from '../lib/utils';
+import { calcOverall, determineGrade } from '../lib/utils';
 
 export async function getCardsByPlayer(playerId) {
   const { data, error } = await supabase
@@ -23,10 +23,21 @@ export async function getCard(id) {
 
 export async function createCard({ academyId, playerId, templateId, stats }) {
   const overall = calcOverall(stats);
+  const grade   = determineGrade(overall).slug;
   const { data, error } = await supabase
     .from('player_cards')
-    .insert({ academy_id: academyId, player_id: playerId, template_id: templateId, stats, overall })
+    .insert({ academy_id: academyId, player_id: playerId, template_id: templateId, stats, overall, grade })
     .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function getCardByToken(token) {
+  const { data, error } = await supabase
+    .from('player_cards')
+    .select('*, card_templates(*), players(*)')
+    .eq('share_token', token)
     .single();
   if (error) throw error;
   return data;

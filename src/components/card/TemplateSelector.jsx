@@ -1,129 +1,111 @@
 import { C, radius } from '../../tokens';
 
-const TEMPLATE_COLORS = {
-  gold:     { accent: '#62FF7E', glow: 'rgba(98,255,126,0.28)', title: ['THE', 'SPEED', 'STAR'] },
-  chrome:   { accent: '#DCE7EF', glow: 'rgba(220,231,239,0.22)', title: ['THE', 'PLAY', 'MAKER'] },
-  legend:   { accent: '#C77DFF', glow: 'rgba(199,125,255,0.30)', title: ['THE', 'TEAM', 'LEADER'] },
-  rising:   { accent: '#BFFF35', glow: 'rgba(191,255,53,0.36)', title: ['RISING', 'PRO', 'CARD'] },
-  matchday: { accent: '#31E6C5', glow: 'rgba(49,230,197,0.32)', title: ['MATCH', 'DAY', 'HERO'] },
+const META = {
+  fdl1: { accent: '#37b57b', glow: 'rgba(55,181,123,0.35)' },
+  fdl2: { accent: '#1fa561', glow: 'rgba(31,165,97,0.35)'  },
+  fdl3: { accent: '#29a46b', glow: 'rgba(41,164,107,0.35)' },
+  fdl4: { accent: '#269e65', glow: 'rgba(38,158,101,0.35)' },
 };
 
-export default function TemplateSelector({ templates, selected, onSelect, onPremiumClick }) {
+export default function TemplateSelector({ templates, selected, onSelect }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-      {templates.map((t) => {
-        const tc = TEMPLATE_COLORS[t.slug] || TEMPLATE_COLORS.gold;
+      {templates.map((t, idx) => {
+        const meta     = META[t.slug] || META.fdl1;
         const isActive = selected?.id === t.id;
-        const isPremium = t.is_premium;
-
-        function handleClick() {
-          if (isPremium) {
-            onPremiumClick ? onPremiumClick(t) : alert('프리미엄 템플릿입니다.');
-          } else {
-            onSelect(t);
-          }
-        }
 
         return (
           <button
             key={t.id}
-            onClick={handleClick}
+            onClick={() => onSelect(t)}
             style={{
-              background: isActive ? `linear-gradient(135deg, ${tc.accent}15, ${tc.accent}08)` : C.card,
-              border: `2px solid ${isActive ? tc.accent : isPremium ? `${tc.accent}50` : C.border}`,
+              background: isActive ? `${meta.accent}0C` : C.card,
+              border: `2px solid ${isActive ? meta.accent : t.is_premium ? `${meta.accent}50` : C.border}`,
               borderRadius: radius.lg,
-              padding: '16px',
-              cursor: isPremium ? 'default' : 'pointer',
-              transition: 'all 0.2s',
-              boxShadow: isActive ? `0 0 20px ${tc.glow}` : 'none',
+              padding: 0,
+              cursor: 'pointer',
+              transition: 'all 0.18s',
+              boxShadow: isActive ? `0 0 22px ${meta.glow}` : 'none',
               textAlign: 'left',
               fontFamily: 'inherit',
-              position: 'relative',
-              opacity: isPremium ? 0.75 : 1,
+              overflow: 'hidden',
+            }}
+            onMouseEnter={(e) => {
+              if (!isActive) {
+                e.currentTarget.style.borderColor = `${meta.accent}88`;
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = `0 8px 24px ${meta.glow}`;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive) {
+                e.currentTarget.style.borderColor = t.is_premium ? `${meta.accent}50` : C.border;
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }
             }}
           >
-            {/* Premium badge */}
-            {isPremium && (
-              <div style={{
-                position: 'absolute',
-                top: 8, right: 8,
-                background: `linear-gradient(135deg, ${tc.accent}, ${tc.accent}cc)`,
-                color: '#000',
-                fontSize: 9,
-                fontWeight: 800,
-                padding: '2px 7px',
-                borderRadius: 10,
-                letterSpacing: 0.5,
-                lineHeight: 1.4,
-              }}>
-                🔒 PREMIUM
-              </div>
-            )}
-
-            {t.thumbnail_url ? (
+            {/* PNG 썸네일 */}
+            <div style={{ position: 'relative', width: '100%', aspectRatio: '420/560', overflow: 'hidden' }}>
               <img
-                src={t.thumbnail_url}
+                src={`/thumbnails/${t.slug}.png`}
                 alt={t.name}
-                style={{ width: '100%', aspectRatio: '400/560', objectFit: 'cover', borderRadius: 8, marginBottom: 10 }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
               />
-            ) : (
+
+              {/* No.N 배지 */}
               <div style={{
-                width: '100%', aspectRatio: '400/560',
-                background: '#070807',
-                borderRadius: 8, marginBottom: 10,
-                display: 'flex', flexDirection: 'column',
-                border: `1px solid ${tc.accent}50`,
-                overflow: 'hidden',
-                boxShadow: `inset 0 0 0 5px #1f221f`,
+                position: 'absolute', top: 7, left: 7, zIndex: 5,
+                background: 'rgba(0,0,0,0.72)',
+                color: meta.accent, fontSize: 9, fontWeight: 800,
+                padding: '2px 7px', borderRadius: 6, letterSpacing: 0.5,
+                border: `1px solid ${meta.accent}55`,
+                backdropFilter: 'blur(4px)',
               }}>
+                No.{idx + 1}
+              </div>
+
+              {/* PREMIUM 배지 */}
+              {t.is_premium && (
                 <div style={{
-                  margin: '11px 9px 0',
-                  height: '23%',
-                  background: tc.accent,
-                  borderRadius: '4px 4px 0 0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0 10px',
-                  color: '#070807',
+                  position: 'absolute', top: 7, right: 7, zIndex: 5,
+                  background: `linear-gradient(135deg, ${meta.accent}ee, ${meta.accent}aa)`,
+                  color: '#000', fontSize: 8, fontWeight: 900,
+                  padding: '2px 7px', borderRadius: 10, letterSpacing: 0.5,
                 }}>
-                  <div style={{ fontFamily: "'Bebas Neue', Impact, sans-serif", fontSize: 17, lineHeight: 0.86, textAlign: 'left' }}>
-                    {(tc.title || [t.name]).map((line) => <div key={line}>{line}</div>)}
-                  </div>
-                  <div style={{ fontFamily: "'Bebas Neue', Impact, sans-serif", fontSize: 34, fontWeight: 900 }}>70</div>
+                  ★ PREMIUM
                 </div>
+              )}
+
+              {/* 선택 오버레이 */}
+              {isActive && (
                 <div style={{
-                  margin: '0 9px',
-                  flex: 1,
-                  background: `linear-gradient(135deg, #eff2ed, ${tc.accent}18 45%, #c9cec7)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <div style={{ width: '42%', height: '68%', borderRadius: 999, background: `${tc.accent}38`, filter: 'blur(1px)' }} />
-                </div>
-                <div style={{ margin: '0 9px', height: '14%', background: '#F8FAF4' }} />
-                <div style={{ margin: '0 9px 10px', height: '19%', background: tc.accent, borderRadius: '0 0 4px 4px' }} />
-                {isPremium && (
-                  <span style={{ position: 'absolute', left: 26, bottom: 63, fontSize: 10, color: '#070807', opacity: 0.65, fontWeight: 900 }}>
-                    {(t.price / 1000).toLocaleString()}원~
-                  </span>
+                  position: 'absolute', inset: 0, zIndex: 6,
+                  border: `3px solid ${meta.accent}`,
+                  boxShadow: `inset 0 0 20px ${meta.accent}22`,
+                  pointerEvents: 'none',
+                }} />
+              )}
+            </div>
+
+            {/* 텍스트 */}
+            <div style={{ padding: '10px 12px 11px' }}>
+              <div style={{
+                fontSize: 13, fontWeight: 800,
+                color: isActive ? meta.accent : '#FFFFFF', lineHeight: 1.2,
+              }}>
+                {t.name}
+              </div>
+              <div style={{ fontSize: 10, marginTop: 3 }}>
+                {t.is_premium ? (
+                  <span style={{ color: meta.accent }}>PREMIUM · {t.price?.toLocaleString()}원</span>
+                ) : isActive ? (
+                  <span style={{ color: meta.accent }}>✓ 선택됨</span>
+                ) : (
+                  <span style={{ color: '#6B7280' }}>무료</span>
                 )}
               </div>
-            )}
-
-            <div style={{ fontSize: 14, fontWeight: 700, color: isActive ? tc.accent : C.white }}>
-              {t.name}
             </div>
-            {isPremium ? (
-              <div style={{ fontSize: 11, color: tc.accent, marginTop: 2, opacity: 0.8 }}>
-                {t.price?.toLocaleString()}원 · 잠금 해제 필요
-              </div>
-            ) : isActive ? (
-              <div style={{ fontSize: 11, color: tc.accent, marginTop: 2 }}>✓ 선택됨</div>
-            ) : (
-              <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>무료</div>
-            )}
           </button>
         );
       })}

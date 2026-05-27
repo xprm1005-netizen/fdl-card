@@ -6,9 +6,10 @@ import Topbar from '../../components/layout/Topbar';
 import Btn from '../../components/ui/Btn';
 import EmptyState from '../../components/ui/EmptyState';
 import BgRemovalStatus from '../../components/player/BgRemovalStatus';
-import { C, radius } from '../../tokens';
+import { C, ff, radius } from '../../tokens';
 import { useAuthStore } from '../../store/authStore';
 import { getPlayers } from '../../services/players.service';
+import { determineGrade } from '../../lib/utils';
 
 const POSITION_COLORS = {
   GK: '#FF9800', CB: '#2196F3', LB: '#2196F3', RB: '#2196F3',
@@ -77,30 +78,53 @@ export default function PlayersPage() {
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.goldMed; e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
-                <div style={{ height: 140, background: C.card2, position: 'relative', overflow: 'hidden' }}>
-                  {player.photo_bg_removed_url || player.photo_url ? (
-                    <img
-                      src={player.photo_bg_removed_url || player.photo_url}
-                      alt={player.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                      <UserCircle size={60} color={C.dim} />
+                {(() => {
+                  const ovr   = player.latest_overall || 0;
+                  const grade = ovr > 0 ? determineGrade(ovr) : null;
+                  return (
+                    <div style={{ height: 140, background: C.card2, position: 'relative', overflow: 'hidden' }}>
+                      {player.photo_bg_removed_url || player.photo_url ? (
+                        <img
+                          src={player.photo_bg_removed_url || player.photo_url}
+                          alt={player.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                          <UserCircle size={60} color={C.dim} />
+                        </div>
+                      )}
+                      {/* 포지션 배지 */}
+                      <div style={{
+                        position: 'absolute', top: 8, left: 8,
+                        background: POSITION_COLORS[player.position] || C.gold,
+                        color: '#fff', fontSize: 10, fontWeight: 700,
+                        padding: '2px 7px', borderRadius: 4, letterSpacing: 0.5,
+                      }}>
+                        {player.position}
+                      </div>
+                      {/* 등급 배지 */}
+                      {grade && (
+                        <div style={{
+                          position: 'absolute', bottom: 8, left: 8,
+                          background: `${grade.color}22`,
+                          border: `1px solid ${grade.color}66`,
+                          color: grade.color,
+                          fontSize: 9, fontWeight: 800,
+                          padding: '2px 7px', borderRadius: 6,
+                          letterSpacing: 0.3,
+                          display: 'flex', alignItems: 'center', gap: 4,
+                        }}>
+                          <span style={{ fontFamily: ff.display, fontSize: 12 }}>{ovr}</span>
+                          <span>{grade.name}</span>
+                        </div>
+                      )}
+                      <div style={{ position: 'absolute', top: 8, right: 8 }}>
+                        <BgRemovalStatus status={player.bg_removal_status} />
+                      </div>
                     </div>
-                  )}
-                  <div style={{
-                    position: 'absolute', top: 8, left: 8,
-                    background: POSITION_COLORS[player.position] || C.gold,
-                    color: '#fff', fontSize: 10, fontWeight: 700,
-                    padding: '2px 7px', borderRadius: 4, letterSpacing: 0.5,
-                  }}>
-                    {player.position}
-                  </div>
-                  <div style={{ position: 'absolute', top: 8, right: 8 }}>
-                    <BgRemovalStatus status={player.bg_removal_status} />
-                  </div>
-                </div>
+                  );
+                })()}
                 <div style={{ padding: '12px' }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: C.white, marginBottom: 2 }}>{player.name}</div>
                   <div style={{ fontSize: 12, color: C.sub }}>#{player.jersey_number}</div>

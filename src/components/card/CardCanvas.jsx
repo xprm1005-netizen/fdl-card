@@ -1,370 +1,237 @@
-import { useRef, forwardRef, useImperativeHandle } from 'react';
-import { Stage, Layer, Rect, Text, Image, Line, Circle, Group } from 'react-konva';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { Stage, Layer, Rect, Text, Image, Group } from 'react-konva';
 import useImage from 'use-image';
 import { calcOverall } from '../../lib/utils';
 
-const PLACEHOLDER_URL = '/player-placeholder.svg';
-const FDL_LOGO_URL = '/brand/fdl-logo.png';
-const BLACK = '#070807';
-const WHITE = '#F8FAF4';
+/*
+ * PNG overlay card system.
+ *
+ * Each template image (420×560) has sample data baked-in.
+ * We cover each data zone with a matching solid rect, then render real data on top.
+ *
+ * Zones were measured by resampling each 1056×1408 template PNG at 420×560
+ * and detecting text bounding boxes with PIL.
+ */
 
-const VARIANTS = {
-  gold: {
-    title: ['THE', 'SPEED', 'STAR'],
-    accent: '#62FF7E',
-    panel: '#62FF7E',
-    paper: '#F1F3ED',
-    photoA: '#EBEEE8',
-    photoB: '#C7CCC6',
-    photoC: '#F2F4EF',
-    marker: '#203E2A',
-    label: '#31402D',
-    glow: 'rgba(98,255,126,0.16)',
+/* ── photo zone (identical across all templates) ─────────────── */
+const PZ = { x: 0, y: 95, w: 420, h: 245 };
+
+/* ── per-template zone definitions ───────────────────────────── */
+/*
+ * All sizes use Konva prop names (width/height).
+ * OVR.x=155 so the cover starts well left of the "8" glyph (≈x 201).
+ * INFO/AGE y-starts are set ~10 px above each template's white panel.
+ */
+const ZONES = {
+  fdl1: {
+    green:  '#06f185',
+    OVR:   { x: 155, y:  6, width: 261, height: 85 },
+    INFO:  { x: 112, y: 373, width: 240, height: 80 },
+    AGE:   { x: 350, y: 373, width:  66, height: 80 },
+    S: [
+      { k:'pac', x:165, y:453, width: 46, height:37 },
+      { k:'dri', x:261, y:453, width: 46, height:37 },
+      { k:'phy', x:355, y:453, width: 59, height:37 },
+      { k:'acc', x:165, y:505, width: 46, height:37 },
+      { k:'tac', x:261, y:505, width: 46, height:37 },
+      { k:'psy', x:355, y:505, width: 59, height:37 },
+    ],
   },
-  chrome: {
-    title: ['THE', 'PLAY', 'MAKER'],
-    accent: '#DCE7EF',
-    panel: '#DCE7EF',
-    paper: '#F4F7F8',
-    photoA: '#EEF3F4',
-    photoB: '#B8C4CA',
-    photoC: '#F6FAFB',
-    marker: '#26343A',
-    label: '#334048',
-    glow: 'rgba(220,231,239,0.16)',
+  fdl2: {
+    green:  '#05f37c',
+    OVR:   { x: 155, y:  6, width: 261, height: 85 },
+    INFO:  { x: 112, y: 354, width: 244, height: 76 },
+    AGE:   { x: 354, y: 354, width:  62, height: 76 },
+    S: [
+      { k:'pac', x:150, y:431, width: 52, height:40 },
+      { k:'dri', x:254, y:431, width: 52, height:40 },
+      { k:'phy', x:358, y:431, width: 56, height:40 },
+      { k:'acc', x:150, y:485, width: 52, height:40 },
+      { k:'tac', x:254, y:485, width: 52, height:40 },
+      { k:'psy', x:358, y:485, width: 56, height:40 },
+    ],
   },
-  legend: {
-    title: ['THE', 'TEAM', 'LEADER'],
-    accent: '#C77DFF',
-    panel: '#C77DFF',
-    paper: '#F5EFFA',
-    photoA: '#F3EAF9',
-    photoB: '#CDB7DD',
-    photoC: '#FAF6FD',
-    marker: '#35213E',
-    label: '#43294D',
-    glow: 'rgba(199,125,255,0.2)',
+  fdl3: {
+    green:  '#08f086',
+    OVR:   { x: 155, y:  6, width: 261, height: 85 },
+    INFO:  { x: 112, y: 350, width: 244, height: 72 },
+    AGE:   { x: 354, y: 350, width:  62, height: 72 },
+    S: [
+      { k:'pac', x:124, y:420, width: 50, height:44 },
+      { k:'dri', x:232, y:420, width: 50, height:44 },
+      { k:'phy', x:340, y:420, width: 74, height:44 },
+      { k:'acc', x:124, y:472, width: 50, height:44 },
+      { k:'tac', x:232, y:472, width: 50, height:44 },
+      { k:'psy', x:340, y:472, width: 74, height:44 },
+    ],
   },
-  rising: {
-    title: ['RISING', 'PRO', 'CARD'],
-    accent: '#BFFF35',
-    panel: '#BFFF35',
-    paper: '#F3F8E7',
-    photoA: '#F4F8EA',
-    photoB: '#D2E2A8',
-    photoC: '#FAFDF2',
-    marker: '#334410',
-    label: '#34420F',
-    glow: 'rgba(191,255,53,0.28)',
-  },
-  matchday: {
-    title: ['MATCH', 'DAY', 'HERO'],
-    accent: '#31E6C5',
-    panel: '#31E6C5',
-    paper: '#EAF8F5',
-    photoA: '#ECF8F5',
-    photoB: '#9FD8CD',
-    photoC: '#F6FFFC',
-    marker: '#0E4138',
-    label: '#0C443A',
-    glow: 'rgba(49,230,197,0.24)',
+  fdl4: {
+    green:  '#08f383',
+    OVR:   { x: 155, y:  6, width: 261, height: 85 },
+    INFO:  { x: 172, y: 342, width: 184, height: 76 },
+    AGE:   { x: 354, y: 342, width:  62, height: 76 },
+    EXTRA: { x:   2, y: 416, width: 175, height: 122 },
+    S: [
+      { k:'pac', x:213, y:422, width: 48, height:44 },
+      { k:'dri', x:291, y:422, width: 48, height:44 },
+      { k:'phy', x:366, y:422, width: 48, height:44 },
+      { k:'acc', x:213, y:474, width: 48, height:44 },
+      { k:'tac', x:291, y:474, width: 48, height:44 },
+      { k:'psy', x:366, y:474, width: 48, height:44 },
+    ],
   },
 };
 
-function getVariant(slug) {
-  return VARIANTS[slug] || VARIANTS.gold;
-}
+/* ── TemplateCard ─────────────────────────────────────────────── */
+function TemplateCard({ slug, player, stats, academy, W, H }) {
+  const z   = ZONES[slug] || ZONES.fdl1;
+  const ovr = calcOverall(stats);
+  const pos  = player?.position  || 'ST';
+  const name = player?.name      || '선수 이름';
+  const age  = player?.age       ?? '--';
+  const club = (academy?.name    || 'FDL FC').toUpperCase();
+  const photoSrc = player?.photo_bg_removed_url || player?.photo_url || '';
 
-function PlayerPhoto({ src, x, y, width, height }) {
-  const [img] = useImage(src || PLACEHOLDER_URL, 'anonymous');
-  if (!img) {
-    return (
-      <Rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        fill="#D7DBD2"
-      />
-    );
-  }
+  const [tpl]   = useImage(`/thumbnails/${slug}.png`, 'anonymous');
+  const [photo] = useImage(photoSrc, 'anonymous');
 
-  const ratio = img.width / img.height;
-  const boxRatio = width / height;
-  const drawW = ratio > boxRatio ? width : height * ratio;
-  const drawH = ratio > boxRatio ? width / ratio : height;
+  /* object-fit: cover for photo */
+  const photoProps = (() => {
+    if (!photo) return null;
+    const pW = photo.width  || 400;
+    const pH = photo.height || 400;
+    const sc = Math.max(PZ.w / pW, PZ.h / pH);
+    const sw = pW * sc, sh = pH * sc;
+    return { x: PZ.x + (PZ.w - sw) / 2, y: PZ.y + (PZ.h - sh) / 2, width: sw, height: sh };
+  })();
 
   return (
-    <Image
-      image={img}
-      x={x + (width - drawW) / 2}
-      y={y + height - drawH}
-      width={drawW}
-      height={drawH}
-      shadowColor="rgba(0,0,0,0.24)"
-      shadowBlur={10}
-      shadowOpacity={0.45}
-      shadowOffsetY={5}
-    />
+    <>
+      {/* ① 검정 기본 배경 */}
+      <Rect x={0} y={0} width={W} height={H} fill='#080808' cornerRadius={18} />
+
+      {/* ② 선수 사진 (photo zone clip) */}
+      {photoProps && (
+        <Group clipX={PZ.x} clipY={PZ.y} clipWidth={PZ.w} clipHeight={PZ.h}>
+          <Image image={photo} {...photoProps} />
+        </Group>
+      )}
+
+      {/* ③ 템플릿 PNG 오버레이 */}
+      {tpl  && <Image image={tpl} x={0} y={0} width={W} height={H} cornerRadius={18} />}
+      {!tpl && <Rect  x={0} y={0} width={W} height={H} fill='rgba(0,0,0,0.55)' cornerRadius={18} />}
+
+      {/* ④ 샘플 데이터 커버 + 실제 데이터 렌더링 ─────────────── */}
+
+      {/* OVR 커버 */}
+      <Rect {...z.OVR} fill={z.green} />
+      <Text
+        x={z.OVR.x} y={z.OVR.y - 2}
+        width={z.OVR.width - 6} height={z.OVR.height}
+        text={String(ovr)}
+        fontSize={68} fontFamily='Arial Black, Arial' fontStyle='bold'
+        fill='#0A0A0A' align='right' verticalAlign='middle'
+      />
+      <Text
+        x={z.OVR.x} y={z.OVR.y + z.OVR.height - 22}
+        width={z.OVR.width - 6} height={20}
+        text={pos}
+        fontSize={14} fontFamily='Arial Black, Arial' fontStyle='bold'
+        fill='#0A0A0A' align='right'
+      />
+
+      {/* INFO 커버 (이름·소속) */}
+      <Rect {...z.INFO} fill='#ffffff' />
+      <Text
+        x={z.INFO.x + 5} y={z.INFO.y + 5}
+        width={z.INFO.width - 8}
+        text={club}
+        fontSize={10} fontFamily='Arial' fontStyle='bold'
+        fill='#666666' letterSpacing={0.8}
+      />
+      <Text
+        x={z.INFO.x + 4} y={z.INFO.y + 18}
+        width={z.INFO.width - 6}
+        text={name}
+        fontSize={24} fontFamily='Arial Black, Arial' fontStyle='bold'
+        fill='#0A0A0A'
+      />
+
+      {/* AGE 커버 */}
+      <Rect {...z.AGE} fill='#ffffff' />
+      <Text
+        x={z.AGE.x} y={z.AGE.y + 5}
+        width={z.AGE.width}
+        text='AGE'
+        fontSize={10} fontFamily='Arial' fontStyle='bold'
+        fill='#888888' align='center' letterSpacing={1}
+      />
+      <Text
+        x={z.AGE.x} y={z.AGE.y + 18}
+        width={z.AGE.width}
+        text={String(age)}
+        fontSize={28} fontFamily='Arial Black, Arial' fontStyle='bold'
+        fill='#0A0A0A' align='center'
+      />
+
+      {/* fdl4 전용: MY STATS 섹션 커버 */}
+      {z.EXTRA && <Rect {...z.EXTRA} fill={z.green} />}
+
+      {/* STATS 숫자 커버 + 실제 값 */}
+      {z.S.map((s) => {
+        const val = stats[s.k] ?? 0;
+        return (
+          <Group key={s.k}>
+            <Rect x={s.x} y={s.y} width={s.width} height={s.height} fill={z.green} />
+            <Text
+              x={s.x} y={s.y - 1}
+              width={s.width} height={s.height}
+              text={String(val)}
+              fontSize={28} fontFamily='Arial Black, Arial' fontStyle='bold'
+              fill='#0A0A0A' align='center' verticalAlign='middle'
+            />
+          </Group>
+        );
+      })}
+    </>
   );
 }
 
-function AcademyMark({ academy, x, y, size }) {
-  const [img, status] = useImage(academy?.logo_url || '', 'anonymous');
-  if (academy?.logo_url && status === 'loaded' && img) {
-    return (
-      <Image
-        image={img}
-        x={x}
-        y={y}
-        width={size}
-        height={size}
-        cornerRadius={8}
-      />
-    );
-  }
-
-  return (
-    <Group x={x} y={y}>
-      <Rect width={size} height={size} fill={WHITE} cornerRadius={8} />
-      <Circle x={size * 0.5} y={size * 0.34} radius={size * 0.22} fill="#2B65C9" opacity={0.9} />
-      <Circle x={size * 0.34} y={size * 0.52} radius={size * 0.16} fill="#53B47A" opacity={0.95} />
-      <Circle x={size * 0.64} y={size * 0.58} radius={size * 0.12} fill="#79D0FF" opacity={0.95} />
-      <Text
-        text="FOOTBALL"
-        x={2}
-        y={size - 22}
-        width={size - 4}
-        align="center"
-        fontSize={7}
-        fontFamily="Arial"
-        fontStyle="bold"
-        fill="#295A7C"
-      />
-      <Text
-        text="DATALAB"
-        x={2}
-        y={size - 13}
-        width={size - 4}
-        align="center"
-        fontSize={7}
-        fontFamily="Arial"
-        fontStyle="bold"
-        fill="#2D2F32"
-      />
-    </Group>
-  );
-}
-
-function FdlLogo({ x, y, width, height }) {
-  const [img] = useImage(FDL_LOGO_URL, 'anonymous');
-  if (!img) {
-    return (
-      <Text text="FDL" x={x} y={y} width={width} align="center" fontSize={24} fontFamily="'Bebas Neue', Impact, sans-serif" letterSpacing={4} fill={BLACK} />
-    );
-  }
-
-  return (
-    <Image
-      image={img}
-      x={x}
-      y={y}
-      width={width}
-      height={height}
-      crop={{ x: 300, y: 365, width: 680, height: 285 }}
-    />
-  );
-}
-
-function StatCell({ x, y, label, value, labelColor }) {
-  return (
-    <Group x={x} y={y}>
-      <Text
-        text={String(value ?? 0)}
-        x={0}
-        y={0}
-        width={44}
-        align="center"
-        fontSize={25}
-        fontFamily="'Bebas Neue', Impact, sans-serif"
-        fontStyle="bold"
-        fill={BLACK}
-      />
-      <Text
-        text={label}
-        x={0}
-        y={27}
-        width={44}
-        align="center"
-        fontSize={10}
-        fontFamily="Arial"
-        fontStyle="bold"
-        fill={labelColor}
-      />
-    </Group>
-  );
-}
-
+/* ── CardCanvas (forwardRef) ──────────────────────────────────── */
 const CardCanvas = forwardRef(function CardCanvas(
   { template, player, stats, academy, scale = 1 },
   ref,
 ) {
   const stageRef = useRef(null);
-
   useImperativeHandle(ref, () => ({
     toDataURL: (opts) => stageRef.current?.toDataURL(opts),
   }));
-
   if (!template?.config) return null;
 
-  const cfg = template.config;
-  const W = cfg.width;
-  const H = cfg.height;
-  const variant = getVariant(template.slug);
-  const overall = calcOverall(stats);
-  const photoSrc = player?.photo_bg_removed_url || player?.photo_url || null;
-  const position = player?.position || 'CB';
-  const playerName = player?.name || '손흥민';
-  const academyName = academy?.name || 'ABCDE FG CLUB';
+  const W = template.config.width  || 420;
+  const H = template.config.height || 560;
+  const slug = template.slug || 'fdl1';
+  const safeStats = stats || { pac:75, dri:70, phy:70, acc:75, tac:70, psy:70 };
 
   return (
-    <div style={{ transform: `scale(${scale})`, transformOrigin: 'top center', display: 'inline-block' }}>
+    <div style={{
+      transform: `scale(${scale})`,
+      transformOrigin: 'top center',
+      display: 'inline-block',
+    }}>
       <Stage
         ref={stageRef}
-        width={W}
-        height={H}
-        style={{
-          borderRadius: 22,
-          overflow: 'hidden',
-          boxShadow: `0 22px 60px rgba(0,0,0,0.65), 0 0 36px ${variant.glow}`,
-        }}
+        width={W} height={H}
+        style={{ borderRadius: 18, overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.75)' }}
       >
         <Layer>
-          {/* outer black body */}
-          <Rect x={0} y={0} width={W} height={H} fill={BLACK} cornerRadius={24} />
-          <Rect x={11} y={11} width={W - 22} height={H - 22} fill={variant.paper} cornerRadius={12} />
-
-          {/* subtle photo background */}
-          <Rect
-            x={11}
-            y={72}
-            width={W - 22}
-            height={H - 168}
-            fillLinearGradientStartPoint={{ x: 0, y: 72 }}
-            fillLinearGradientEndPoint={{ x: W, y: H - 168 }}
-            fillLinearGradientColorStops={[0, variant.photoA, 0.5, variant.photoB, 1, variant.photoC]}
+          <TemplateCard
+            slug={slug}
+            player={player}
+            stats={safeStats}
+            academy={academy}
+            W={W} H={H}
           />
-          <Line points={[40, 78, 212, 340]} stroke="rgba(255,255,255,0.45)" strokeWidth={20} />
-          <Line points={[116, 78, 288, 340]} stroke="rgba(255,255,255,0.35)" strokeWidth={12} />
-          <Line points={[260, 80, 120, 330]} stroke="rgba(0,0,0,0.05)" strokeWidth={28} />
-
-          {/* top lime title band */}
-          <Rect x={11} y={35} width={W - 22} height={96} fill={variant.accent} cornerRadius={[10, 10, 0, 0]} />
-          <Text
-            text={variant.title[0]}
-            x={28}
-            y={54}
-            fontSize={24}
-            fontFamily="'Bebas Neue', Impact, sans-serif"
-            fontStyle="bold"
-            fill={BLACK}
-          />
-          <Text
-            text={variant.title[1]}
-            x={28}
-            y={77}
-            fontSize={24}
-            fontFamily="'Bebas Neue', Impact, sans-serif"
-            fontStyle="bold"
-            fill={BLACK}
-          />
-          <Text
-            text={variant.title[2]}
-            x={28}
-            y={100}
-            fontSize={24}
-            fontFamily="'Bebas Neue', Impact, sans-serif"
-            fontStyle="bold"
-            fill={BLACK}
-          />
-          <Text
-            text={String(overall)}
-            x={208}
-            y={39}
-            width={102}
-            align="right"
-            fontSize={74}
-            fontFamily="'Bebas Neue', Impact, sans-serif"
-            fontStyle="bold"
-            fill={BLACK}
-          />
-          <Text
-            text={position}
-            x={317}
-            y={81}
-            width={50}
-            fontSize={18}
-            fontFamily="'Bebas Neue', Impact, sans-serif"
-            fill={BLACK}
-          />
-
-          {/* player photo */}
-          <PlayerPhoto src={photoSrc} x={42} y={108} width={288} height={270} />
-
-          {/* lower white identity strip */}
-          <Rect x={11} y={365} width={W - 22} height={78} fill={WHITE} />
-          <AcademyMark academy={academy} x={32} y={376} size={64} />
-          <Text
-            text={academyName.toUpperCase()}
-            x={113}
-            y={380}
-            fontSize={9}
-            fontFamily="Arial"
-            fontStyle="bold"
-            fill="#4C4C4C"
-          />
-          <Text
-            text={playerName}
-            x={111}
-            y={395}
-            width={178}
-            fontSize={24}
-            fontFamily="'Pretendard Variable', 'Pretendard', Arial, sans-serif"
-            fontStyle="900"
-            fill={BLACK}
-          />
-          <Text
-            text={playerName}
-            x={235}
-            y={414}
-            width={80}
-            fontSize={8}
-            fontFamily="Arial"
-            fill="#595959"
-          />
-          <Rect x={327} y={382} width={45} height={52} fill="#EEF1EA" cornerRadius={7} />
-          <Text text="AGE" x={327} y={390} width={45} align="center" fontSize={9} fontFamily="Arial" fontStyle="bold" fill={BLACK} />
-          <Text text={String(player?.age || '10')} x={327} y={403} width={45} align="center" fontSize={24} fontFamily="'Bebas Neue', Impact, sans-serif" fontStyle="bold" fill={BLACK} />
-
-          {/* stats panel */}
-          <Rect x={11} y={443} width={W - 22} height={102} fill={variant.panel} cornerRadius={[0, 0, 12, 12]} />
-          <Circle x={34} y={464} radius={11} fill={variant.marker} opacity={0.9} />
-          <Text text="MY STATS" x={51} y={456} fontSize={9} fontFamily="Arial" fontStyle="bold" fill={BLACK} />
-          <Text text="150cm · 45kg · 9" x={51} y={468} fontSize={8} fontFamily="Arial" fill={variant.label} />
-          <FdlLogo x={26} y={502} width={82} height={42} />
-
-          <StatCell x={128} y={458} label="PAC" value={stats?.pac} labelColor={variant.label} />
-          <StatCell x={183} y={458} label="DRI" value={stats?.dri} labelColor={variant.label} />
-          <StatCell x={238} y={458} label="PHY" value={stats?.phy} labelColor={variant.label} />
-          <StatCell x={128} y={507} label="ACC" value={stats?.acc} labelColor={variant.label} />
-          <StatCell x={183} y={507} label="TACT" value={stats?.tac} labelColor={variant.label} />
-          <StatCell x={238} y={507} label="PSYCH" value={stats?.psy} labelColor={variant.label} />
-
-          <Text text="©FDL" x={0} y={535} width={W} align="center" fontSize={7} fontFamily="Arial" fill="#344432" />
-
-          {/* glass and inner outline */}
-          <Rect x={11} y={11} width={W - 22} height={H - 22} stroke="rgba(0,0,0,0.22)" strokeWidth={1} cornerRadius={12} />
-          <Rect x={0} y={0} width={W} height={H} stroke="#1F221F" strokeWidth={12} cornerRadius={24} />
         </Layer>
       </Stage>
     </div>

@@ -51,11 +51,23 @@ export default function CheckoutPage() {
       <div style={{ padding: '20px', maxWidth: 600, margin: '0 auto' }}>
         {/* Order summary */}
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: radius.lg, padding: '16px', marginBottom: 24 }}>
-          <div style={{ fontSize: 14, color: C.sub, marginBottom: 8 }}>주문 내역</div>
+          <div style={{ fontSize: 14, color: C.sub, marginBottom: 12 }}>주문 내역</div>
           {items.map((item) => (
-            <div key={item.cardId} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: C.white, padding: '4px 0' }}>
-              <span>{item.card?.players?.name || '선수 카드'} × {item.quantity}장</span>
-              <span style={{ color: C.gold }}>{formatKRW(item.unitPrice * item.quantity)}</span>
+            <div key={item.cardId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
+              {item.card?.preview_url ? (
+                <img src={item.card.preview_url} alt="카드" style={{ width: 40, height: 56, objectFit: 'cover', borderRadius: 4, flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.5)' }} />
+              ) : (
+                <div style={{ width: 40, height: 56, background: C.card2, borderRadius: 4, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontSize: 16 }}>🃏</span>
+                </div>
+              )}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.white }}>
+                  {item.card?.playerName || item.card?.players?.name || '선수 카드'}
+                </div>
+                <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>× {item.quantity}장</div>
+              </div>
+              <span style={{ color: C.gold, fontWeight: 700, fontSize: 14 }}>{formatKRW(item.unitPrice * item.quantity)}</span>
             </div>
           ))}
           <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>

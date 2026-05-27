@@ -57,9 +57,10 @@ export async function deletePlayer(id) {
 }
 
 export async function uploadPlayerPhoto(playerId, file) {
-  const ext = file.name.split('.').pop();
-  const path = `${playerId}/original.${ext}`;
-  const { error } = await supabase.storage.from('player-photos').upload(path, file, { upsert: true });
+  const path = `${playerId}/original.jpg`;
+  const { error } = await supabase.storage
+    .from('player-photos')
+    .upload(path, file, { upsert: true, contentType: 'image/jpeg' });
   if (error) throw error;
 
   const { data: { publicUrl } } = supabase.storage.from('player-photos').getPublicUrl(path);

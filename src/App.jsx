@@ -31,6 +31,8 @@ const DemoCardPage      = lazy(() => import('./pages/demo/DemoCardPage'));
 const RankingPage       = lazy(() => import('./pages/ranking/RankingPage'));
 const TeamRegisterPage  = lazy(() => import('./pages/players/TeamRegisterPage'));
 const PricingPage       = lazy(() => import('./pages/pricing/PricingPage'));
+const CardSharePage     = lazy(() => import('./pages/share/CardSharePage'));
+const PackOpenPage      = lazy(() => import('./pages/packs/PackOpenPage'));
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@fdlcard.com';
 
@@ -121,6 +123,10 @@ export default function App() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/ranking" element={<Protected><RankingPage /></Protected>} />
           <Route path="/players/new-team" element={<Protected><TeamRegisterPage /></Protected>} />
+          <Route path="/packs" element={<Protected><PackOpenPage /></Protected>} />
+
+          {/* 공개 카드 공유 — 인증 불필요 */}
+          <Route path="/c/:token" element={<CardSharePage />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

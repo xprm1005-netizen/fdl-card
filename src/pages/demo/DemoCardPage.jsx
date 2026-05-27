@@ -1,256 +1,295 @@
-import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
-import CardCanvas from '../../components/card/CardCanvas';
-import CardBack from '../../components/card/CardBack';
-import TemplateSelector from '../../components/card/TemplateSelector';
-import StatsInputPanel from '../../components/card/StatsInputPanel';
+import { ChevronLeft } from 'lucide-react';
+import { useState } from 'react';
+import CardPreview from '../../components/card/CardPreview';
+import StatSlider from '../../components/ui/StatSlider';
 import Btn from '../../components/ui/Btn';
 import { C, ff, radius } from '../../tokens';
+import { calcOverall } from '../../lib/utils';
 
-const W = 400;
-const H = 560;
-
-function makeBase(slug, colors, borderColor, glowColor, glowBlur, accentColor, labelColor, extra = {}) {
-  return {
-    id: slug, slug, name: extra.name || slug.charAt(0).toUpperCase() + slug.slice(1),
-    is_premium: extra.is_premium || false,
-    price: extra.price || 0,
-    config: {
-      width: W, height: H,
-      background: { colors },
-      border: { color: borderColor, width: 3, glowColor, glowBlur },
-      overall: { x: 20, y: 14, fontSize: 62, fill: accentColor },
-      position: { x: 20, y: 80, fontSize: 15, fill: accentColor },
-      playerPhoto: { x: 40, y: 105, width: 320, height: 290 },
-      playerName: { x: W / 2, y: 398, fontSize: 24, fill: extra.nameFill || '#FFFFFF', width: 340 },
-      teamColorBar: { y: 436, height: 9 },
-      stats: {
-        paddingX: 20, y: 456, rowHeight: 24,
-        valueFontSize: 17, valueColor: accentColor,
-        labelFontSize: 10, labelColor,
-        cols: 6,
-      },
-      decorations: extra.decorations || [],
-    },
-  };
-}
+const W = 420, H = 560;
 
 const TEMPLATES = [
-  makeBase(
-    'gold',
-    ['#071008', '#12351E', '#071008'],
-    '#62FF7E', 'rgba(98,255,126,0.42)', 22,
-    '#62FF7E', '#31402D',
-    {
-      decorations: [
-        { type: 'rect', x: 210, y: -60, width: 320, height: 150, fill: 'rgba(255,215,0,0.05)', rotation: -32 },
-        { type: 'circle', x: 360, y: 500, radius: 80, fill: 'rgba(255,215,0,0.03)' },
-      ],
-    },
-  ),
-  makeBase(
-    'chrome',
-    ['#080c10', '#20282D', '#0a1018'],
-    '#DCE7EF', 'rgba(220,231,239,0.3)', 22,
-    '#DCE7EF', '#708090',
-    {
-      nameFill: '#E8EDF2',
-      decorations: [
-        { type: 'rect', x: 0, y: 145, width: W, height: 1, fill: 'rgba(176,196,222,0.06)' },
-        { type: 'rect', x: 0, y: 225, width: W, height: 1, fill: 'rgba(176,196,222,0.05)' },
-        { type: 'rect', x: 0, y: 305, width: W, height: 1, fill: 'rgba(176,196,222,0.06)' },
-        { type: 'rect', x: 0, y: 385, width: W, height: 1, fill: 'rgba(176,196,222,0.05)' },
-      ],
-    },
-  ),
-  makeBase(
-    'legend',
-    ['#0c0014', '#2A1435', '#0c0014'],
-    '#C77DFF', 'rgba(199,125,255,0.48)', 30,
-    '#C77DFF', '#CE93D8',
-    {
-      decorations: [
-        { type: 'circle', x: 50, y: 480, radius: 90, fill: 'rgba(224,64,251,0.04)' },
-        { type: 'circle', x: 360, y: 460, radius: 70, fill: 'rgba(224,64,251,0.04)' },
-      ],
-    },
-  ),
-  makeBase(
-    'rising',
-    ['#111407', '#2D3F08', '#111407'],
-    '#BFFF35', 'rgba(191,255,53,0.62)', 34,
-    '#BFFF35', '#CFEF7A',
-    {
-      name: 'Rising Pro',
-      is_premium: true, price: 3900, nameFill: '#F8FFE9',
-      decorations: [
-        { type: 'rect', x: 140, y: -40, width: 320, height: 180, fill: 'rgba(191,255,53,0.07)', rotation: -35 },
-        { type: 'circle', x: 200, y: 295, radius: 200, fill: 'rgba(191,255,53,0.04)' },
-      ],
-    },
-  ),
-  makeBase(
-    'matchday',
-    ['#00110E', '#07372F', '#00110E'],
-    '#31E6C5', 'rgba(49,230,197,0.52)', 32,
-    '#31E6C5', '#83F3DD',
-    {
-      name: 'Match Day',
-      is_premium: true, price: 3900,
-      nameFill: '#E8FFF9',
-      decorations: [
-        { type: 'rect', x: 0, y: 130, width: W, height: 2, fill: 'rgba(49,230,197,0.08)' },
-        { type: 'rect', x: 0, y: 300, width: W, height: 2, fill: 'rgba(49,230,197,0.08)' },
-        { type: 'rect', x: 310, y: -30, width: 110, height: 90, fill: 'rgba(49,230,197,0.05)', rotation: -48 },
-      ],
-    },
-  ),
+  { id: 'fdl1', slug: 'fdl1', name: 'FDL No.1', is_premium: false, price: 0, config: { width: W, height: H } },
+  { id: 'fdl2', slug: 'fdl2', name: 'FDL No.2', is_premium: false, price: 0, config: { width: W, height: H } },
+  { id: 'fdl3', slug: 'fdl3', name: 'FDL No.3', is_premium: false, price: 0, config: { width: W, height: H } },
+  { id: 'fdl4', slug: 'fdl4', name: 'FDL No.4', is_premium: false, price: 0, config: { width: W, height: H } },
 ];
 
-const MOCK_PLAYER = { name: '김민준', position: 'ST', jersey_number: 10, age: 10, id: 'demo-001' };
-const MOCK_ACADEMY = { name: 'FDL FC', logo_url: null };
-const DEFAULT_STATS = { pac: 80, dri: 75, phy: 72, acc: 78, tac: 68, psy: 70 };
-const STEPS = ['템플릿 선택', '능력치 입력', '카드 완성'];
+const POSITIONS = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'CF', 'ST'];
 
-const ACCENT_MAP = {
-  gold: '#62FF7E', chrome: '#DCE7EF', legend: '#C77DFF',
-  rising: '#BFFF35', matchday: '#31E6C5',
+const STAT_KEYS   = ['pac', 'dri', 'phy', 'acc', 'tac', 'psy'];
+const STAT_LABELS = { pac: '스피드', dri: '드리블', phy: '피지컬', acc: '정확도', tac: '전술이해', psy: '멘탈' };
+
+const DEFAULT_FORM  = { name: '김민준', position: 'ST', age: 10, club: 'FDL FC' };
+const DEFAULT_STATS = { pac: 80, dri: 75, phy: 72, acc: 78, tac: 68, psy: 70 };
+
+function getOvrColor(val) {
+  if (val >= 85) return '#00E676';
+  if (val >= 70) return '#FFD700';
+  if (val >= 55) return '#FF9800';
+  return '#FF5252';
+}
+
+const inputStyle = {
+  width: '100%', boxSizing: 'border-box',
+  background: C.card, border: `1px solid ${C.border}`,
+  borderRadius: radius.md, padding: '9px 12px',
+  color: C.white, fontSize: 14, fontFamily: 'inherit',
+  outline: 'none',
+};
+
+const labelStyle = {
+  display: 'block', fontSize: 11, color: C.sub,
+  letterSpacing: 1, fontWeight: 600, marginBottom: 5,
+  textTransform: 'uppercase',
 };
 
 export default function DemoCardPage() {
   const navigate = useNavigate();
-  const canvasRef = useRef(null);
-  const [step, setStep] = useState(0);
   const [template, setTemplate] = useState(TEMPLATES[0]);
-  const [stats, setStats] = useState(DEFAULT_STATS);
-  const [showBack, setShowBack] = useState(false);
+  const [form, setForm]         = useState(DEFAULT_FORM);
+  const [stats, setStats]       = useState(DEFAULT_STATS);
 
-  const accent = ACCENT_MAP[template.slug] || '#FFD700';
+  const ovr = calcOverall(stats);
+  const ovrColor = getOvrColor(ovr);
+
+  function setField(key, val) {
+    setForm((f) => ({ ...f, [key]: val }));
+  }
+
+  function setStat(key, val) {
+    setStats((s) => ({ ...s, [key]: val }));
+  }
+
+  const player  = { name: form.name, position: form.position, age: form.age };
+  const academy = { name: form.club };
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, color: C.white, fontFamily: ff.body }}>
-      {/* Nav */}
+
+      {/* 네비 */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
-        padding: '0 20px', height: 56,
+        padding: '0 20px', height: 52,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         background: `${C.bg}ee`, backdropFilter: 'blur(12px)',
         borderBottom: `1px solid ${C.border}`,
       }}>
-        <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: C.sub, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, fontFamily: 'inherit' }}>
-          <ChevronLeft size={16} /> 홈
+        <button onClick={() => navigate('/')} style={{
+          background: 'none', border: 'none', color: C.sub, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontFamily: 'inherit',
+        }}>
+          <ChevronLeft size={15} /> 홈
         </button>
-        <div style={{ fontSize: 11, color: C.gold, letterSpacing: 3, fontWeight: 800 }}>⚽ FDL CARD — 데모</div>
+        <div style={{ fontSize: 11, color: C.gold, letterSpacing: 3, fontWeight: 800 }}>
+          ⚽ FDL CARD — 데모
+        </div>
         <div style={{ width: 60 }} />
       </nav>
 
-      <div style={{ paddingTop: 72, paddingBottom: 60, maxWidth: 900, margin: '0 auto', padding: '72px 20px 60px' }}>
-        {/* Step indicators */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 40 }}>
-          {STEPS.map((label, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: i < step ? C.gold : i === step ? `linear-gradient(135deg, ${accent}, ${accent}aa)` : C.card,
-                  border: `2px solid ${i <= step ? accent : C.border}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 13, fontWeight: 700,
-                  color: i <= step ? (i < step ? C.bg : C.white) : C.gray,
-                  transition: 'all 0.3s',
-                  boxShadow: i === step ? `0 0 16px ${accent}55` : 'none',
-                }}>
-                  {i < step ? '✓' : i + 1}
-                </div>
-                <div style={{ fontSize: 11, color: i <= step ? C.white : C.gray, whiteSpace: 'nowrap' }}>{label}</div>
-              </div>
-              {i < STEPS.length - 1 && (
-                <div style={{ width: 60, height: 2, background: i < step ? accent : C.border, margin: '0 4px', marginBottom: 22, transition: 'background 0.3s' }} />
-              )}
-            </div>
-          ))}
-        </div>
+      {/* 본문 */}
+      <div style={{
+        paddingTop: 68, paddingBottom: 60,
+        maxWidth: 960, margin: '0 auto', padding: '68px 20px 60px',
+      }}>
+        <div style={{
+          display: 'flex', gap: 40, alignItems: 'flex-start',
+          flexWrap: 'wrap', justifyContent: 'center',
+        }}>
 
-        <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {/* Live card preview */}
-          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ fontSize: 11, color: C.sub, letterSpacing: 2 }}>실시간 미리보기</div>
-              <button
-                onClick={() => setShowBack((b) => !b)}
-                style={{ background: 'none', border: `1px solid ${C.border}`, borderRadius: 6, padding: '3px 10px', color: C.sub, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}
-              >
-                <RotateCcw size={11} /> {showBack ? '앞면' : '뒷면'}
-              </button>
+          {/* ── 왼쪽: 카드 미리보기 ── */}
+          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+            <div style={{ fontSize: 10, color: C.sub, letterSpacing: 2 }}>실시간 미리보기</div>
+
+            <CardPreview
+              template={template}
+              player={player}
+              stats={stats}
+              academy={academy}
+              scale={0.65}
+            />
+
+            {/* OVR 배지 */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: C.card, border: `1px solid ${C.border}`,
+              borderRadius: radius.lg, padding: '10px 20px',
+            }}>
+              <span style={{ fontSize: 11, color: C.sub, letterSpacing: 1 }}>OVR</span>
+              <span style={{ fontSize: 40, fontWeight: 900, color: ovrColor, lineHeight: 1, fontFamily: ff.display }}>
+                {ovr}
+              </span>
             </div>
-            {showBack ? (
-              <CardBack template={template} player={MOCK_PLAYER} stats={stats} academy={MOCK_ACADEMY} teamColor={accent} scale={0.65} />
-            ) : (
-              <CardCanvas ref={canvasRef} template={template} player={MOCK_PLAYER} stats={stats} academy={MOCK_ACADEMY} teamColor={accent} scale={0.65} />
-            )}
           </div>
 
-          {/* Step content */}
-          <div style={{ flex: 1, minWidth: 280, maxWidth: 420 }}>
-            {step === 0 && (
-              <div>
-                <h2 style={{ margin: '0 0 20px', fontSize: 22, fontWeight: 800 }}>템플릿 선택</h2>
-                <TemplateSelector
-                  templates={TEMPLATES}
-                  selected={template}
-                  onSelect={setTemplate}
-                  onPremiumClick={(t) => alert(`🔒 ${t.name} 프리미엄 템플릿 (${t.price?.toLocaleString()}원)\n회원가입 후 구매할 수 있습니다.`)}
-                />
-                <div style={{ marginTop: 24 }}>
-                  <Btn style={{ width: '100%' }} onClick={() => setStep(1)}>
-                    다음 — 능력치 입력 <ChevronRight size={16} />
-                  </Btn>
-                </div>
-              </div>
-            )}
+          {/* ── 오른쪽: 편집 패널 ── */}
+          <div style={{ flex: 1, minWidth: 290, maxWidth: 420, display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-            {step === 1 && (
-              <div>
-                <h2 style={{ margin: '0 0 20px', fontSize: 22, fontWeight: 800 }}>능력치 입력</h2>
-                <StatsInputPanel stats={stats} onChange={setStats} />
-                <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
-                  <Btn variant="ghost" onClick={() => setStep(0)} style={{ flex: 1 }}><ChevronLeft size={16} /> 이전</Btn>
-                  <Btn onClick={() => setStep(2)} style={{ flex: 2 }}>완성 확인 <ChevronRight size={16} /></Btn>
-                </div>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div>
-                <h2 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 800 }}>카드 완성!</h2>
-                <p style={{ color: C.sub, fontSize: 14, marginBottom: 24 }}>앞면·뒷면 버튼으로 카드를 확인해보세요. 실제 서비스에서 주문 시 7영업일 이내 실물 배송됩니다.</p>
-
-                {/* Pricing summary */}
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: radius.xl, padding: 20, marginBottom: 20 }}>
-                  <div style={{ fontSize: 12, color: C.sub, letterSpacing: 1, marginBottom: 12 }}>셀프 서비스 가격</div>
-                  {[{ qty: '1장', price: '6,900원' }, { qty: '5장', price: '24,900원', badge: '인기' }, { qty: '11장', price: '49,900원', badge: 'BEST' }, { qty: '20장', price: '89,000원', badge: '최저가' }].map((p) => (
-                    <div key={p.qty} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 15, fontWeight: 700 }}>{p.qty}</span>
-                        {p.badge && <span style={{ fontSize: 9, color: C.gold, border: `1px solid ${C.goldMed}`, padding: '1px 6px', borderRadius: 10, letterSpacing: 1 }}>{p.badge}</span>}
+            {/* 템플릿 선택 */}
+            <section>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.white, marginBottom: 10 }}>템플릿</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                {TEMPLATES.map((t) => {
+                  const isActive = template.id === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => setTemplate(t)}
+                      style={{
+                        background: isActive ? '#ffffff18' : C.card,
+                        border: `2px solid ${isActive ? '#06f185' : C.border}`,
+                        borderRadius: radius.md,
+                        padding: 0, cursor: 'pointer',
+                        overflow: 'hidden', transition: 'all 0.15s',
+                      }}
+                    >
+                      <img
+                        src={`/thumbnails/${t.slug}.png`}
+                        alt={t.name}
+                        style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', display: 'block' }}
+                      />
+                      <div style={{
+                        padding: '4px 0',
+                        fontSize: 10, fontWeight: 700,
+                        color: isActive ? '#06f185' : C.sub,
+                        textAlign: 'center',
+                      }}>
+                        {t.name}
                       </div>
-                      <span style={{ fontSize: 15, fontWeight: 800, color: C.gold }}>{p.price}</span>
-                    </div>
-                  ))}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* 선수 정보 */}
+            <section>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.white, marginBottom: 10 }}>선수 정보</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+                {/* 이름 */}
+                <div>
+                  <label style={labelStyle}>이름</label>
+                  <input
+                    style={inputStyle}
+                    value={form.name}
+                    onChange={(e) => setField('name', e.target.value)}
+                    placeholder="선수 이름"
+                    maxLength={16}
+                  />
                 </div>
 
                 <div style={{ display: 'flex', gap: 10 }}>
-                  <Btn variant="ghost" onClick={() => setStep(1)} style={{ flex: 1 }}><ChevronLeft size={16} /> 수정</Btn>
-                  <Btn onClick={() => navigate('/signup')} style={{ flex: 2 }}>회원가입 후 주문하기</Btn>
+                  {/* 포지션 */}
+                  <div style={{ flex: 1 }}>
+                    <label style={labelStyle}>포지션</label>
+                    <select
+                      style={{ ...inputStyle, cursor: 'pointer' }}
+                      value={form.position}
+                      onChange={(e) => setField('position', e.target.value)}
+                    >
+                      {POSITIONS.map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 나이 */}
+                  <div style={{ width: 80 }}>
+                    <label style={labelStyle}>나이</label>
+                    <input
+                      style={inputStyle}
+                      type="number"
+                      min={5} max={19}
+                      value={form.age}
+                      onChange={(e) => setField('age', Number(e.target.value))}
+                    />
+                  </div>
                 </div>
-                <div style={{ textAlign: 'center', marginTop: 10 }}>
-                  <button onClick={() => navigate('/pricing')} style={{ background: 'none', border: 'none', color: C.gold, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>
-                    원스톱 패키지 가격 보기 →
-                  </button>
+
+                {/* 아카데미 */}
+                <div>
+                  <label style={labelStyle}>아카데미</label>
+                  <input
+                    style={inputStyle}
+                    value={form.club}
+                    onChange={(e) => setField('club', e.target.value)}
+                    placeholder="아카데미 이름"
+                    maxLength={20}
+                  />
                 </div>
               </div>
-            )}
+            </section>
+
+            {/* 능력치 슬라이더 */}
+            <section>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.white, marginBottom: 12 }}>능력치</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {STAT_KEYS.map((key) => (
+                  <StatSlider
+                    key={key}
+                    statKey={key}
+                    label={STAT_LABELS[key]}
+                    value={stats[key] ?? 70}
+                    onChange={(val) => setStat(key, val)}
+                  />
+                ))}
+              </div>
+            </section>
+
+            {/* CTA */}
+            <section style={{
+              background: C.card, border: `1px solid ${C.border}`,
+              borderRadius: radius.xl, padding: 20,
+            }}>
+              <div style={{ fontSize: 12, color: C.sub, letterSpacing: 1, marginBottom: 12 }}>
+                셀프 서비스 가격
+              </div>
+              {[
+                { qty: '1장',  price: '6,900원' },
+                { qty: '5장',  price: '24,900원', badge: '인기' },
+                { qty: '11장', price: '49,900원', badge: 'BEST' },
+                { qty: '20장', price: '89,000원', badge: '최저가' },
+              ].map((p) => (
+                <div key={p.qty} style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '7px 0', borderBottom: `1px solid ${C.border}`,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <span style={{ fontSize: 14, fontWeight: 700 }}>{p.qty}</span>
+                    {p.badge && (
+                      <span style={{
+                        fontSize: 9, color: C.gold,
+                        border: `1px solid ${C.gold}55`,
+                        padding: '1px 6px', borderRadius: 10, letterSpacing: 1,
+                      }}>
+                        {p.badge}
+                      </span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: C.gold }}>{p.price}</span>
+                </div>
+              ))}
+              <div style={{ marginTop: 16 }}>
+                <Btn style={{ width: '100%' }} onClick={() => navigate('/signup')}>
+                  회원가입 후 주문하기
+                </Btn>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 8 }}>
+                <button
+                  onClick={() => navigate('/pricing')}
+                  style={{
+                    background: 'none', border: 'none', color: C.gold,
+                    fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  원스톱 패키지 가격 보기 →
+                </button>
+              </div>
+            </section>
+
           </div>
         </div>
       </div>

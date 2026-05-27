@@ -8,6 +8,7 @@ import PhotoUploader from '../../components/player/PhotoUploader';
 import BgRemovalStatus from '../../components/player/BgRemovalStatus';
 import { C, radius } from '../../tokens';
 import { useAuthStore } from '../../store/authStore';
+import { supabase } from '../../lib/supabase';
 import { createPlayer, uploadPlayerPhoto } from '../../services/players.service';
 
 const POSITIONS = ['GK','CB','LB','RB','CDM','CM','CAM','LW','RW','CF','ST'];
@@ -49,7 +50,7 @@ export default function PlayerNewPage() {
 
       if (photoFile) {
         await uploadPlayerPhoto(player.id, photoFile);
-        await handleRemoveBg(player.id, photoFile);
+        await handleRemoveBg(player.id);
       } else {
         navigate(`/players/${player.id}`);
       }
@@ -59,32 +60,33 @@ export default function PlayerNewPage() {
     }
   }
 
-  async function handleRemoveBg(pid, file) {
+  async function handleRemoveBg(pid) {
     setBgRemoving(true);
     setBgStatus('processing');
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = async () => {
-        const base64 = reader.result.split(',')[1];
-        const res = await fetch('/api/players/remove-bg', {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/remove-bg`,
+        {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ playerId: pid, imageBase64: base64 }),
-        });
-        if (res.ok) {
-          setBgStatus('done');
-          navigate(`/players/${pid}`);
-        } else {
-          setBgStatus('failed');
-          navigate(`/players/${pid}`);
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ playerId: pid }),
         }
-        setBgRemoving(false);
-      };
+      );
+      if (res.ok) {
+        setBgStatus('done');
+      } else {
+        setBgStatus('failed');
+      }
     } catch {
       setBgStatus('failed');
+    } finally {
       setBgRemoving(false);
-      navigate(`/players/${playerId || pid}`);
+      navigate(`/players/${pid}`);
     }
   }
 
