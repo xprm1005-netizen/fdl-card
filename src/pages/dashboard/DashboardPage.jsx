@@ -1,39 +1,79 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, CreditCard, Package, Plus, Trophy, ShoppingCart } from 'lucide-react';
+import { Plus, ShoppingCart, ChevronRight, CreditCard } from 'lucide-react';
 import AppShell from '../../components/layout/AppShell';
-import Pill from '../../components/ui/Pill';
 import { C, ff, radius } from '../../tokens';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { getPlayers } from '../../services/players.service';
 import { getOrders } from '../../services/orders.service';
-import { formatKRW, formatDate } from '../../lib/utils';
+import { determineGrade, calcOverall, formatKRW } from '../../lib/utils';
 
-function StatCard({ label, value, icon: Icon, color = C.gold }) {
+const STATUS_LABEL = {
+  pending: '결제 대기', paid: '결제 완료', printing: '제작 중',
+  shipped: '배송 중', delivered: '배송 완료', cancelled: '취소',
+};
+const STATUS_COLOR = {
+  pending: '#888', paid: '#29ED73', printing: '#FFD700',
+  shipped: '#00D4FF', delivered: '#4CAF50', cancelled: '#666',
+};
+
+function PlayerCard({ player, onCreateCard }) {
+  const ovr = player.latest_overall || 0;
+  const grade = ovr > 0 ? determineGrade(ovr) : null;
+  const photo = player.photo_bg_removed_url || player.photo_url;
+
   return (
     <div style={{
-      background: C.card, border: `1px solid ${C.border}`,
-      borderRadius: radius.lg, padding: '16px 20px',
-      display: 'flex', alignItems: 'center', gap: 14,
+      background: C.card, border: `1px solid ${grade ? `${grade.color}30` : C.border}`,
+      borderRadius: 16, padding: '14px',
+      display: 'flex', alignItems: 'center', gap: 12,
     }}>
-      <div style={{ width: 44, height: 44, background: `${color}15`, borderRadius: radius.md, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <Icon size={22} color={color} />
+      {/* Photo */}
+      <div style={{
+        width: 52, height: 52, borderRadius: 12, overflow: 'hidden',
+        flexShrink: 0, background: '#1e1e1e',
+        border: grade ? `1.5px solid ${grade.color}50` : `1.5px solid ${C.border}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        {photo ? (
+          <img src={photo} alt={player.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <span style={{ fontSize: 22 }}>⚽</span>
+        )}
       </div>
-      <div>
-        <div style={{ fontSize: 26, fontWeight: 800, color: C.white, fontFamily: ff.display }}>{value}</div>
-        <div style={{ fontSize: 12, color: C.sub, marginTop: 1 }}>{label}</div>
+
+      {/* Info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: C.white, marginBottom: 3 }}>{player.name}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{
+            fontSize: 10, fontWeight: 700, color: '#0a0a0a',
+            background: '#29ED73', borderRadius: 4, padding: '1px 6px',
+          }}>{player.position}</span>
+          <span style={{ fontSize: 10, color: C.sub }}>#{player.jersey_number}</span>
+          {grade && (
+            <span style={{ fontSize: 10, fontWeight: 800, color: grade.color }}>
+              {grade.name} {ovr}
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* Action */}
+      <button
+        onClick={() => onCreateCard(player.id)}
+        style={{
+          background: '#29ED73', color: '#0a0a0a',
+          border: 'none', borderRadius: 10, padding: '8px 14px',
+          fontSize: 12, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+          flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4,
+        }}>
+        <CreditCard size={13} /> 카드 만들기
+      </button>
     </div>
   );
 }
-
-const QUICK_ACTIONS = [
-  { label: '선수 등록', icon: Plus,    color: C.gold,   bg: 'rgba(255,215,0,0.08)',   to: '/players/new' },
-  { label: '팀 일괄 등록', icon: Users, color: C.toty, bg: 'rgba(0,229,255,0.08)', to: '/players/new-team' },
-  { label: '랭킹 보기',  icon: Trophy,  color: C.legend, bg: 'rgba(224,64,251,0.08)', to: '/ranking' },
-  { label: '주문 조회',  icon: Package, color: C.green,  bg: 'rgba(0,230,118,0.08)',  to: '/orders' },
-];
 
 export default function DashboardPage() {
   const { academy } = useAuthStore();
@@ -41,155 +81,185 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [players, setPlayers] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!academy) return;
-    Promise.all([getPlayers(academy.id), getOrders(academy.id)]).then(([p, o]) => {
-      setPlayers(p);
-      setOrders(o);
-    });
+    Promise.all([getPlayers(academy.id), getOrders(academy.id)])
+      .then(([p, o]) => { setPlayers(p); setOrders(o); })
+      .finally(() => setLoading(false));
   }, [academy]);
 
-  const pendingOrders = orders.filter((o) => !['delivered', 'cancelled'].includes(o.status));
+  const recentOrders = orders.slice(0, 3);
 
   return (
     <AppShell>
-      {/* App-style header */}
+      <style>{`@keyframes fade-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`}</style>
+
+      {/* ── 헤더 ── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: `${C.bg}ee`, backdropFilter: 'blur(12px)',
+        background: `${C.bg}f0`, backdropFilter: 'blur(14px)',
         borderBottom: `1px solid ${C.border}`,
         padding: '14px 20px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {academy?.logo_url ? (
-            <img src={academy.logo_url} alt="로고" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover' }} />
+            <img src={academy.logo_url} alt="" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }} />
           ) : (
-            <div style={{
-              width: 36, height: 36, borderRadius: 10,
-              background: C.goldSoft, border: `1px solid ${C.goldMed}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 16, color: C.gold, fontWeight: 800,
-            }}>F</div>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#29ED7320', border: '1px solid #29ED7340', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#29ED73', fontWeight: 900 }}>
+              {(academy?.name || 'F')[0]}
+            </div>
           )}
           <div>
-            <div style={{ fontSize: 11, color: C.sub }}>안녕하세요!</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: C.white }}>
-              {academy?.name || '아카데미'}
-            </div>
+            <div style={{ fontSize: 12, color: C.sub, lineHeight: 1 }}>안녕하세요</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: C.white, lineHeight: 1.3 }}>{academy?.name || '내 팀'}</div>
           </div>
         </div>
-
-        {/* Cart icon */}
-        <button
-          onClick={() => navigate('/cart')}
-          style={{
-            position: 'relative', background: 'none', border: 'none',
-            cursor: 'pointer', padding: 8, color: C.sub,
-          }}
-        >
-          <ShoppingCart size={22} color={cartCount > 0 ? C.gold : C.gray} />
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {cartCount > 0 && (
-            <span style={{
-              position: 'absolute', top: 2, right: 2,
-              background: C.gold, color: C.bg,
-              borderRadius: 8, padding: '1px 5px',
-              fontSize: 9, fontWeight: 700, lineHeight: 1.4,
-            }}>{cartCount}</span>
+            <button onClick={() => navigate('/cart')}
+              style={{
+                background: '#29ED7318', border: '1px solid #29ED7340',
+                borderRadius: 10, padding: '7px 12px',
+                color: '#29ED73', fontSize: 13, fontWeight: 700,
+                cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', gap: 5,
+              }}>
+              <ShoppingCart size={14} /> {cartCount}
+            </button>
           )}
-        </button>
+        </div>
       </div>
 
-      <div style={{ padding: '20px 20px 32px', maxWidth: 960, margin: '0 auto' }}>
-        {/* Stats row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
-          <StatCard label="등록 선수" value={players.length} icon={Users} color={C.gold} />
-          <StatCard label="진행 주문" value={pendingOrders.length} icon={Package} color={C.toty} />
-          <StatCard label="총 주문" value={orders.length} icon={CreditCard} color={C.legend} />
-        </div>
+      <div style={{ padding: '16px 20px 80px', maxWidth: 600, margin: '0 auto', animation: 'fade-in 0.3s ease' }}>
 
-        {/* Quick actions 2x2 grid */}
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: C.sub, marginBottom: 12, letterSpacing: 1 }}>빠른 실행</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            {QUICK_ACTIONS.map(({ label, icon: Icon, color, bg, to }) => (
-              <button
-                key={label}
-                onClick={() => navigate(to)}
-                style={{
-                  background: bg,
-                  border: `1px solid ${color}30`,
-                  borderRadius: radius.lg,
-                  padding: '20px 16px',
-                  cursor: 'pointer',
-                  display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10,
-                  fontFamily: 'inherit',
-                  transition: 'all 0.15s',
-                }}
-              >
-                <div style={{ width: 38, height: 38, background: `${color}20`, borderRadius: radius.md, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon size={20} color={color} />
-                </div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: C.white }}>{label}</div>
-              </button>
-            ))}
+        {/* ── 선수 등록 유도 배너 ── */}
+        {!loading && players.length === 0 ? (
+          <div style={{
+            background: 'linear-gradient(135deg, #29ED7315, #29ED7305)',
+            border: '1px solid #29ED7330',
+            borderRadius: 20, padding: '28px 24px',
+            textAlign: 'center', marginBottom: 20,
+          }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>⚽</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: C.white, marginBottom: 8 }}>
+              첫 선수를 등록해보세요
+            </div>
+            <div style={{ fontSize: 14, color: C.sub, marginBottom: 20, lineHeight: 1.6 }}>
+              선수 정보와 능력치를 입력하면<br />바로 카드를 만들 수 있어요
+            </div>
+            <button onClick={() => navigate('/players/new')}
+              style={{
+                background: '#29ED73', color: '#0a0a0a',
+                border: 'none', borderRadius: 12, padding: '14px 32px',
+                fontSize: 15, fontWeight: 900,
+                cursor: 'pointer', fontFamily: 'inherit',
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+              }}>
+              <Plus size={16} /> 선수 등록하기
+            </button>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* ── 선수 섹션 ── */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: C.white }}>
+                  선수 {players.length}명
+                </span>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => navigate('/players/new')}
+                    style={{
+                      background: '#29ED7318', border: '1px solid #29ED7340',
+                      borderRadius: 8, padding: '6px 12px',
+                      color: '#29ED73', fontSize: 12, fontWeight: 700,
+                      cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', gap: 4,
+                    }}>
+                    <Plus size={12} /> 등록
+                  </button>
+                  <button onClick={() => navigate('/players')}
+                    style={{
+                      background: 'none', border: `1px solid ${C.border}`,
+                      borderRadius: 8, padding: '6px 12px',
+                      color: C.sub, fontSize: 12, fontWeight: 600,
+                      cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', gap: 3,
+                    }}>
+                    전체 <ChevronRight size={12} />
+                  </button>
+                </div>
+              </div>
 
-        {/* Recent orders */}
-        {orders.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {players.slice(0, 5).map((player) => (
+                  <PlayerCard
+                    key={player.id}
+                    player={player}
+                    onCreateCard={(id) => navigate(`/cards/create/${id}`)}
+                  />
+                ))}
+                {players.length > 5 && (
+                  <button onClick={() => navigate('/players')}
+                    style={{
+                      background: 'none', border: `1px dashed ${C.border}`,
+                      borderRadius: 16, padding: '14px',
+                      color: C.sub, fontSize: 13, fontWeight: 600,
+                      cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                    }}>
+                    +{players.length - 5}명 더 보기 <ChevronRight size={14} />
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ── 최근 주문 ── */}
+        {recentOrders.length > 0 && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: C.sub, letterSpacing: 1 }}>최근 주문</div>
-              <button onClick={() => navigate('/orders')} style={{ background: 'none', border: 'none', color: C.gold, cursor: 'pointer', fontSize: 12, fontFamily: 'inherit' }}>전체 보기 →</button>
+              <span style={{ fontSize: 14, fontWeight: 800, color: C.white }}>최근 주문</span>
+              <button onClick={() => navigate('/orders')}
+                style={{ background: 'none', border: 'none', color: C.sub, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 3 }}>
+                전체 <ChevronRight size={12} />
+              </button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {orders.slice(0, 3).map((order) => (
-                <div
-                  key={order.id}
+              {recentOrders.map((order) => (
+                <div key={order.id}
                   onClick={() => navigate(`/orders/${order.id}`)}
                   style={{
                     background: C.card, border: `1px solid ${C.border}`,
-                    borderRadius: radius.md, padding: '14px 16px',
+                    borderRadius: 14, padding: '14px 16px',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     cursor: 'pointer',
-                  }}
-                >
+                  }}>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: C.white }}>{order.order_number}</div>
-                    <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>{formatDate(order.created_at)}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: C.white, marginBottom: 3 }}>
+                      {order.order_number}
+                    </div>
+                    <div style={{
+                      display: 'inline-block', fontSize: 10, fontWeight: 700,
+                      color: STATUS_COLOR[order.status] || '#888',
+                      background: `${STATUS_COLOR[order.status] || '#888'}15`,
+                      border: `1px solid ${STATUS_COLOR[order.status] || '#888'}30`,
+                      borderRadius: 6, padding: '2px 8px',
+                    }}>
+                      {STATUS_LABEL[order.status] || order.status}
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: C.gold }}>{formatKRW(order.total_amount)}</span>
-                    <Pill status={order.status} />
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: '#29ED73' }}>
+                      {formatKRW(order.total_amount)}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {orders.length === 0 && players.length === 0 && (
-          <div style={{
-            textAlign: 'center', padding: '40px 20px',
-            background: C.card, borderRadius: radius.xl,
-            border: `1px solid ${C.border}`,
-          }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>⚽</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: C.white, marginBottom: 6 }}>아직 데이터가 없어요</div>
-            <div style={{ fontSize: 13, color: C.sub, marginBottom: 20 }}>선수를 등록하고 첫 번째 카드를 만들어보세요</div>
-            <button
-              onClick={() => navigate('/players/new')}
-              style={{
-                background: C.gold, color: C.bg, border: 'none',
-                borderRadius: radius.md, padding: '10px 20px',
-                fontWeight: 700, fontSize: 14, cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
-              선수 등록하기
-            </button>
           </div>
         )}
       </div>

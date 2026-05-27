@@ -39,7 +39,7 @@ export default function LoginPage() {
       <div style={{ width: '100%', maxWidth: 400 }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <div style={{ fontSize: 11, color: C.gold, letterSpacing: 4, fontWeight: 700, marginBottom: 8 }}>⚽ FDL CARD</div>
+          <div style={{ fontSize: 11, color: '#29ED73', letterSpacing: 4, fontWeight: 700, marginBottom: 8 }}>⚽ FDL CARD</div>
           <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: C.white }}>로그인</h1>
           <p style={{ color: C.sub, fontSize: 14, marginTop: 8 }}>아카데미 계정으로 로그인하세요</p>
         </div>
@@ -75,7 +75,7 @@ export default function LoginPage() {
 
         <p style={{ textAlign: 'center', color: C.sub, fontSize: 14, marginTop: 24 }}>
           계정이 없으신가요?{' '}
-          <Link to="/signup" style={{ color: C.gold, textDecoration: 'none', fontWeight: 600 }}>아카데미 등록</Link>
+          <Link to="/signup" style={{ color: '#29ED73', textDecoration: 'none', fontWeight: 600 }}>무료 가입</Link>
         </p>
         <p style={{ textAlign: 'center', marginTop: 8 }}>
           <Link to="/" style={{ color: C.gray, textDecoration: 'none', fontSize: 13 }}>← 홈으로</Link>

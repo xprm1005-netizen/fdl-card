@@ -56,16 +56,16 @@ export default function SignupPage() {
   return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ width: '100%', maxWidth: 440 }}>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <div style={{ fontSize: 11, color: C.gold, letterSpacing: 4, fontWeight: 700, marginBottom: 8 }}>⚽ FDL CARD</div>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: C.white }}>아카데미 등록</h1>
-          <p style={{ color: C.sub, fontSize: 14, marginTop: 8 }}>선수카드 제작을 시작하세요</p>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ fontSize: 11, color: '#29ED73', letterSpacing: 4, fontWeight: 700, marginBottom: 8 }}>⚽ FDL CARD</div>
+          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 900, color: C.white }}>무료로 시작하기</h1>
+          <p style={{ color: C.sub, fontSize: 14, marginTop: 8 }}>팀 정보를 입력하고 바로 카드를 만드세요</p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Input
-            label="아카데미명 *"
-            placeholder="예: FDL FC 축구 아카데미"
+            label="팀명 / 아카데미명 *"
+            placeholder="예: 분당FC, 김민준 팀"
             value={form.academyName}
             onChange={(e) => set('academyName', e.target.value)}
             required
@@ -167,14 +167,17 @@ export default function SignupPage() {
             </div>
           )}
 
-          <Btn type="submit" fullWidth loading={loading} style={{ marginTop: 8 }}>
-            아카데미 시작하기
+          <Btn type="submit" fullWidth loading={loading} style={{ marginTop: 8, background: '#29ED73', color: '#0a0a0a' }}>
+            시작하기 →
           </Btn>
         </form>
 
         <p style={{ textAlign: 'center', color: C.sub, fontSize: 14, marginTop: 24 }}>
           이미 계정이 있으신가요?{' '}
-          <Link to="/login" style={{ color: C.gold, textDecoration: 'none', fontWeight: 600 }}>로그인</Link>
+          <Link to="/login" style={{ color: '#29ED73', textDecoration: 'none', fontWeight: 600 }}>로그인</Link>
+        </p>
+        <p style={{ textAlign: 'center', marginTop: 8 }}>
+          <Link to="/" style={{ color: C.gray, textDecoration: 'none', fontSize: 13 }}>← 홈으로</Link>
         </p>
       </div>
     </div>
