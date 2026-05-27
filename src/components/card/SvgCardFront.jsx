@@ -1,110 +1,173 @@
-const W = 400;
-const H = 700;
+import { useId } from 'react';
+import { calcOverall } from '../../lib/utils';
 
-const STAT_DEFS = [
-  { key: 'pac', label: 'PAC', left: 116, top: 586 },
-  { key: 'dri', label: 'DRI', left: 216, top: 586 },
-  { key: 'phy', label: 'PHY', left: 316, top: 586 },
-  { key: 'acc', label: 'ACC', left: 116, top: 632 },
-  { key: 'tac', label: 'TAC', left: 216, top: 632 },
-  { key: 'psy', label: 'PSY', left: 316, top: 632 },
+// Exact coordinates from 앞면.svg (400×700 viewBox)
+const ROW1 = [
+  { key: 'pac', icon: '🏃', label: 'PAC',   ix: 100, nx: 130 },
+  { key: 'dri', icon: '⚽', label: 'DRI',   ix: 200, nx: 230 },
+  { key: 'phy', icon: '🔥', label: 'PHY',   ix: 300, nx: 330 },
 ];
+const ROW2 = [
+  { key: 'acc', icon: '🎯', label: 'ACC',   ix: 100, nx: 130 },
+  { key: 'tac', icon: '📋', label: 'TACT',  ix: 200, nx: 230 },
+  { key: 'psy', icon: '💡', label: 'PSYCH', ix: 300, nx: 330 },
+];
+const FF = '"Inter", -apple-system, sans-serif';
 
 export default function SvgCardFront({
   cardType = 'THE',
   cardLabel = '',
-  jerseyNumber = '',
-  position = '',
+  position = 'FW',
   photoUrl = '',
   academyLogoUrl = '',
-  playerName = '',
   academyName = '',
+  playerName = '',
+  playerNameEn = '',
   age = '',
-  birthDate = '',
-  nationality = '',
-  pac = 75, dri = 70, phy = 70, acc = 75, tac = 70, psy = 70,
+  height = '',
+  weight = '',
+  pac = 70, dri = 70, phy = 70,
+  acc = 70, tac = 70, psy = 70,
   scale = 1,
+  jerseyNumber,
+  birthDate,
+  nationality,
 }) {
-  const stats = { pac, dri, phy, acc, tac, psy };
-  const metaParts = [academyName, age ? `${age}세` : null, birthDate, nationality].filter(Boolean);
+  const uid  = useId().replace(/[^a-z0-9]/gi, '');
+  const ovr  = calcOverall({ pac, dri, phy, acc, tac, psy });
+  const vals = { pac, dri, phy, acc, tac, psy };
+
+  const words = (cardLabel || '').trim().split(/\s+/).filter(Boolean);
+  const line2 = words[0] || '';
+  const line3 = words.slice(1).join(' ');
+  const hw    = [height && `${height}cm`, weight && `${weight}kg`].filter(Boolean).join(' · ');
 
   return (
-    <div style={{ width: W * scale, height: H * scale, flexShrink: 0, position: 'relative' }}>
-      <div style={{
-        position: 'absolute', top: 0, left: 0,
-        width: W, height: H,
-        transform: `scale(${scale})`,
-        transformOrigin: 'top left',
-        borderRadius: 16,
-        overflow: 'hidden',
-        fontFamily: "'Arial Black', Arial, sans-serif",
-        userSelect: 'none',
-      }}>
-        <img src="/card-front.svg" alt="" style={{ position: 'absolute', inset: 0, width: W, height: H, display: 'block', zIndex: 0 }} />
+    <svg
+      width={400 * scale}
+      height={700 * scale}
+      viewBox="0 0 400 700"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <linearGradient id={`pg${uid}`} x1="0" y1="290" x2="400" y2="290" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#B3B3B3" />
+          <stop offset="1" stopColor="#666666" />
+        </linearGradient>
+        <clipPath id={`cc${uid}`}>
+          <rect width="400" height="700" rx="16" />
+        </clipPath>
+      </defs>
 
-        {/* Photo zone */}
-        <div style={{ position: 'absolute', left: 0, top: 130, width: 400, height: 320, zIndex: 1, overflow: 'hidden' }}>
-          {photoUrl && (
-            <img src={photoUrl} alt={playerName} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block' }} />
-          )}
-        </div>
+      <g clipPath={`url(#cc${uid})`}>
+        <rect width="400" height="700" rx="16" fill="black" />
+        <rect width="400" height="200" fill="#29ED73" />
 
-        {/* Header label (left) */}
-        <div style={{
-          position: 'absolute', left: 12, top: 12, width: 226, height: 178, zIndex: 2,
-          background: '#29ED73', display: 'flex', flexDirection: 'column',
-          justifyContent: 'flex-end', padding: '0 10px 14px', gap: 3,
-        }}>
-          <span style={{ fontSize: 10, fontWeight: 900, color: 'rgba(10,10,10,0.6)', letterSpacing: 3, textTransform: 'uppercase' }}>{cardType}</span>
-          <span style={{ fontSize: 26, fontWeight: 900, color: '#0a0a0a', lineHeight: 1.0, letterSpacing: '-0.5px', textTransform: 'uppercase' }}>{cardLabel}</span>
-        </div>
+        {/* 카드 타입 - 3줄 */}
+        <text fontFamily={FF} fontSize="28" fontWeight="900" fill="white">
+          <tspan x="20" y="50.18">{cardType}</tspan>
+        </text>
+        <text fontFamily={FF} fontSize="28" fontWeight="900" fill="white">
+          <tspan x="20" y="80.18">{line2}</tspan>
+        </text>
+        <text fontFamily={FF} fontSize="28" fontWeight="900" fill="white">
+          <tspan x="20" y="110.18">{line3}</tspan>
+        </text>
 
-        {/* Header jersey (right) */}
-        <div style={{
-          position: 'absolute', right: 6, top: 4, width: 168, height: 192, zIndex: 2,
-          background: '#29ED73', display: 'flex', flexDirection: 'column',
-          alignItems: 'flex-end', justifyContent: 'flex-end', padding: '0 10px 6px',
-        }}>
-          <span style={{ fontSize: 108, fontWeight: 900, color: '#0a0a0a', lineHeight: 0.88, letterSpacing: -6 }}>{jerseyNumber}</span>
-          <span style={{ fontSize: 13, fontWeight: 900, color: '#0a0a0a', letterSpacing: 3, marginTop: 4 }}>{position}</span>
-        </div>
+        {/* OVR */}
+        <text fontFamily={FF} fontSize="90" fontWeight="900" fill="black">
+          <tspan x="240" y="107.23">{ovr}</tspan>
+        </text>
 
-        {/* Info bar */}
-        <div style={{
-          position: 'absolute', left: 15, top: 460, width: 370, height: 75, zIndex: 2,
-          background: '#ffffff', borderRadius: 8, overflow: 'hidden',
-          display: 'flex', alignItems: 'center',
-        }}>
-          <div style={{ width: 71, height: 75, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 8px' }}>
-            {academyLogoUrl ? (
-              <img src={academyLogoUrl} alt={academyName} style={{ width: 55, height: 60, borderRadius: 6, background: '#F2F2F2', objectFit: 'contain', display: 'block' }} />
-            ) : (
-              <div style={{ width: 55, height: 60, borderRadius: 6, background: '#F2F2F2' }} />
-            )}
-          </div>
-          <div style={{ flex: 1, minWidth: 0, padding: '8px 10px 8px 0' }}>
-            <div style={{ fontSize: 21, fontWeight: 900, color: '#0a0a0a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.1 }}>{playerName}</div>
-            <div style={{ fontFamily: 'Arial, sans-serif', fontSize: 10, fontWeight: 700, color: '#666', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 4, letterSpacing: 0.3 }}>
-              {metaParts.join(' · ')}
-            </div>
-          </div>
-        </div>
+        {/* 포지션 */}
+        <text fontFamily={FF} fontSize="24" fontWeight="bold" fill="black">
+          <tspan x="355" y="103.23">{position}</tspan>
+        </text>
 
-        {/* Stat left cover */}
-        <div style={{ position: 'absolute', left: 12, top: 556, width: 90, height: 44, zIndex: 2, background: '#29ED73' }} />
+        {/* 사진 영역 */}
+        <rect y="130" width="400" height="320" fill={`url(#pg${uid})`} />
+        {photoUrl
+          ? <image href={photoUrl} x="0" y="130" width="400" height="320" preserveAspectRatio="xMidYMid slice" />
+          : <text fontFamily={FF} fontSize="16" fill="white" fillOpacity="0.5">
+              <tspan x="165" y="300.32">플레이어 사진</tspan>
+            </text>
+        }
 
-        {/* Stats */}
-        {STAT_DEFS.map(({ key, label, left, top }) => (
-          <div key={key} style={{
-            position: 'absolute', left, top, width: 72, height: 43, zIndex: 2,
-            display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-            background: '#29ED73', padding: '1px 2px 2px',
-          }}>
-            <span style={{ fontSize: 22, fontWeight: 900, color: '#0a0a0a', lineHeight: 1 }}>{stats[key]}</span>
-            <span style={{ fontSize: 9, fontWeight: 900, color: 'rgba(10,10,10,0.75)', letterSpacing: 1.5, marginTop: 1 }}>{label}</span>
-          </div>
+        {/* 정보 흰 바 */}
+        <rect x="15" y="460" width="370" height="75" rx="8" fill="white" />
+
+        {/* 로고 박스 */}
+        <rect x="22" y="468" width="55" height="60" rx="6" fill="#F2F2F2" />
+        {academyLogoUrl
+          ? <image href={academyLogoUrl} x="22" y="468" width="55" height="60" preserveAspectRatio="xMidYMid meet" />
+          : <>
+              <text fontFamily={FF} fontSize="7" fontWeight="bold" fill="black">
+                <tspan x="30.85" y="517.05">FOOTBALL</tspan>
+              </text>
+              <text fontFamily={FF} fontSize="7" fontWeight="bold" fill="black">
+                <tspan x="32.35" y="526.05">DATA LAB</tspan>
+              </text>
+            </>
+        }
+
+        <text fontFamily={FF} fontSize="10" fill="#666666">
+          <tspan x="90" y="487.64">{academyName}</tspan>
+        </text>
+        <text fontFamily={FF} fontSize="22" fontWeight="bold" fill="black">
+          <tspan x="90" y="514.5">{playerName}</tspan>
+        </text>
+        {playerNameEn && (
+          <text fontFamily={FF} fontSize="10" fill="#666666">
+            <tspan x="170" y="514.64">{playerNameEn}</tspan>
+          </text>
+        )}
+        <text fontFamily={FF} fontSize="9" fill="#666666">
+          <tspan x="340" y="486.77">AGE</tspan>
+        </text>
+        <text fontFamily={FF} fontSize="22" fontWeight="bold" fill="black">
+          <tspan x="340" y="514.5">{age}</tspan>
+        </text>
+
+        {/* 스탯 섹션 */}
+        <rect y="550" width="400" height="150" fill="#29ED73" />
+        <text fontFamily={FF} fontSize="11" fontWeight="bold" fill="black">
+          <tspan x="15" y="572.5">👤 MY STATS</tspan>
+        </text>
+        {hw && (
+          <text fontFamily={FF} fontSize="10" fill="black">
+            <tspan x="15" y="591.64">{hw}</tspan>
+          </text>
+        )}
+
+        {ROW1.map(({ key, icon, label, ix, nx }) => (
+          <g key={key}>
+            <text fontFamily={FF} fontSize="16"><tspan x={ix} y="605.88">{icon}</tspan></text>
+            <text fontFamily={FF} fontSize="22" fontWeight="900" fill="black"><tspan x={nx} y="609.5">{vals[key]}</tspan></text>
+            <text fontFamily={FF} fontSize="8" fontWeight="bold" fill="black"><tspan x={nx} y="622.91">{label}</tspan></text>
+          </g>
         ))}
-      </div>
-    </div>
+        {ROW2.map(({ key, icon, label, ix, nx }) => (
+          <g key={key}>
+            <text fontFamily={FF} fontSize="16"><tspan x={ix} y="650.88">{icon}</tspan></text>
+            <text fontFamily={FF} fontSize="22" fontWeight="900" fill="black"><tspan x={nx} y="654.5">{vals[key]}</tspan></text>
+            <text fontFamily={FF} fontSize="8" fontWeight="bold" fill="black"><tspan x={nx} y="667.91">{label}</tspan></text>
+          </g>
+        ))}
+
+        {/* FDL 로고 박스 */}
+        <rect x="15" y="660" width="70" height="28" rx="4" fill="black" />
+        <text fontFamily={FF} fontSize="6" fontWeight="bold" fill="#29ED73">
+          <tspan x="44.36" y="672.18">FDL</tspan>
+        </text>
+        <text fontFamily={FF} fontSize="6" fontWeight="bold" fill="#29ED73">
+          <tspan x="18.62" y="680.18">FOOTBALL DATA LAB</tspan>
+        </text>
+
+        <text fontFamily={FF} fontSize="7" fill="black" fillOpacity="0.5">
+          <tspan x="188" y="694.55">©FDL</tspan>
+        </text>
+      </g>
+    </svg>
   );
 }
