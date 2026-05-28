@@ -3,11 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { C, radius } from '../../tokens';
 import Btn from '../../components/ui/Btn';
 import Input from '../../components/ui/Input';
-import { signIn } from '../../services/auth.service';
-import { loadCurrentUser } from '../../services/auth.service';
+import { signIn, loadCurrentUser } from '../../services/auth.service';
 import { useAuthStore } from '../../store/authStore';
+import { supabase } from '../../lib/supabase';
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@fdl.com';
+// 서버에서 admin 권한 확인 (환경변수 불일치 문제 방지)
+async function checkIsAdmin() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) return false;
+  const res = await fetch('/api/admin/me', {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  });
+  return res.ok;
+}
 
 export default function AdminLoginPage() {
   const navigate = useNavigate();
@@ -16,10 +24,12 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // 이미 admin으로 로그인된 경우 바로 대시보드로
+  // 이미 로그인된 경우 admin 여부 서버로 확인 후 리다이렉트
   useEffect(() => {
-    if (user?.email === ADMIN_EMAIL) {
-      navigate('/admin/orders', { replace: true });
+    if (user) {
+      checkIsAdmin().then((ok) => {
+        if (ok) navigate('/admin/orders', { replace: true });
+      });
     }
   }, [user]);
 
@@ -29,12 +39,14 @@ export default function AdminLoginPage() {
     setLoading(true);
     try {
       await signIn(form);
-      const { user: u, academy } = await loadCurrentUser();
-      if (u?.email !== ADMIN_EMAIL) {
+      const isAdmin = await checkIsAdmin();
+      if (!isAdmin) {
+        await supabase.auth.signOut();
         setError('관리자 계정이 아닙니다.');
         setLoading(false);
         return;
       }
+      const { user: u, academy } = await loadCurrentUser();
       setUser(u);
       setAcademy(academy);
       navigate('/admin/orders', { replace: true });
