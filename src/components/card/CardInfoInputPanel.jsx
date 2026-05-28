@@ -1,6 +1,21 @@
+import { useState } from 'react';
 import { C, radius } from '../../tokens';
 
 const POSITIONS = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'CF', 'ST', 'FW'];
+
+const LABEL_PRESETS = [
+  'SPEED KING',
+  'GOAL MACHINE',
+  'PLAYMAKER',
+  'IRON WALL',
+  'DRIBBLE KING',
+  'FINISHER',
+  'ASSIST KING',
+  'GUARDIAN',
+  'TEAM PLAYER',
+  'ROCKET SHOT',
+  'DIRECT KICK',
+];
 
 const inputStyle = {
   width: '100%', background: '#1a1a1a', border: `1px solid rgba(255,255,255,0.12)`,
@@ -24,9 +39,24 @@ function Field({ label, children }) {
 }
 
 export default function CardInfoInputPanel({ info, onChange }) {
+  const isCustom = info.cardLabel !== '' && !LABEL_PRESETS.includes(info.cardLabel);
+  const [showCustom, setShowCustom] = useState(isCustom);
+
   function set(key, val) {
     onChange({ ...info, [key]: val });
   }
+
+  function handleLabelSelect(val) {
+    if (val === '__custom__') {
+      setShowCustom(true);
+      set('cardLabel', '');
+    } else {
+      setShowCustom(false);
+      set('cardLabel', val);
+    }
+  }
+
+  const selectValue = showCustom ? '__custom__' : (info.cardLabel || LABEL_PRESETS[0]);
 
   return (
     <div>
@@ -40,14 +70,27 @@ export default function CardInfoInputPanel({ info, onChange }) {
             maxLength={20}
           />
         </Field>
-        <Field label="카드 라벨 (예: SPEED KING)">
-          <input
-            style={inputStyle}
-            value={info.cardLabel}
-            onChange={e => set('cardLabel', e.target.value)}
-            placeholder="SPEED KING"
-            maxLength={30}
-          />
+        <Field label="카드 라벨">
+          <select
+            style={{ ...inputStyle, cursor: 'pointer' }}
+            value={selectValue}
+            onChange={e => handleLabelSelect(e.target.value)}
+          >
+            {LABEL_PRESETS.map(p => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+            <option value="__custom__">직접 입력...</option>
+          </select>
+          {showCustom && (
+            <input
+              style={{ ...inputStyle, marginTop: 8 }}
+              value={info.cardLabel}
+              onChange={e => set('cardLabel', e.target.value)}
+              placeholder="직접 입력 (예: SPEED DEMON)"
+              maxLength={30}
+              autoFocus
+            />
+          )}
         </Field>
       </div>
 

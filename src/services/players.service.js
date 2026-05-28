@@ -20,13 +20,14 @@ export async function getPlayer(id) {
   return data;
 }
 
-export async function createPlayer({ academyId, name, position, jerseyNumber, age }) {
+export async function createPlayer({ academyId, name, nameEn, position, jerseyNumber, age }) {
   const payload = {
     academy_id: academyId,
     name,
     position,
     jersey_number: jerseyNumber,
   };
+  if (nameEn) payload.name_en = nameEn;
   if (age !== undefined && age !== null && age !== '') {
     payload.age = Number(age);
   }

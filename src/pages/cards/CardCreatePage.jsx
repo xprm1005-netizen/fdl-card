@@ -95,7 +95,8 @@ export default function CardCreatePage() {
       cardLabel={cardInfo.cardLabel}
       jerseyNumber={cardInfo.jerseyNumber}
       position={cardInfo.position}
-      photoUrl={player.photo_url || ''}
+      photoUrl={player.photo_bg_removed_url || player.photo_url || ''}
+      playerNameEn={player.name_en || ''}
       academyLogoUrl={logoUrl}
       playerName={player.name}
       academyName={academy?.name || ''}

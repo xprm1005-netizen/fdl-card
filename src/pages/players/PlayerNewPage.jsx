@@ -13,10 +13,35 @@ import { createPlayer, uploadPlayerPhoto } from '../../services/players.service'
 
 const POSITIONS = ['GK','CB','LB','RB','CDM','CM','CAM','LW','RW','CF','ST'];
 
+// Revised Romanization of Korean
+const CHO  = ['g','kk','n','d','tt','r','m','b','pp','s','ss','','j','jj','ch','k','t','p','h'];
+const JUNG = ['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i'];
+const JONG = ['','k','k','k','n','n','n','t','l','k','m','p','l','l','p','l','m','p','p','t','t','ng','t','t','k','t','p','t'];
+
+function romanizeHangul(str) {
+  let result = '';
+  for (const ch of str) {
+    const code = ch.charCodeAt(0);
+    if (code >= 0xAC00 && code <= 0xD7A3) {
+      const offset = code - 0xAC00;
+      const cho  = Math.floor(offset / (21 * 28));
+      const jung = Math.floor((offset % (21 * 28)) / 28);
+      const jong = offset % 28;
+      result += CHO[cho] + JUNG[jung] + JONG[jong];
+    } else if ((code >= 0x41 && code <= 0x5A) || (code >= 0x61 && code <= 0x7A)) {
+      result += ch;
+    } else if (ch === ' ') {
+      result += ' ';
+    }
+  }
+  return result.toUpperCase();
+}
+
 export default function PlayerNewPage() {
   const { academy } = useAuthStore();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', position: 'ST', jerseyNumber: '', age: '' });
+  const [form, setForm] = useState({ name: '', nameEn: '', position: 'ST', jerseyNumber: '', age: '' });
+  const [nameEnManual, setNameEnManual] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
   const [bgStatus, setBgStatus] = useState('none');
@@ -26,6 +51,19 @@ export default function PlayerNewPage() {
   const [bgRemoving, setBgRemoving] = useState(false);
 
   function set(k, v) { setForm((f) => ({ ...f, [k]: v })); }
+
+  function handleNameChange(e) {
+    const val = e.target.value;
+    set('name', val);
+    if (!nameEnManual) {
+      set('nameEn', romanizeHangul(val));
+    }
+  }
+
+  function handleNameEnChange(e) {
+    setNameEnManual(true);
+    set('nameEn', e.target.value);
+  }
 
   async function handlePhoto(file) {
     setPhotoFile(file);
@@ -42,6 +80,7 @@ export default function PlayerNewPage() {
       const player = await createPlayer({
         academyId: academy.id,
         name: form.name,
+        nameEn: form.nameEn || undefined,
         position: form.position,
         jerseyNumber: Number(form.jerseyNumber),
         age: form.age ? Number(form.age) : null,
@@ -106,7 +145,19 @@ export default function PlayerNewPage() {
             )}
           </div>
 
-          <Input label="선수 이름 *" placeholder="홍길동" value={form.name} onChange={(e) => set('name', e.target.value)} />
+          <Input
+            label="선수 이름 *"
+            placeholder="홍길동"
+            value={form.name}
+            onChange={handleNameChange}
+          />
+
+          <Input
+            label="영문 이름 (카드에 표시)"
+            placeholder="HONG GIL DONG"
+            value={form.nameEn}
+            onChange={handleNameEnChange}
+          />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
             <Select label="포지션 *" value={form.position} onChange={(e) => set('position', e.target.value)}>

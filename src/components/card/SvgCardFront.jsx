@@ -51,10 +51,11 @@ export default function SvgCardFront({
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        <linearGradient id={`pg${uid}`} x1="0" y1="290" x2="400" y2="290" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#B3B3B3" />
-          <stop offset="1" stopColor="#666666" />
-        </linearGradient>
+        <radialGradient id={`pg${uid}`} cx="200" cy="320" r="240" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#1e4a28" />
+          <stop offset="0.55" stopColor="#0d2015" />
+          <stop offset="1" stopColor="#050808" />
+        </radialGradient>
         <clipPath id={`cc${uid}`}>
           <rect width="400" height="700" rx="16" />
         </clipPath>
