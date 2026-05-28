@@ -163,11 +163,11 @@ export default function SvgCardFront({
           </g>
         ))}
 
-        {/* FDL 인증 로고 — 좌측 컬럼 (x<100), ROW2와 나란히 */}
+        {/* FDL 인증 로고 — MY STATS 바로 아래 ~ 섹션 하단, 좌측 컬럼 전체 */}
         <image
           href="/brand/fdl-logo.png"
-          x="5" y="644"
-          width="92" height="50"
+          x="5" y="596"
+          width="90" height="94"
           preserveAspectRatio="xMidYMid meet"
         />
 
