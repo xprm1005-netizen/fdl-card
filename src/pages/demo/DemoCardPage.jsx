@@ -16,8 +16,8 @@ const PREMIUM = {
 };
 
 const LEVEL_CARDS = [
-  { id: 'r6', src: '/thumbnails/r6.jpg', name: 'TOTY',   desc: '올해의 팀 레벨 인증카드',  badgeColor: '#00D4FF', badgeBg: '#00D4FF15', badgeBorder: '#00D4FF40', comingSoon: false },
-  { id: 'r5', src: '/thumbnails/r5.jpg', name: 'ICON',   desc: '아이콘 레벨 인증카드',    badgeColor: '#FF6B35', badgeBg: '#FF6B3515', badgeBorder: '#FF6B3540', comingSoon: false },
+  { id: 'r6', src: '/thumbnails/r6.jpg', name: 'TOTY',   desc: '올해의 팀 레벨 인증카드',  badgeColor: '#00D4FF', badgeBg: '#00D4FF15', badgeBorder: '#00D4FF40', comingSoon: true },
+  { id: 'r5', src: '/thumbnails/r5.jpg', name: 'ICON',   desc: '아이콘 레벨 인증카드',    badgeColor: '#FF6B35', badgeBg: '#FF6B3515', badgeBorder: '#FF6B3540', comingSoon: true },
   { id: 'r4', src: '/thumbnails/r4.jpg', name: 'LEGEND', desc: '레전드 레벨 인증카드',    badgeColor: '#C8A951', badgeBg: '#C8A95115', badgeBorder: '#C8A95140', comingSoon: true },
   { id: 'r3', src: '/thumbnails/r3.jpg', name: 'EPIC',   desc: '에픽 레벨 인증카드',      badgeColor: '#9B59B6', badgeBg: '#9B59B615', badgeBorder: '#9B59B640', comingSoon: true },
   { id: 'r2', src: '/thumbnails/r2.jpg', name: 'RARE',   desc: '레어 레벨 인증카드',      badgeColor: '#4A90D9', badgeBg: '#4A90D915', badgeBorder: '#4A90D940', comingSoon: true },
