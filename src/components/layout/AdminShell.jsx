@@ -1,16 +1,28 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Package, Printer, Users, CreditCard, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Package, Printer, Users, CreditCard, LogOut } from 'lucide-react';
 import { C, radius } from '../../tokens';
+import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/authStore';
 
 const NAV = [
-  { to: '/admin/orders',    icon: Package,  label: '주문 관리' },
-  { to: '/admin/print',     icon: Printer,  label: '인쇄 작업' },
-  { to: '/admin/academies', icon: Users,    label: '아카데미' },
-  { to: '/admin/templates', icon: CreditCard, label: '템플릿' },
+  { to: '/admin/dashboard', icon: LayoutDashboard, label: '대시보드' },
+  { to: '/admin/orders',    icon: Package,          label: '주문 관리' },
+  { to: '/admin/print',     icon: Printer,          label: '인쇄 작업' },
+  { to: '/admin/academies', icon: Users,            label: '아카데미' },
+  { to: '/admin/templates', icon: CreditCard,       label: '템플릿' },
 ];
 
 export default function AdminShell({ children }) {
   const navigate = useNavigate();
+  const { setUser, setAcademy } = useAuthStore();
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setUser(null);
+    setAcademy(null);
+    navigate('/admin', { replace: true });
+  }
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: C.bg }}>
       <aside style={{
@@ -39,7 +51,7 @@ export default function AdminShell({ children }) {
         </nav>
         <div style={{ padding: 12, borderTop: `1px solid ${C.border}` }}>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={handleLogout}
             style={{
               display: 'flex', alignItems: 'center', gap: 8,
               width: '100%', padding: '10px 12px',
@@ -48,8 +60,8 @@ export default function AdminShell({ children }) {
               fontFamily: 'inherit', borderRadius: radius.md,
             }}
           >
-            <ArrowLeft size={18} />
-            대시보드로
+            <LogOut size={18} />
+            로그아웃
           </button>
         </div>
       </aside>

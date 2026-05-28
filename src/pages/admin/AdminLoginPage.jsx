@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
   useEffect(() => {
     if (user) {
       checkIsAdmin().then((ok) => {
-        if (ok) navigate('/admin/orders', { replace: true });
+        if (ok) navigate('/admin/dashboard', { replace: true });
       });
     }
   }, [user]);
@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
       const { user: u, academy } = await loadCurrentUser();
       setUser(u);
       setAcademy(academy);
-      navigate('/admin/orders', { replace: true });
+      navigate('/admin/dashboard', { replace: true });
     } catch {
       setError('이메일 또는 비밀번호를 확인해주세요.');
     } finally {
