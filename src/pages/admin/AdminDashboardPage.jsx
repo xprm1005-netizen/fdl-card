@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminShell from '../../components/layout/AdminShell';
-import Pill from '../../components/ui/Pill';
 import { C, radius } from '../../tokens';
 import { supabase } from '../../lib/supabase';
-import { formatKRW, formatDateTime } from '../../lib/utils';
+import { formatKRW } from '../../lib/utils';
 import { updateOrderStatus, createPrintJob } from '../../services/admin.service';
+
+async function fetchAdminOrders() {
+  const { data: { session } } = await supabase.auth.getSession();
+  const res = await fetch('/api/admin/orders', {
+    headers: { Authorization: `Bearer ${session?.access_token}` },
+  });
+  if (!res.ok) throw new Error('Failed');
+  return res.json();
+}
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
@@ -16,14 +24,9 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState({});
 
   async function loadAll() {
-    const { data: orders } = await supabase
-      .from('orders')
-      .select('id, status, total_amount, created_at, order_number, academy_id, academies(name)')
-      .order('created_at', { ascending: false });
+    const orders = await fetchAdminOrders().catch(() => []);
+    if (!orders.length && orders.length !== 0) return;
 
-    if (!orders) return;
-
-    // 통계
     const counts = {};
     let totalRevenue = 0;
     const now = new Date();
@@ -71,205 +74,191 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminShell>
-      <div style={{ padding: '24px' }}>
+      <style>{`
+        @media (max-width: 600px) {
+          .dash-revenue  { grid-template-columns: 1fr 1fr !important; }
+          .dash-status   { grid-template-columns: repeat(3, 1fr) !important; }
+          .dash-panels   { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+
+      <div style={{ padding: '20px 16px' }}>
 
         {/* 헤더 */}
-        <div style={{ marginBottom: 24 }}>
+        <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 10, color: '#29ED73', fontWeight: 700, letterSpacing: 2, marginBottom: 4 }}>ADMIN DASHBOARD</div>
-          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: C.white }}>전체 주문 현황</h2>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: C.white }}>전체 주문 현황</h2>
         </div>
 
         {/* 매출 요약 */}
         {stats && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
+          <div className="dash-revenue" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 16 }}>
             {[
-              { label: '총 누적 매출',    value: formatKRW(stats.totalRevenue),  icon: '💰' },
-              { label: '이번 달 매출',   value: formatKRW(stats.monthRevenue),   icon: '📅' },
-              { label: '전체 주문 건수', value: `${stats.total}건`,              icon: '📦' },
+              { label: '총 누적 매출',   value: formatKRW(stats.totalRevenue), icon: '💰' },
+              { label: '이번 달 매출',   value: formatKRW(stats.monthRevenue),  icon: '📅' },
+              { label: '전체 주문',      value: `${stats.total}건`,             icon: '📦' },
             ].map(({ label, value, icon }) => (
               <div key={label} style={{
                 background: C.card, border: `1px solid ${C.border}`,
-                borderRadius: radius.lg, padding: '16px',
+                borderRadius: radius.lg, padding: '14px 12px',
               }}>
-                <div style={{ fontSize: 18, marginBottom: 6 }}>{icon}</div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: C.white }}>{value}</div>
-                <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>{label}</div>
+                <div style={{ fontSize: 16, marginBottom: 4 }}>{icon}</div>
+                <div style={{ fontSize: 16, fontWeight: 900, color: C.white, wordBreak: 'break-all' }}>{value}</div>
+                <div style={{ fontSize: 10, color: C.sub, marginTop: 2 }}>{label}</div>
               </div>
             ))}
           </div>
         )}
 
         {/* 상태별 현황 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 28 }}>
+        <div className="dash-status" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6, marginBottom: 20 }}>
           {STATUS_CARDS.map(({ label, value, color, bg, border, urgent }) => (
             <div key={label} style={{
               background: bg, border: `1px solid ${border}`,
-              borderRadius: radius.lg, padding: '14px 10px', textAlign: 'center',
+              borderRadius: radius.md, padding: '10px 6px', textAlign: 'center',
               position: 'relative',
             }}>
               {urgent && value > 0 && (
                 <div style={{
-                  position: 'absolute', top: 6, right: 6,
-                  width: 8, height: 8, borderRadius: '50%',
-                  background: color, boxShadow: `0 0 6px ${color}`,
+                  position: 'absolute', top: 5, right: 5,
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: color, boxShadow: `0 0 5px ${color}`,
                 }} />
               )}
-              <div style={{ fontSize: 26, fontWeight: 900, color }}>{value}</div>
-              <div style={{ fontSize: 10, color: C.sub, marginTop: 2, fontWeight: 600 }}>{label}</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color }}>{value}</div>
+              <div style={{ fontSize: 9, color: C.sub, marginTop: 2, fontWeight: 600, lineHeight: 1.3 }}>{label}</div>
             </div>
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        {/* 4개 패널 */}
+        <div className="dash-panels" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
 
-          {/* ── 입금 확인 필요 ── */}
-          <div style={{ background: C.card, border: '1px solid rgba(41,237,115,0.25)', borderRadius: radius.xl, padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          {/* 입금 확인 필요 */}
+          <div style={{ background: C.card, border: '1px solid rgba(41,237,115,0.25)', borderRadius: radius.xl, padding: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#29ED73' }}>입금 확인 필요</div>
-                <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>신한 110-590-001866 입금 대기 중</div>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#29ED73' }}>입금 확인 필요</div>
+                <div style={{ fontSize: 10, color: C.sub, marginTop: 1 }}>신한 110-590-001866</div>
               </div>
-              <div style={{
+              <span style={{
                 background: 'rgba(41,237,115,0.15)', border: '1px solid rgba(41,237,115,0.3)',
-                borderRadius: 20, padding: '3px 10px', fontSize: 12, fontWeight: 800, color: '#29ED73',
-              }}>
-                {pendingOrders.length}건
-              </div>
+                borderRadius: 20, padding: '2px 8px', fontSize: 11, fontWeight: 800, color: '#29ED73',
+              }}>{pendingOrders.length}건</span>
             </div>
             {pendingOrders.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px 0', color: C.sub, fontSize: 13 }}>대기 중인 주문 없음</div>
+              <div style={{ textAlign: 'center', padding: '16px 0', color: C.sub, fontSize: 12 }}>대기 없음</div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {pendingOrders.map((o) => (
                   <div key={o.id} style={{
                     background: 'rgba(255,255,255,0.04)', borderRadius: radius.md,
-                    padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8,
                   }}>
-                    <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => navigate(`/admin/orders/${o.id}`)}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>{o.order_number}</div>
-                      <div style={{ fontSize: 11, color: C.sub, marginTop: 1 }}>
-                        {o.academies?.name} · {formatKRW(o.total_amount)}
-                      </div>
+                    <div style={{ flex: 1, cursor: 'pointer', minWidth: 0 }} onClick={() => navigate(`/admin/orders/${o.id}`)}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.order_number}</div>
+                      <div style={{ fontSize: 10, color: C.sub, marginTop: 1 }}>{formatKRW(o.total_amount)}</div>
                     </div>
                     <button
                       disabled={loading[o.id]}
                       onClick={() => handleConfirmPayment(o.id)}
                       style={{
-                        padding: '6px 12px', borderRadius: radius.sm,
+                        padding: '5px 10px', borderRadius: radius.sm, flexShrink: 0,
                         background: 'rgba(41,237,115,0.15)', border: '1px solid rgba(41,237,115,0.4)',
-                        color: '#29ED73', fontSize: 11, fontWeight: 700,
-                        cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                        color: '#29ED73', fontSize: 10, fontWeight: 700,
+                        cursor: 'pointer', fontFamily: 'inherit',
                         opacity: loading[o.id] ? 0.5 : 1,
                       }}
-                    >
-                      {loading[o.id] ? '처리중' : '✅ 입금확인'}
-                    </button>
+                    >{loading[o.id] ? '처리중' : '✅ 확인'}</button>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* ── 발주 대기 (인쇄 전송) ── */}
-          <div style={{ background: C.card, border: '1px solid rgba(255,215,0,0.25)', borderRadius: radius.xl, padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          {/* 발주 대기 */}
+          <div style={{ background: C.card, border: '1px solid rgba(255,215,0,0.25)', borderRadius: radius.xl, padding: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#FFD700' }}>발주 대기</div>
-                <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>확인 완료 → 인쇄 전송 대기</div>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#FFD700' }}>발주 대기</div>
+                <div style={{ fontSize: 10, color: C.sub, marginTop: 1 }}>인쇄 전송 대기 중</div>
               </div>
-              <div style={{
+              <span style={{
                 background: 'rgba(255,215,0,0.15)', border: '1px solid rgba(255,215,0,0.3)',
-                borderRadius: 20, padding: '3px 10px', fontSize: 12, fontWeight: 800, color: '#FFD700',
-              }}>
-                {confirmedOrders.length}건
-              </div>
+                borderRadius: 20, padding: '2px 8px', fontSize: 11, fontWeight: 800, color: '#FFD700',
+              }}>{confirmedOrders.length}건</span>
             </div>
             {confirmedOrders.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px 0', color: C.sub, fontSize: 13 }}>발주 대기 없음</div>
+              <div style={{ textAlign: 'center', padding: '16px 0', color: C.sub, fontSize: 12 }}>발주 대기 없음</div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {confirmedOrders.map((o) => (
                   <div key={o.id} style={{
                     background: 'rgba(255,255,255,0.04)', borderRadius: radius.md,
-                    padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8,
                   }}>
-                    <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => navigate(`/admin/orders/${o.id}`)}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>{o.order_number}</div>
-                      <div style={{ fontSize: 11, color: C.sub, marginTop: 1 }}>
-                        {o.academies?.name} · {formatKRW(o.total_amount)}
-                      </div>
+                    <div style={{ flex: 1, cursor: 'pointer', minWidth: 0 }} onClick={() => navigate(`/admin/orders/${o.id}`)}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.order_number}</div>
+                      <div style={{ fontSize: 10, color: C.sub, marginTop: 1 }}>{formatKRW(o.total_amount)}</div>
                     </div>
                     <button
                       disabled={loading[o.id]}
                       onClick={() => handleStartPrint(o.id)}
                       style={{
-                        padding: '6px 12px', borderRadius: radius.sm,
+                        padding: '5px 10px', borderRadius: radius.sm, flexShrink: 0,
                         background: 'rgba(255,215,0,0.15)', border: '1px solid rgba(255,215,0,0.4)',
-                        color: '#FFD700', fontSize: 11, fontWeight: 700,
-                        cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+                        color: '#FFD700', fontSize: 10, fontWeight: 700,
+                        cursor: 'pointer', fontFamily: 'inherit',
                         opacity: loading[o.id] ? 0.5 : 1,
                       }}
-                    >
-                      {loading[o.id] ? '처리중' : '🖨️ 인쇄발주'}
-                    </button>
+                    >{loading[o.id] ? '처리중' : '🖨️ 발주'}</button>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* ── 입금 확인 완료 (주문 확인 대기) ── */}
-          <div style={{ background: C.card, border: `1px solid rgba(0,212,255,0.2)`, borderRadius: radius.xl, padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          {/* 입금 완료 */}
+          <div style={{ background: C.card, border: '1px solid rgba(0,212,255,0.2)', borderRadius: radius.xl, padding: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#00D4FF' }}>입금 완료</div>
-                <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>주문 확인 처리 필요</div>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#00D4FF' }}>입금 완료</div>
+                <div style={{ fontSize: 10, color: C.sub, marginTop: 1 }}>주문 확인 처리 필요</div>
               </div>
-              <div style={{
+              <span style={{
                 background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.3)',
-                borderRadius: 20, padding: '3px 10px', fontSize: 12, fontWeight: 800, color: '#00D4FF',
-              }}>
-                {paidOrders.length}건
-              </div>
+                borderRadius: 20, padding: '2px 8px', fontSize: 11, fontWeight: 800, color: '#00D4FF',
+              }}>{paidOrders.length}건</span>
             </div>
             {paidOrders.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px 0', color: C.sub, fontSize: 13 }}>없음</div>
+              <div style={{ textAlign: 'center', padding: '16px 0', color: C.sub, fontSize: 12 }}>없음</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {paidOrders.map((o) => (
-                  <div
-                    key={o.id}
-                    onClick={() => navigate(`/admin/orders/${o.id}`)}
-                    style={{
-                      background: 'rgba(255,255,255,0.04)', borderRadius: radius.md,
-                      padding: '10px 14px', cursor: 'pointer',
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>{o.order_number}</div>
-                      <div style={{ fontSize: 11, color: C.sub, marginTop: 1 }}>{o.academies?.name}</div>
+                  <div key={o.id} onClick={() => navigate(`/admin/orders/${o.id}`)} style={{
+                    background: 'rgba(255,255,255,0.04)', borderRadius: radius.md,
+                    padding: '10px 12px', cursor: 'pointer',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.order_number}</div>
+                      <div style={{ fontSize: 10, color: C.sub, marginTop: 1 }}>{o.academies?.name}</div>
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: C.white }}>{formatKRW(o.total_amount)}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: C.white, flexShrink: 0, marginLeft: 8 }}>{formatKRW(o.total_amount)}</span>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* ── 최근 전체 주문 ── */}
-          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: radius.xl, padding: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: C.white }}>전체 주문</div>
-              <button
-                onClick={() => navigate('/admin/orders')}
-                style={{
-                  background: 'none', border: 'none', color: C.sub,
-                  fontSize: 12, cursor: 'pointer', fontFamily: 'inherit',
-                }}
-              >
-                전체보기 →
-              </button>
+          {/* 전체 주문 현황 */}
+          <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: radius.xl, padding: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: C.white }}>전체 주문</div>
+              <button onClick={() => navigate('/admin/orders')} style={{
+                background: 'none', border: 'none', color: C.sub,
+                fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+              }}>전체보기 →</button>
             </div>
             {stats && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -280,17 +269,17 @@ export default function AdminDashboardPage() {
                   { status: 'printing',  label: '인쇄 중',   color: '#FF9800' },
                   { status: 'shipped',   label: '배송 중',   color: '#9B59B6' },
                   { status: 'delivered', label: '배송 완료', color: C.sub     },
-                  { status: 'cancelled', label: '취소',      color: '#ff4444'  },
+                  { status: 'cancelled', label: '취소',      color: '#ff4444' },
                 ].map(({ status, label, color }) => {
                   const count = stats.counts[status] || 0;
                   const pct = stats.total > 0 ? (count / stats.total) * 100 : 0;
                   return (
-                    <div key={status} style={{ marginBottom: 10 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                        <span style={{ fontSize: 12, color: C.sub }}>{label}</span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color }}>{count}건</span>
+                    <div key={status} style={{ marginBottom: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                        <span style={{ fontSize: 11, color: C.sub }}>{label}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color }}>{count}건</span>
                       </div>
-                      <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2 }}>
+                      <div style={{ height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2 }}>
                         <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 2, transition: 'width 0.5s' }} />
                       </div>
                     </div>
@@ -299,6 +288,7 @@ export default function AdminDashboardPage() {
               </div>
             )}
           </div>
+
         </div>
       </div>
     </AdminShell>

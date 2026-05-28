@@ -17,55 +17,51 @@ const TABS = [
   { key: 'delivered', label: '배송 완료' },
 ];
 
+async function fetchAdminOrders() {
+  const { data: { session } } = await supabase.auth.getSession();
+  const res = await fetch('/api/admin/orders', {
+    headers: { Authorization: `Bearer ${session?.access_token}` },
+  });
+  if (!res.ok) throw new Error('Failed to load orders');
+  return res.json();
+}
+
 export default function AdminOrdersPage() {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [tab, setTab] = useState(null);
   const [counts, setCounts] = useState({});
 
-  async function load(status) {
-    let q = supabase
-      .from('orders')
-      .select('*, academies(name)')
-      .order('created_at', { ascending: false });
-    if (status) q = q.eq('status', status);
-    const { data } = await q;
-    setOrders(data || []);
-  }
-
-  async function loadCounts() {
-    const { data } = await supabase
-      .from('orders')
-      .select('status');
-    if (!data) return;
+  async function load() {
+    const data = await fetchAdminOrders().catch(() => []);
+    setAllOrders(data);
     const c = {};
     data.forEach(({ status }) => { c[status] = (c[status] || 0) + 1; });
     setCounts(c);
   }
 
-  useEffect(() => {
-    load(tab);
-    loadCounts();
-  }, [tab]);
+  useEffect(() => { load(); }, []);
+
+  const orders = tab ? allOrders.filter((o) => o.status === tab) : allOrders;
 
   return (
     <AdminShell>
       <Topbar title="주문 관리" />
-      <div style={{ padding: '20px' }}>
+      <div style={{ padding: '16px 20px' }}>
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
           {TABS.map((t) => {
-            const count = t.key ? counts[t.key] : Object.values(counts).reduce((a, b) => a + b, 0);
+            const count = t.key ? (counts[t.key] || 0) : Object.values(counts).reduce((a, b) => a + b, 0);
             const isActive = tab === t.key;
-            const isPendingAlert = t.key === 'pending' && counts['pending'] > 0;
+            const isPendingAlert = t.key === 'pending' && (counts['pending'] || 0) > 0;
             return (
               <button key={String(t.key)} onClick={() => setTab(t.key)} style={{
-                padding: '6px 14px', borderRadius: 20,
+                padding: '6px 12px', borderRadius: 20,
                 background: isActive ? C.gold : (isPendingAlert ? 'rgba(41,237,115,0.12)' : C.card),
                 color: isActive ? C.bg : (isPendingAlert ? '#29ED73' : C.sub),
                 border: `1px solid ${isActive ? C.gold : (isPendingAlert ? 'rgba(41,237,115,0.4)' : C.border)}`,
-                cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6,
+                cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 5,
               }}>
                 {t.label}
                 {count > 0 && (
@@ -94,19 +90,19 @@ export default function AdminOrdersPage() {
                 style={{
                   background: C.card,
                   border: `1px solid ${order.status === 'pending' ? 'rgba(41,237,115,0.3)' : C.border}`,
-                  borderRadius: radius.lg, padding: '16px 20px',
+                  borderRadius: radius.lg, padding: '14px 16px',
                   cursor: 'pointer', display: 'grid',
                   gridTemplateColumns: '1fr auto auto',
-                  gap: 16, alignItems: 'center',
+                  gap: 12, alignItems: 'center',
                 }}
               >
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: C.gold }}>{order.order_number}</div>
-                  <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>
                     {order.academies?.name} · {formatDateTime(order.created_at)}
                   </div>
                 </div>
-                <span style={{ fontSize: 15, fontWeight: 700, color: C.white }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: C.white }}>
                   {formatKRW(order.total_amount)}
                 </span>
                 <Pill status={order.status} />
