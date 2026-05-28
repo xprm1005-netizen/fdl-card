@@ -178,46 +178,42 @@ export default function SvgCardFront({
           <tspan x="96" y="483">{academyName}</tspan>
         </text>
 
-        {/* 선수 이름 */}
-        <text fontFamily={FF} fontSize="26" fontWeight="900" fill="black">
-          <tspan x="96" y="510">{playerName}</tspan>
+        {/* 선수 이름 + 영문 이름 (같은 줄) */}
+        <text fontFamily={FF} x="96" y="510" fill="black">
+          <tspan fontSize="26" fontWeight="900">{playerName}</tspan>
+          {playerNameEn && (
+            <tspan fontSize="11" fill="#888888" dx="8" dy="-4">{playerNameEn}</tspan>
+          )}
         </text>
-
-        {/* 영문 이름 */}
-        {playerNameEn && (
-          <text fontFamily={FF} fontSize="10" fill="#888888">
-            <tspan x="96" y="525">{playerNameEn}</tspan>
-          </text>
-        )}
 
         {/* AGE */}
         <text fontFamily={FF} fontSize="9" fill="#666666">
-          <tspan x="383" y="483" textAnchor="end">AGE</tspan>
+          <tspan x="368" y="483" textAnchor="end">AGE</tspan>
         </text>
         <text fontFamily={FF} fontSize="24" fontWeight="900" fill="black">
-          <tspan x="388" y="511" textAnchor="end">{age}</tspan>
+          <tspan x="368" y="511" textAnchor="end">{age}</tspan>
         </text>
 
         {/* ── 스탯 섹션 (y=535, height=165) ── */}
         <rect y="535" width="400" height="165" fill="#29ED73" />
 
-        {/* FDL 인증 로고 — 좌측 전체 컬럼 */}
-        <image
-          href="/brand/fdl-logo.png"
-          x="0" y="535"
-          width="120" height="159"
-          preserveAspectRatio="xMidYMid meet"
-        />
-
-        {/* MY STATS + hw (우측 컬럼 상단) */}
+        {/* MY STATS + hw — 좌측 상단 (로고 위) */}
         <text fontFamily={FF} fontSize="11" fontWeight="bold" fill="black">
-          <tspan x="128" y="554">👤 MY STATS</tspan>
+          <tspan x="15" y="554">👤 MY STATS</tspan>
         </text>
         {hw && (
           <text fontFamily={FF} fontSize="10" fill="black">
-            <tspan x="128" y="570">{hw}</tspan>
+            <tspan x="15" y="570">{hw}</tspan>
           </text>
         )}
+
+        {/* FDL 인증 로고 — 좌측 하단 (MY STATS 아래) */}
+        <image
+          href="/brand/fdl-logo.png"
+          x="0" y="578"
+          width="120" height="116"
+          preserveAspectRatio="xMidYMid meet"
+        />
 
         {/* ROW1 스탯 */}
         {ROW1.map(({ key, icon, label, ix, nx }) => (
