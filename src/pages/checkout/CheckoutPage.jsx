@@ -30,12 +30,12 @@ export default function CheckoutPage() {
     setLoading(true);
     try {
       const cartItems = items.map((i) => ({ cardId: i.cardId, quantity: i.quantity, unitPrice: i.unitPrice }));
-      const { orderId, amount } = await createOrder({
+      const { orderId, orderNumber, amount } = await createOrder({
         academyId: academy.id,
         cartItems,
         shipping: { name: form.name, phone: form.phone, address: form.address, address2: form.address2, zip: form.zip },
       });
-      navigate('/checkout/payment', { state: { orderId, amount } });
+      navigate('/checkout/payment', { state: { orderId, orderNumber, amount } });
     } catch (err) {
       setError('주문 생성 중 오류가 발생했습니다: ' + err.message);
     } finally {

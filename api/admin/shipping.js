@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '../_adminAuth.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -7,6 +8,7 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (!await requireAdmin(req, res)) return;
 
   const { orderId, carrier, trackingNumber } = req.body;
   if (!orderId || !carrier || !trackingNumber) {

@@ -36,18 +36,20 @@ export async function cancelOrder(id) {
 }
 
 export async function deleteOrder(id) {
-  // Delete child records first
-  const { error: itemsError } = await supabase.from('order_items').delete().eq('order_id', id);
-  if (itemsError) throw itemsError;
-
-  const { error: paymentsError } = await supabase.from('payments').delete().eq('order_id', id);
-  if (paymentsError) throw paymentsError;
-
-  const { error: jobsError } = await supabase.from('print_jobs').delete().eq('order_id', id);
-  if (jobsError) throw jobsError;
-
-  const { error } = await supabase.from('orders').delete().eq('id', id);
-  if (error) throw error;
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+  const res = await fetch('/api/orders/delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ orderId: id }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || '삭제 중 오류가 발생했습니다.');
+  }
 }
 
 export async function confirmPayment({ paymentKey, orderId, amount }) {
