@@ -52,7 +52,7 @@ export default function SvgCardFront({
         {/* 2. Green header overlay — in front of bg, behind player photo */}
         <rect y="20" width="389" height="102" fill="#29ED73" />
 
-        {/* Card type + label text — BLACK on green */}
+        {/* Card type + label text — BLACK on green, behind photo */}
         <text fontFamily={FF} fontSize="28" fontWeight="900" fill="black">
           <tspan x="20" y="50.1818">{cardType}</tspan>
         </text>
@@ -63,20 +63,18 @@ export default function SvgCardFront({
           <tspan x="20" y="110.182">{line3}</tspan>
         </text>
 
-        {/* OVR */}
-        <text fontFamily={FF} fontSize="90" fontWeight="900" fill="black">
-          <tspan x="236" y="107.227">{ovr}</tspan>
-        </text>
-
-        {/* Position */}
-        <text fontFamily={FF} fontSize="24" fontWeight="bold" fill="black">
-          <tspan x="351" y="103.227">{position}</tspan>
-        </text>
-
-        {/* 3. Player photo cutout — on top of green header, overlapping it */}
+        {/* 3. Player photo cutout — on top of green header */}
         {photoUrl && (
           <image href={photoUrl} x="-5" y="0" width="405" height="500" preserveAspectRatio="xMidYMid slice" />
         )}
+
+        {/* 4. OVR + Position — in front of photo */}
+        <text fontFamily={FF} fontSize="90" fontWeight="900" fill="black">
+          <tspan x="236" y="107.227">{ovr}</tspan>
+        </text>
+        <text fontFamily={FF} fontSize="24" fontWeight="bold" fill="black">
+          <tspan x="351" y="103.227">{position}</tspan>
+        </text>
 
         {/* White info bar */}
         <rect x="-17" y="491" width="429" height="65" rx="8" fill="white" />
