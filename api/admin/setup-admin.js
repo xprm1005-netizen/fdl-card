@@ -7,6 +7,7 @@ const supabase = createClient(
 );
 
 const SETUP_SECRET = process.env.SETUP_SECRET || 'fdl-setup-2024';
+const ADMIN_USER_ID = '8235cd5e-5781-4af4-829a-0886fde1d93e';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -17,28 +18,29 @@ export default async function handler(req, res) {
   const email = 'admin@fdl.com';
   const password = 'admin1';
 
-  // Check if user exists
-  const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
-  if (listError) return res.status(500).json({ error: listError.message });
+  // Try updating existing user first
+  const { data: updated, error: updateError } = await supabase.auth.admin.updateUserById(
+    ADMIN_USER_ID,
+    { password, email_confirm: true }
+  );
 
-  const existing = users.find((u) => u.email === email);
-
-  if (existing) {
-    // Update password
-    const { error } = await supabase.auth.admin.updateUserById(existing.id, {
-      password,
-      email_confirm: true,
-    });
-    if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ action: 'updated', email });
-  } else {
-    // Create user
-    const { data, error } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-    });
-    if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ action: 'created', email, id: data.user?.id });
+  if (!updateError) {
+    return res.status(200).json({ action: 'updated', email, id: ADMIN_USER_ID });
   }
+
+  // If update failed, try creating
+  const { data: created, error: createError } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  });
+
+  if (createError) {
+    return res.status(500).json({
+      updateError: updateError.message,
+      createError: createError.message,
+    });
+  }
+
+  return res.status(200).json({ action: 'created', email, id: created.user?.id });
 }
