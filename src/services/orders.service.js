@@ -30,6 +30,26 @@ export async function createOrder({ academyId, cartItems, shipping }) {
   return res.json();
 }
 
+export async function cancelOrder(id) {
+  const { error } = await supabase.from('orders').update({ status: 'cancelled' }).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteOrder(id) {
+  // Delete child records first
+  const { error: itemsError } = await supabase.from('order_items').delete().eq('order_id', id);
+  if (itemsError) throw itemsError;
+
+  const { error: paymentsError } = await supabase.from('payments').delete().eq('order_id', id);
+  if (paymentsError) throw paymentsError;
+
+  const { error: jobsError } = await supabase.from('print_jobs').delete().eq('order_id', id);
+  if (jobsError) throw jobsError;
+
+  const { error } = await supabase.from('orders').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function confirmPayment({ paymentKey, orderId, amount }) {
   const res = await fetch('/api/orders/confirm-payment', {
     method: 'POST',

@@ -1,21 +1,43 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Trash2, XCircle } from 'lucide-react';
 import AppShell from '../../components/layout/AppShell';
 import Topbar from '../../components/layout/Topbar';
 import Pill from '../../components/ui/Pill';
 import { C, radius } from '../../tokens';
-import { getOrder } from '../../services/orders.service';
+import { getOrder, cancelOrder, deleteOrder } from '../../services/orders.service';
 import { formatKRW, formatDateTime } from '../../lib/utils';
 
 const STATUS_STEPS = ['pending', 'paid', 'confirmed', 'printing', 'shipped', 'delivered'];
 
 export default function OrderDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [order, setOrder] = useState(null);
 
   useEffect(() => {
     getOrder(id).then(setOrder);
   }, [id]);
+
+  async function handleCancel() {
+    if (!confirm('주문을 취소하시겠습니까?')) return;
+    try {
+      await cancelOrder(id);
+      setOrder((o) => ({ ...o, status: 'cancelled' }));
+    } catch (err) {
+      alert('취소 중 오류: ' + err.message);
+    }
+  }
+
+  async function handleDelete() {
+    if (!confirm('주문을 완전히 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+    try {
+      await deleteOrder(id);
+      navigate('/orders');
+    } catch (err) {
+      alert('삭제 중 오류: ' + err.message);
+    }
+  }
 
   if (!order) return <AppShell><div style={{ padding: 40, textAlign: 'center', color: C.sub }}>로딩 중...</div></AppShell>;
 
@@ -91,9 +113,46 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
-        <div style={{ fontSize: 12, color: C.gray, textAlign: 'center' }}>
+        <div style={{ fontSize: 12, color: C.gray, textAlign: 'center', marginBottom: order.status === 'pending' || order.status === 'cancelled' ? 20 : 0 }}>
           주문일시 {formatDateTime(order.created_at)}
         </div>
+
+        {/* 결제 대기 상태: 취소 + 삭제 버튼 */}
+        {order.status === 'pending' && (
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={handleCancel} style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              background: 'transparent', border: '1px solid #ff993340',
+              borderRadius: radius.md, padding: '12px 0',
+              color: '#ff9933', fontSize: 13, fontWeight: 700,
+              cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+              <XCircle size={15} /> 결제 취소
+            </button>
+            <button onClick={handleDelete} style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              background: 'transparent', border: '1px solid #ff444440',
+              borderRadius: radius.md, padding: '12px 0',
+              color: '#ff4444', fontSize: 13, fontWeight: 700,
+              cursor: 'pointer', fontFamily: 'inherit',
+            }}>
+              <Trash2 size={15} /> 주문 삭제
+            </button>
+          </div>
+        )}
+
+        {/* 취소된 주문: 삭제만 가능 */}
+        {order.status === 'cancelled' && (
+          <button onClick={handleDelete} style={{
+            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            background: 'transparent', border: '1px solid #ff444440',
+            borderRadius: radius.md, padding: '12px 0',
+            color: '#ff4444', fontSize: 13, fontWeight: 700,
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}>
+            <Trash2 size={15} /> 주문 삭제
+          </button>
+        )}
       </div>
     </AppShell>
   );

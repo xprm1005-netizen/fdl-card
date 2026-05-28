@@ -56,8 +56,16 @@ export async function updateCardStats(id, stats) {
 }
 
 export async function deleteCard(id) {
+  // Remove from cart first (FK constraint)
+  const { error: cartError } = await supabase.from('cart_items').delete().eq('card_id', id);
+  if (cartError) throw cartError;
+
   const { error } = await supabase.from('player_cards').delete().eq('id', id);
-  if (error) throw error;
+  if (error) {
+    // order_items still reference this card — block with a clear message
+    if (error.code === '23503') throw new Error('이 카드는 주문 내역이 있어 삭제할 수 없습니다.');
+    throw error;
+  }
 }
 
 export async function saveCardPreview(cardId, dataURL) {
