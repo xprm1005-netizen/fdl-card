@@ -124,11 +124,14 @@ export default function SvgCardFront({
           <tspan x="14" y="583.5">👤 MY STATS</tspan>
         </text>
 
-        {/* Height / Weight */}
+        {/* Stance icon + Height / Weight */}
         {hw && (
-          <text fontFamily={FF} fontSize="10" fill="black">
-            <tspan x="17" y="601.636">{hw}</tspan>
-          </text>
+          <g>
+            <image href="/stance.svg" x="7" y="590" width="12" height="12" />
+            <text fontFamily={FF} fontSize="10" fill="black">
+              <tspan x="22" y="601.636">{hw}</tspan>
+            </text>
+          </g>
         )}
 
         {/* ROW 1 stats */}

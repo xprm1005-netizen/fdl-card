@@ -55,6 +55,11 @@ export async function updateCardStats(id, stats) {
   return data;
 }
 
+export async function deleteCard(id) {
+  const { error } = await supabase.from('player_cards').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function saveCardPreview(cardId, dataURL) {
   const blob = await (await fetch(dataURL)).blob();
   const path = `${cardId}/preview.png`;

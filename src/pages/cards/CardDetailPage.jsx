@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Edit3, Share2, Copy, Check } from 'lucide-react';
+import { ShoppingCart, Edit3, Share2, Copy, Check, Trash2 } from 'lucide-react';
 import AppShell from '../../components/layout/AppShell';
 import Topbar from '../../components/layout/Topbar';
 import Btn from '../../components/ui/Btn';
 import SvgCardFront from '../../components/card/SvgCardFront';
 import SvgCardBack from '../../components/card/SvgCardBack';
 import { C, ff, radius } from '../../tokens';
-import { getCard } from '../../services/cards.service';
+import { getCard, deleteCard } from '../../services/cards.service';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { calcOverall, determineGrade } from '../../lib/utils';
@@ -24,6 +24,16 @@ export default function CardDetailPage() {
   const [copied, setCopied]     = useState(false);
 
   useEffect(() => { getCard(id).then(setCard); }, [id]);
+
+  async function handleDelete() {
+    if (!confirm('이 카드를 삭제하시겠습니까?')) return;
+    try {
+      await deleteCard(id);
+      navigate(-1);
+    } catch (err) {
+      alert('삭제 중 오류: ' + err.message);
+    }
+  }
 
   async function handleCopyLink() {
     const token = card?.share_token;
@@ -169,6 +179,9 @@ export default function CardDetailPage() {
           </Btn>
           <Btn variant="ghost" onClick={() => navigate(`/cards/create/${card.player_id}`)} fullWidth>
             <Edit3 size={15} /> 새 카드 만들기
+          </Btn>
+          <Btn variant="ghost" onClick={handleDelete} fullWidth style={{ color: '#ff4444', borderColor: '#ff444440' }}>
+            <Trash2 size={15} /> 카드 삭제
           </Btn>
         </div>
 
