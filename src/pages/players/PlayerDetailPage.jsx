@@ -32,8 +32,12 @@ export default function PlayerDetailPage() {
 
   async function handleDelete() {
     if (!confirm(`${player.name} 선수를 삭제하시겠습니까?`)) return;
-    await deletePlayer(id);
-    navigate('/players');
+    try {
+      await deletePlayer(id);
+      navigate('/players');
+    } catch (err) {
+      alert('삭제 중 오류가 발생했습니다: ' + err.message);
+    }
   }
 
   if (loading) return (

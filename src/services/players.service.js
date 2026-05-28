@@ -53,6 +53,10 @@ export async function updatePlayer(id, updates) {
 }
 
 export async function deletePlayer(id) {
+  // Delete related cards first to avoid FK constraint violation
+  const { error: cardsError } = await supabase.from('player_cards').delete().eq('player_id', id);
+  if (cardsError) throw cardsError;
+
   const { error } = await supabase.from('players').delete().eq('id', id);
   if (error) throw error;
 }
