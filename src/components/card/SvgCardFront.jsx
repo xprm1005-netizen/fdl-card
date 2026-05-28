@@ -59,6 +59,14 @@ export default function SvgCardFront({
         <clipPath id={`cc${uid}`}>
           <rect width="400" height="700" rx="16" />
         </clipPath>
+        {/* 흰색→투명 필터: 로고 PNG 배경을 제거해 그린에 스며들게 */}
+        <filter id={`fdlF${uid}`} colorInterpolationFilters="sRGB">
+          <feColorMatrix type="matrix"
+            values="0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    -1 0 0 0 1" />
+        </filter>
       </defs>
 
       <g clipPath={`url(#cc${uid})`}>
@@ -95,7 +103,7 @@ export default function SvgCardFront({
             </text>
         }
 
-        {/* ── 정보 흰 바 (풀너비, 높이는 원본 유지) ── */}
+        {/* ── 정보 흰 바 (풀너비, 원본 높이 75px 유지) ── */}
         <rect x="0" y="460" width="400" height="75" fill="white" />
 
         {/* 로고 박스 (조금 더 크게: 55×60 → 66×64) */}
@@ -107,7 +115,7 @@ export default function SvgCardFront({
                 <tspan x="51" y="492">아카데미</tspan>
               </text>
               <text fontFamily={FF} fontSize="7" fontWeight="bold" fill="#aaaaaa" textAnchor="middle">
-                <tspan x="51" y="502">로고</tspan>
+                <tspan x="51" y="503">로고</tspan>
               </text>
             </>
         }
@@ -137,7 +145,7 @@ export default function SvgCardFront({
           <tspan x="388" y="511" textAnchor="end">{age}</tspan>
         </text>
 
-        {/* ── 스탯 섹션 (원본 좌표 그대로) ── */}
+        {/* ── 스탯 섹션 (원본 좌표 그대로, 높이 150px) ── */}
         <rect y="550" width="400" height="150" fill="#29ED73" />
         <text fontFamily={FF} fontSize="11" fontWeight="bold" fill="black">
           <tspan x="15" y="572.5">👤 MY STATS</tspan>
@@ -163,9 +171,14 @@ export default function SvgCardFront({
           </g>
         ))}
 
-        {/* FDL 로고 (fdl-logo.png 이미지, 흰색 배경 배지) */}
-        <rect x="10" y="659" width="115" height="30" rx="4" fill="white" />
-        <image href="/brand/fdl-logo.png" x="10" y="659" width="115" height="30" preserveAspectRatio="xMidYMid meet" />
+        {/* FDL 로고 — 흰색 배지 없이 그린 배경에 직접 스며들게 */}
+        <image
+          href="/brand/fdl-logo.png"
+          x="8" y="657"
+          width="95" height="36"
+          preserveAspectRatio="xMidYMid meet"
+          filter={`url(#fdlF${uid})`}
+        />
 
         {/* ©FDL (원본 유지) */}
         <text fontFamily={FF} fontSize="7" fill="black" fillOpacity="0.5">
