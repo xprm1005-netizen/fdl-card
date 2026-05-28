@@ -147,8 +147,16 @@ export default function DashboardPage() {
             <div style={{ fontSize: 20, fontWeight: 900, color: C.white, marginBottom: 8 }}>
               첫 선수를 등록해보세요
             </div>
-            <div style={{ fontSize: 14, color: C.sub, marginBottom: 20, lineHeight: 1.6 }}>
+            <div style={{ fontSize: 14, color: C.sub, marginBottom: 16, lineHeight: 1.6 }}>
               선수 정보와 능력치를 입력하면<br />바로 카드를 만들 수 있어요
+            </div>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: '#29ED7310', border: '1px solid #29ED7330',
+              borderRadius: 10, padding: '7px 14px',
+              fontSize: 12, color: '#29ED73', marginBottom: 20,
+            }}>
+              ✨ AI가 사진 배경을 자동으로 제거해 드립니다
             </div>
             <button onClick={() => navigate('/players/new')}
               style={{

@@ -12,7 +12,14 @@ const STAT_KEYS   = ['pac', 'dri', 'phy', 'acc', 'tac', 'psy'];
 const STAT_LABELS = { pac: '스피드', dri: '드리블', phy: '피지컬', acc: '정확도', tac: '전술이해', psy: '멘탈' };
 const LABEL_PRESETS = ['SPEED KING', 'GOAL MACHINE', 'PLAYMAKER', 'IRON WALL', 'DRIBBLE KING', 'FINISHER', 'ASSIST KING', 'GUARDIAN', 'TEAM PLAYER', 'ROCKET SHOT', 'DIRECT KICK'];
 
-const DEFAULT_FORM  = { name: '내 선수', position: 'ST', age: '10', club: 'FDL FC', height: '165', weight: '58', cardLabel: 'SPEED KING' };
+const DEFAULT_FORM  = { name: '김성현', position: 'ST', age: '10', club: 'FDL FC', height: '165', weight: '58', cardLabel: 'SPEED KING' };
+
+const BG_OPTIONS = [
+  { id: 'stadium', label: '⚽ 잔디',  color: '#0d2015' },
+  { id: 'night',   label: '🌙 야간',  color: '#040d1f' },
+  { id: 'fire',    label: '🔥 열정',  color: '#2a0906' },
+  { id: 'speed',   label: '⚡ 스피드', color: '#020a18' },
+];
 const DEFAULT_STATS = { pac: 80, dri: 75, phy: 72, acc: 78, tac: 68, psy: 70 };
 
 const inputStyle = {
@@ -33,6 +40,7 @@ export default function DemoCardPage() {
   const [form, setForm]     = useState(DEFAULT_FORM);
   const [stats, setStats]   = useState(DEFAULT_STATS);
   const [showBack, setShowBack] = useState(false);
+  const [bgStyle, setBgStyle] = useState('stadium');
 
   function setField(key, val) { setForm((f) => ({ ...f, [key]: val })); }
   function setStat(key, val)  { setStats((s) => ({ ...s, [key]: val })); }
@@ -104,8 +112,26 @@ export default function DemoCardPage() {
                 weight={form.weight}
                 pac={stats.pac} dri={stats.dri} phy={stats.phy}
                 acc={stats.acc} tac={stats.tac} psy={stats.psy}
+                bgStyle={bgStyle}
                 scale={0.65}
               />
+
+              {/* 배경 선택 */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                {BG_OPTIONS.map(({ id, label, color }) => (
+                  <button key={id} onClick={() => setBgStyle(id)}
+                    style={{
+                      background: color,
+                      border: bgStyle === id ? '2px solid #29ED73' : `2px solid ${C.border}`,
+                      borderRadius: 8, padding: '6px 10px',
+                      color: bgStyle === id ? '#29ED73' : C.sub,
+                      fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                      fontFamily: 'inherit', transition: 'all 0.15s',
+                    }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
             )}
 
           </div>
