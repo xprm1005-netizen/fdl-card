@@ -68,10 +68,10 @@ export default function SvgCardBack({
   const stats = { pac, dri, phy, acc, tac, psy };
   const ovr   = calcOverall(stats);
 
-  // NEXT GOAL: boost the single lowest stat by +2
+  // NEXT GOAL: boost the single lowest stat by +2, guarantee OVR shows at least +1
   const lowestKey = Object.keys(stats).reduce((a, b) => stats[a] <= stats[b] ? a : b);
   const nextStats = { ...stats, [lowestKey]: Math.min(stats[lowestKey] + 2, 99) };
-  const nextOvr   = calcOverall(nextStats);
+  const nextOvr   = Math.min(Math.max(calcOverall(nextStats), ovr + 1), 99);
 
   // Position indicator
   const [prx, pry] = POS_XY[position] || [0.5, 0.5];

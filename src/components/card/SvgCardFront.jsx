@@ -21,7 +21,6 @@ export default function SvgCardFront({
   pac = 70, dri = 70, phy = 70,
   acc = 70, tac = 70, psy = 70,
   scale = 1, jerseyNumber, birthDate, nationality,
-  bgStyle = 'stadium',
 }) {
   const uid = useId().replace(/[^a-z0-9]/gi, '');
   const ovr = calcOverall({ pac, dri, phy, acc, tac, psy });
@@ -34,26 +33,6 @@ export default function SvgCardFront({
   return (
     <svg width={400 * scale} height={700 * scale} viewBox="0 0 400 700" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id={`bgSt${uid}`} cx="200" cy="250" r="300" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#1e4a28" />
-          <stop offset="0.55" stopColor="#0d2015" />
-          <stop offset="1" stopColor="#050808" />
-        </radialGradient>
-        <radialGradient id={`bgN${uid}`} cx="200" cy="200" r="300" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#0d2040" />
-          <stop offset="0.6" stopColor="#040d1f" />
-          <stop offset="1" stopColor="#020610" />
-        </radialGradient>
-        <radialGradient id={`bgF${uid}`} cx="200" cy="250" r="300" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#4a1008" />
-          <stop offset="0.5" stopColor="#2a0906" />
-          <stop offset="1" stopColor="#080303" />
-        </radialGradient>
-        <radialGradient id={`bgSp${uid}`} cx="200" cy="250" r="300" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#041428" />
-          <stop offset="0.6" stopColor="#020a18" />
-          <stop offset="1" stopColor="#010306" />
-        </radialGradient>
         <clipPath id={`fdlPill${uid}`}>
           <rect x="7" y="621" width="90" height="51" rx="25.5" />
         </clipPath>
@@ -65,44 +44,6 @@ export default function SvgCardFront({
       <g clipPath={`url(#cc${uid})`}>
         {/* Card base */}
         <rect width="400" height="700" rx="16" fill="black" />
-
-        {/* Photo background (y=0 to y=500) */}
-        {bgStyle === 'night' ? (
-          <>
-            <rect x="-5" width="405" height="500" fill={`url(#bgN${uid})`} />
-            {[...Array(28)].map((_, i) => {
-              const sx = (i * 137 + 13) % 400;
-              const sy = (i * 89 + 7) % 500;
-              const sr = i % 3 === 0 ? 1.5 : 1;
-              return <circle key={i} cx={sx} cy={sy} r={sr} fill="white" fillOpacity={0.25 + (i % 5) * 0.08} />;
-            })}
-          </>
-        ) : bgStyle === 'fire' ? (
-          <>
-            <rect x="-5" width="405" height="500" fill={`url(#bgF${uid})`} />
-            <line x1="70" y1="500" x2="200" y2="0" stroke="#c04020" strokeWidth="1.5" strokeOpacity="0.18" />
-            <line x1="130" y1="500" x2="220" y2="0" stroke="#e05030" strokeWidth="2" strokeOpacity="0.12" />
-            <line x1="200" y1="500" x2="200" y2="0" stroke="#e06040" strokeWidth="3" strokeOpacity="0.08" />
-            <line x1="270" y1="500" x2="180" y2="0" stroke="#c04020" strokeWidth="2" strokeOpacity="0.12" />
-            <line x1="330" y1="500" x2="200" y2="0" stroke="#e05030" strokeWidth="1.5" strokeOpacity="0.18" />
-          </>
-        ) : bgStyle === 'speed' ? (
-          <>
-            <rect x="-5" width="405" height="500" fill={`url(#bgSp${uid})`} />
-            {[...Array(14)].map((_, i) => {
-              const angle = (i / 14) * Math.PI * 2;
-              const cx = 200, cy = 250;
-              const x1 = cx + Math.cos(angle) * 35;
-              const y1 = cy + Math.sin(angle) * 35;
-              const x2 = cx + Math.cos(angle) * 400;
-              const y2 = cy + Math.sin(angle) * 400;
-              return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#00c8ff" strokeWidth="0.8" strokeOpacity="0.16" />;
-            })}
-            <circle cx="200" cy="250" r="30" fill="none" stroke="#00c8ff" strokeWidth="1" strokeOpacity="0.2" />
-          </>
-        ) : (
-          <rect x="-5" width="405" height="500" fill={`url(#bgSt${uid})`} />
-        )}
 
         {/* Player photo */}
         {photoUrl
@@ -216,7 +157,7 @@ export default function SvgCardFront({
         <image
           href="/brand/fdl-logo.png"
           x="7" y="621" width="90" height="51"
-          preserveAspectRatio="xMidYMid meet"
+          preserveAspectRatio="xMidYMid slice"
           clipPath={`url(#fdlPill${uid})`}
         />
 
