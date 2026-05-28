@@ -12,7 +12,7 @@ const ROW2 = [
   { key: 'tac', icon: '📋', label: 'TACT',  ix: 200, nx: 230 },
   { key: 'psy', icon: '💡', label: 'PSYCH', ix: 300, nx: 330 },
 ];
-const FF = '"Inter", -apple-system, sans-serif';
+const FF = 'Inter, -apple-system, BlinkMacSystemFont, sans-serif';
 
 export default function SvgCardFront({
   cardType = 'THE',
@@ -142,14 +142,14 @@ export default function SvgCardFront({
 
         {ROW1.map(({ key, icon, label, ix, nx }) => (
           <g key={key}>
-            <text fontFamily={FF} fontSize="16"><tspan x={ix} y="605.88">{icon}</tspan></text>
+            <text fontFamily={FF} fontSize="16" fill="black"><tspan x={ix} y="605.88">{icon}</tspan></text>
             <text fontFamily={FF} fontSize="22" fontWeight="900" fill="black"><tspan x={nx} y="609.5">{vals[key]}</tspan></text>
             <text fontFamily={FF} fontSize="8" fontWeight="bold" fill="black"><tspan x={nx} y="622.91">{label}</tspan></text>
           </g>
         ))}
         {ROW2.map(({ key, icon, label, ix, nx }) => (
           <g key={key}>
-            <text fontFamily={FF} fontSize="16"><tspan x={ix} y="650.88">{icon}</tspan></text>
+            <text fontFamily={FF} fontSize="16" fill="black"><tspan x={ix} y="650.88">{icon}</tspan></text>
             <text fontFamily={FF} fontSize="22" fontWeight="900" fill="black"><tspan x={nx} y="654.5">{vals[key]}</tspan></text>
             <text fontFamily={FF} fontSize="8" fontWeight="bold" fill="black"><tspan x={nx} y="667.91">{label}</tspan></text>
           </g>

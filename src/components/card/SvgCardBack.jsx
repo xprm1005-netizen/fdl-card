@@ -48,7 +48,7 @@ const POS_TIP = {
   DF:  '포지셔닝 훈련으로 수비 안정성을 높여보세요.',
 };
 
-const FF = '"Inter", -apple-system, sans-serif';
+const FF = 'Inter, -apple-system, BlinkMacSystemFont, sans-serif';
 
 export default function SvgCardBack({
   position = 'CM',
@@ -118,7 +118,7 @@ export default function SvgCardBack({
         <rect x="15" y="75" width="370" height="50" rx="8" fill="white" />
         {BACK_STATS.map(({ key, icon, label, ix, nx }) => (
           <g key={key}>
-            <text fontFamily={FF} fontSize="12">
+            <text fontFamily={FF} fontSize="12" fill="black">
               <tspan x={ix} y="98.16">{icon}</tspan>
             </text>
             <text fontFamily={FF} fontSize="18" fontWeight="900" fill="black">
