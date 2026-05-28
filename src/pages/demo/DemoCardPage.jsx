@@ -16,12 +16,12 @@ const PREMIUM = {
 };
 
 const LEVEL_CARDS = [
-  { id: 'r6', src: '/thumbnails/r6.jpg', name: 'TOTY',          desc: '올해의 팀 레벨 인증카드',  badgeColor: '#00D4FF', badgeBg: '#00D4FF15', badgeBorder: '#00D4FF40' },
-  { id: 'r5', src: '/thumbnails/r5.jpg', name: 'ICON',          desc: '아이콘 레벨 인증카드',    badgeColor: '#FF6B35', badgeBg: '#FF6B3515', badgeBorder: '#FF6B3540' },
-  { id: 'r4', src: '/thumbnails/r4.jpg', name: 'LEGEND',        desc: '레전드 레벨 인증카드',   badgeColor: '#C8A951', badgeBg: '#C8A95115', badgeBorder: '#C8A95140' },
-  { id: 'r3', src: '/thumbnails/r3.jpg', name: 'EPIC',          desc: '에픽 레벨 인증카드',     badgeColor: '#9B59B6', badgeBg: '#9B59B615', badgeBorder: '#9B59B640' },
-  { id: 'r2', src: '/thumbnails/r2.jpg', name: 'RARE',          desc: '레어 레벨 인증카드',     badgeColor: '#4A90D9', badgeBg: '#4A90D915', badgeBorder: '#4A90D940' },
-  { id: 'r1', src: '/thumbnails/r1.jpg', name: 'COMMON',        desc: '스탠다드 레벨 인증카드', badgeColor: '#8A9BB0', badgeBg: '#8A9BB015', badgeBorder: '#8A9BB040' },
+  { id: 'r6', src: '/thumbnails/r6.jpg', name: 'TOTY',   desc: '올해의 팀 레벨 인증카드',  badgeColor: '#00D4FF', badgeBg: '#00D4FF15', badgeBorder: '#00D4FF40', comingSoon: false },
+  { id: 'r5', src: '/thumbnails/r5.jpg', name: 'ICON',   desc: '아이콘 레벨 인증카드',    badgeColor: '#FF6B35', badgeBg: '#FF6B3515', badgeBorder: '#FF6B3540', comingSoon: false },
+  { id: 'r4', src: '/thumbnails/r4.jpg', name: 'LEGEND', desc: '레전드 레벨 인증카드',    badgeColor: '#C8A951', badgeBg: '#C8A95115', badgeBorder: '#C8A95140', comingSoon: true },
+  { id: 'r3', src: '/thumbnails/r3.jpg', name: 'EPIC',   desc: '에픽 레벨 인증카드',      badgeColor: '#9B59B6', badgeBg: '#9B59B615', badgeBorder: '#9B59B640', comingSoon: true },
+  { id: 'r2', src: '/thumbnails/r2.jpg', name: 'RARE',   desc: '레어 레벨 인증카드',      badgeColor: '#4A90D9', badgeBg: '#4A90D915', badgeBorder: '#4A90D940', comingSoon: true },
+  { id: 'r1', src: '/thumbnails/r1.jpg', name: 'COMMON', desc: '스탠다드 레벨 인증카드',  badgeColor: '#8A9BB0', badgeBg: '#8A9BB015', badgeBorder: '#8A9BB040', comingSoon: true },
 ];
 
 export default function DemoCardPage() {
@@ -137,30 +137,79 @@ export default function DemoCardPage() {
           {LEVEL_CARDS.map((card, i) => (
             <div
               key={card.id}
-              onClick={() => setSelected(card.id)}
+              onClick={() => !card.comingSoon && setSelected(card.id)}
               style={{
-                cursor: 'pointer', borderRadius: 16, overflow: 'hidden',
-                border: `1px solid ${card.badgeBorder}`,
-                background: card.badgeBg, position: 'relative',
+                cursor: card.comingSoon ? 'default' : 'pointer',
+                borderRadius: 16, overflow: 'hidden',
+                border: `1px solid ${card.comingSoon ? C.border : card.badgeBorder}`,
+                background: card.comingSoon ? 'rgba(255,255,255,0.03)' : card.badgeBg,
+                position: 'relative',
                 animation: `slide-up 0.4s ${0.1 + i * 0.05}s ease both`,
                 transition: 'transform 0.15s, box-shadow 0.15s',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = `0 8px 32px ${card.badgeColor}30`; }}
+              onMouseEnter={(e) => { if (!card.comingSoon) { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = `0 8px 32px ${card.badgeColor}30`; } }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
             >
-              <div style={{
-                position: 'absolute', top: 10, left: 10, zIndex: 2,
-                background: card.badgeBg, border: `1px solid ${card.badgeBorder}`,
-                borderRadius: 6, padding: '3px 8px',
-                fontSize: 9, fontWeight: 800, color: card.badgeColor, letterSpacing: 0.5,
-              }}>
-                레벨 인증카드
+              {/* 일반 배지 */}
+              {!card.comingSoon && (
+                <div style={{
+                  position: 'absolute', top: 10, left: 10, zIndex: 2,
+                  background: card.badgeBg, border: `1px solid ${card.badgeBorder}`,
+                  borderRadius: 6, padding: '3px 8px',
+                  fontSize: 9, fontWeight: 800, color: card.badgeColor, letterSpacing: 0.5,
+                }}>
+                  레벨 인증카드
+                </div>
+              )}
+
+              {/* 이미지 */}
+              <div style={{ position: 'relative' }}>
+                <img src={card.src} alt={card.name}
+                  style={{
+                    width: '100%', aspectRatio: '400/700', objectFit: 'cover', display: 'block',
+                    filter: card.comingSoon ? 'blur(6px) brightness(0.35)' : 'none',
+                  }} />
+
+                {/* 커밍순 오버레이 */}
+                {card.comingSoon && (
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center',
+                    gap: 6,
+                  }}>
+                    <div style={{
+                      fontSize: 10, fontWeight: 900, letterSpacing: 2,
+                      color: 'rgba(255,255,255,0.5)',
+                    }}>
+                      COMING SOON
+                    </div>
+                    <div style={{
+                      fontSize: 16, fontWeight: 900, color: card.badgeColor,
+                      letterSpacing: 1, opacity: 0.8,
+                    }}>
+                      {card.name}
+                    </div>
+                    <div style={{
+                      fontSize: 10, color: 'rgba(255,255,255,0.4)',
+                      marginTop: 2,
+                    }}>
+                      준비 중
+                    </div>
+                  </div>
+                )}
               </div>
-              <img src={card.src} alt={card.name}
-                style={{ width: '100%', aspectRatio: '400/700', objectFit: 'cover', display: 'block' }} />
+
               <div style={{ padding: '10px 12px' }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: card.badgeColor, letterSpacing: 0.5 }}>{card.name}</div>
-                <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>{card.desc}</div>
+                <div style={{
+                  fontSize: 13, fontWeight: 800, letterSpacing: 0.5,
+                  color: card.comingSoon ? C.sub : card.badgeColor,
+                }}>
+                  {card.name}
+                </div>
+                <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>
+                  {card.comingSoon ? '출시 예정' : card.desc}
+                </div>
               </div>
             </div>
           ))}
