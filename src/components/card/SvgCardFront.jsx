@@ -163,11 +163,11 @@ export default function SvgCardFront({
           </g>
         ))}
 
-        {/* FDL 인증 로고 — 투명 PNG 직접 표시 (그린 배경에 스며듦) */}
+        {/* FDL 인증 로고 — 좌측 컬럼 (x<100), ROW2와 나란히 */}
         <image
           href="/brand/fdl-logo.png"
-          x="8" y="657"
-          width="88" height="34"
+          x="5" y="644"
+          width="92" height="50"
           preserveAspectRatio="xMidYMid meet"
         />
 
