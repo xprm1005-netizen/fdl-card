@@ -46,14 +46,10 @@ export default function SvgCardFront({
         {/* Card base */}
         <rect width="400" height="700" rx="16" fill="black" />
 
-        {/* Background always visible */}
+        {/* 1. Background */}
         <image href="/player-bg.svg" x="-5" y="0" width="405" height="500" preserveAspectRatio="xMidYMid slice" />
-        {/* Player photo (background-removed) on top */}
-        {photoUrl && (
-          <image href={photoUrl} x="-5" y="0" width="405" height="500" preserveAspectRatio="xMidYMid slice" />
-        )}
 
-        {/* Green header overlay (x=0, y=20, w=389, h=102) */}
+        {/* 2. Green header overlay — in front of bg, behind player photo */}
         <rect y="20" width="389" height="102" fill="#29ED73" />
 
         {/* Card type + label text — BLACK on green */}
@@ -76,6 +72,11 @@ export default function SvgCardFront({
         <text fontFamily={FF} fontSize="24" fontWeight="bold" fill="black">
           <tspan x="351" y="103.227">{position}</tspan>
         </text>
+
+        {/* 3. Player photo cutout — on top of green header, overlapping it */}
+        {photoUrl && (
+          <image href={photoUrl} x="-5" y="0" width="405" height="500" preserveAspectRatio="xMidYMid slice" />
+        )}
 
         {/* White info bar */}
         <rect x="-17" y="491" width="429" height="65" rx="8" fill="white" />

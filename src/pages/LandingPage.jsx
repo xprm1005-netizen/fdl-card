@@ -51,13 +51,13 @@ export default function LandingPage() {
         animation: 'fade-up 0.5s ease both',
       }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#29ED73', letterSpacing: 3, marginBottom: 10 }}>
-          ⚽ 선수 카드를 직접 만드세요
+          ⚽ 아카데미 감독 &amp; 코치 전용 플랫폼
         </div>
         <h1 style={{
-          margin: 0, fontSize: 28, fontWeight: 900, lineHeight: 1.25,
+          margin: 0, fontSize: 28, fontWeight: 900, lineHeight: 1.3,
           color: C.white, letterSpacing: -0.5,
         }}>
-          우리 팀 선수의<br />프로 카드를 지금 바로
+          선수 한 명 한 명을<br />프로처럼 기록하고 관리하세요
         </h1>
       </div>
 
@@ -102,7 +102,7 @@ export default function LandingPage() {
             fontSize: 16, fontWeight: 900,
             cursor: 'pointer', fontFamily: 'inherit',
           }}>
-          무료로 시작하기 →
+          지금 바로 만들러가기 →
         </button>
         <button onClick={() => navigate('/demo')}
           style={{
@@ -126,7 +126,7 @@ export default function LandingPage() {
           { icon: '🎴', text: '3초 카드 생성' },
           { icon: '🏅', text: 'FDL 인증카드' },
           { icon: '📦', text: '실물 카드 배송' },
-          { icon: '🧪', text: '파일럿 테스트 진행 중' },
+          { icon: '🎯', text: '맞춤형 코칭' },
         ].map(({ icon, text }) => (
           <div key={text} style={{
             background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`,
