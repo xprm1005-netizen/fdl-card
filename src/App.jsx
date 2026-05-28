@@ -22,6 +22,7 @@ const PaymentFailPage   = lazy(() => import('./pages/checkout/PaymentFailPage'))
 const OrdersPage        = lazy(() => import('./pages/orders/OrdersPage'));
 const OrderDetailPage   = lazy(() => import('./pages/orders/OrderDetailPage'));
 const SettingsPage      = lazy(() => import('./pages/settings/SettingsPage'));
+const AdminLoginPage    = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminOrdersPage   = lazy(() => import('./pages/admin/AdminOrdersPage'));
 const AdminOrderDetail  = lazy(() => import('./pages/admin/AdminOrderDetailPage'));
 const AdminPrintPage    = lazy(() => import('./pages/admin/AdminPrintPage'));
@@ -113,6 +114,7 @@ export default function App() {
           <Route path="/orders/:id" element={<Protected><OrderDetailPage /></Protected>} />
           <Route path="/settings" element={<Protected><SettingsPage /></Protected>} />
 
+          <Route path="/admin" element={<AdminLoginPage />} />
           <Route path="/admin/orders" element={<AdminRoute><AdminOrdersPage /></AdminRoute>} />
           <Route path="/admin/orders/:id" element={<AdminRoute><AdminOrderDetail /></AdminRoute>} />
           <Route path="/admin/print" element={<AdminRoute><AdminPrintPage /></AdminRoute>} />
