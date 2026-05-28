@@ -101,37 +101,39 @@ export default function DemoCardPage() {
                 scale={0.65}
               />
             ) : (
-              <SvgCardFront
-                cardType="THE"
-                cardLabel={form.cardLabel}
-                position={form.position}
-                playerName={form.name}
-                academyName={form.club}
-                age={form.age}
-                height={form.height}
-                weight={form.weight}
-                pac={stats.pac} dri={stats.dri} phy={stats.phy}
-                acc={stats.acc} tac={stats.tac} psy={stats.psy}
-                bgStyle={bgStyle}
-                scale={0.65}
-              />
+              <>
+                <SvgCardFront
+                  cardType="THE"
+                  cardLabel={form.cardLabel}
+                  position={form.position}
+                  playerName={form.name}
+                  academyName={form.club}
+                  age={form.age}
+                  height={form.height}
+                  weight={form.weight}
+                  pac={stats.pac} dri={stats.dri} phy={stats.phy}
+                  acc={stats.acc} tac={stats.tac} psy={stats.psy}
+                  bgStyle={bgStyle}
+                  scale={0.65}
+                />
 
-              {/* 배경 선택 */}
-              <div style={{ display: 'flex', gap: 8 }}>
-                {BG_OPTIONS.map(({ id, label, color }) => (
-                  <button key={id} onClick={() => setBgStyle(id)}
-                    style={{
-                      background: color,
-                      border: bgStyle === id ? '2px solid #29ED73' : `2px solid ${C.border}`,
-                      borderRadius: 8, padding: '6px 10px',
-                      color: bgStyle === id ? '#29ED73' : C.sub,
-                      fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                      fontFamily: 'inherit', transition: 'all 0.15s',
-                    }}>
-                    {label}
-                  </button>
-                ))}
-              </div>
+                {/* 배경 선택 */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {BG_OPTIONS.map(({ id, label, color }) => (
+                    <button key={id} onClick={() => setBgStyle(id)}
+                      style={{
+                        background: color,
+                        border: bgStyle === id ? '2px solid #29ED73' : `2px solid ${C.border}`,
+                        borderRadius: 8, padding: '6px 10px',
+                        color: bgStyle === id ? '#29ED73' : C.sub,
+                        fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                        fontFamily: 'inherit', transition: 'all 0.15s',
+                      }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
 
           </div>
