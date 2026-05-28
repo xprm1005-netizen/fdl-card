@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import { calcOverall } from '../../lib/utils';
 
+// Exact coordinates from 앞면.svg (400×700 viewBox)
 const ROW1 = [
   { key: 'pac', icon: '🏃', label: 'PAC',   ix: 100, nx: 130 },
   { key: 'dri', icon: '⚽', label: 'DRI',   ix: 200, nx: 230 },
@@ -12,7 +13,6 @@ const ROW2 = [
   { key: 'psy', icon: '💡', label: 'PSYCH', ix: 300, nx: 330 },
 ];
 const FF = 'Inter, -apple-system, BlinkMacSystemFont, sans-serif';
-const FB = "'Arial Black', Impact, 'Helvetica Neue', sans-serif";
 
 export default function SvgCardFront({
   cardType = 'THE',
@@ -95,78 +95,81 @@ export default function SvgCardFront({
             </text>
         }
 
-        {/* ── 정보 흰 바 (전체 너비) ── */}
-        <rect x="0" y="450" width="400" height="100" fill="white" />
+        {/* ── 정보 흰 바 (풀너비, 높이는 원본 유지) ── */}
+        <rect x="0" y="460" width="400" height="75" fill="white" />
 
-        {/* 로고 박스 */}
-        <rect x="10" y="457" width="78" height="86" rx="6" fill="#F0F0F0" />
+        {/* 로고 박스 (조금 더 크게: 55×60 → 66×64) */}
+        <rect x="18" y="465" width="66" height="64" rx="6" fill="#F0F0F0" />
         {academyLogoUrl
-          ? <image href={academyLogoUrl} x="10" y="457" width="78" height="86" preserveAspectRatio="xMidYMid meet" />
-          : <image href="/brand/fdl-logo.svg" x="10" y="457" width="78" height="86" preserveAspectRatio="xMidYMid meet" />
+          ? <image href={academyLogoUrl} x="18" y="465" width="66" height="64" preserveAspectRatio="xMidYMid meet" />
+          : <>
+              <text fontFamily={FF} fontSize="7" fontWeight="bold" fill="#aaaaaa" textAnchor="middle">
+                <tspan x="51" y="492">아카데미</tspan>
+              </text>
+              <text fontFamily={FF} fontSize="7" fontWeight="bold" fill="#aaaaaa" textAnchor="middle">
+                <tspan x="51" y="502">로고</tspan>
+              </text>
+            </>
         }
 
         {/* 아카데미명 */}
         <text fontFamily={FF} fontSize="10" fill="#666666">
-          <tspan x="100" y="474">{academyName}</tspan>
+          <tspan x="96" y="483">{academyName}</tspan>
         </text>
 
-        {/* 선수 이름 (한국어) */}
-        <text fontFamily={FF} fontSize="27" fontWeight="900" fill="black">
-          <tspan x="100" y="507">{playerName}</tspan>
+        {/* 선수 이름 (더 크고 굵게) */}
+        <text fontFamily={FF} fontSize="26" fontWeight="900" fill="black">
+          <tspan x="96" y="510">{playerName}</tspan>
         </text>
 
         {/* 영문 이름 */}
         {playerNameEn && (
-          <text fontFamily={FF} fontSize="11" fill="#888888">
-            <tspan x="100" y="524">{playerNameEn}</tspan>
+          <text fontFamily={FF} fontSize="10" fill="#888888">
+            <tspan x="96" y="525">{playerNameEn}</tspan>
           </text>
         )}
 
-        {/* 나이 */}
+        {/* AGE */}
         <text fontFamily={FF} fontSize="9" fill="#666666">
-          <tspan x="385" y="474" textAnchor="end">AGE</tspan>
+          <tspan x="383" y="483" textAnchor="end">AGE</tspan>
         </text>
-        <text fontFamily={FF} fontSize="28" fontWeight="900" fill="black">
-          <tspan x="390" y="509" textAnchor="end">{age}</tspan>
+        <text fontFamily={FF} fontSize="24" fontWeight="900" fill="black">
+          <tspan x="388" y="511" textAnchor="end">{age}</tspan>
         </text>
 
-        {/* ── 스탯 섹션 (y=550~655) ── */}
-        <rect y="550" width="400" height="105" fill="#29ED73" />
+        {/* ── 스탯 섹션 (원본 좌표 그대로) ── */}
+        <rect y="550" width="400" height="150" fill="#29ED73" />
         <text fontFamily={FF} fontSize="11" fontWeight="bold" fill="black">
-          <tspan x="15" y="568">👤 MY STATS</tspan>
+          <tspan x="15" y="572.5">👤 MY STATS</tspan>
         </text>
         {hw && (
           <text fontFamily={FF} fontSize="10" fill="black">
-            <tspan x="15" y="583">{hw}</tspan>
+            <tspan x="15" y="591.64">{hw}</tspan>
           </text>
         )}
 
         {ROW1.map(({ key, icon, label, ix, nx }) => (
           <g key={key}>
-            <text fontFamily={FF} fontSize="16" fill="black"><tspan x={ix} y="597">{icon}</tspan></text>
-            <text fontFamily={FF} fontSize="22" fontWeight="900" fill="black"><tspan x={nx} y="600">{vals[key]}</tspan></text>
-            <text fontFamily={FF} fontSize="8" fontWeight="bold" fill="black"><tspan x={nx} y="613">{label}</tspan></text>
+            <text fontFamily={FF} fontSize="16" fill="black"><tspan x={ix} y="605.88">{icon}</tspan></text>
+            <text fontFamily={FF} fontSize="22" fontWeight="900" fill="black"><tspan x={nx} y="609.5">{vals[key]}</tspan></text>
+            <text fontFamily={FF} fontSize="8" fontWeight="bold" fill="black"><tspan x={nx} y="622.91">{label}</tspan></text>
           </g>
         ))}
         {ROW2.map(({ key, icon, label, ix, nx }) => (
           <g key={key}>
-            <text fontFamily={FF} fontSize="16" fill="black"><tspan x={ix} y="636">{icon}</tspan></text>
-            <text fontFamily={FF} fontSize="22" fontWeight="900" fill="black"><tspan x={nx} y="639">{vals[key]}</tspan></text>
-            <text fontFamily={FF} fontSize="8" fontWeight="bold" fill="black"><tspan x={nx} y="652">{label}</tspan></text>
+            <text fontFamily={FF} fontSize="16" fill="black"><tspan x={ix} y="650.88">{icon}</tspan></text>
+            <text fontFamily={FF} fontSize="22" fontWeight="900" fill="black"><tspan x={nx} y="654.5">{vals[key]}</tspan></text>
+            <text fontFamily={FF} fontSize="8" fontWeight="bold" fill="black"><tspan x={nx} y="667.91">{label}</tspan></text>
           </g>
         ))}
 
-        {/* ── FDL 인증 바 (y=655~700) ── */}
-        <rect x="0" y="655" width="400" height="45" fill="#0d0d0d" />
-        <line x1="0" y1="655" x2="400" y2="655" stroke="#29ED73" strokeWidth="0.8" strokeOpacity="0.5" />
-        <text fontFamily={FB} fontSize="22" fontWeight="900" fill="white" textAnchor="middle" letterSpacing="5">
-          <tspan x="200" y="675">FDL</tspan>
-        </text>
-        <text fontFamily={FB} fontSize="7" fontWeight="700" fill="#29ED73" textAnchor="middle" letterSpacing="3">
-          <tspan x="200" y="689">FOOTBALLDATALAB</tspan>
-        </text>
-        <text fontFamily={FF} fontSize="5.5" fill="white" fillOpacity="0.35" textAnchor="middle" letterSpacing="2">
-          <tspan x="200" y="699">CERTIFIED CARD</tspan>
+        {/* FDL 로고 (fdl-logo.png 이미지, 흰색 배경 배지) */}
+        <rect x="10" y="659" width="115" height="30" rx="4" fill="white" />
+        <image href="/brand/fdl-logo.png" x="10" y="659" width="115" height="30" preserveAspectRatio="xMidYMid meet" />
+
+        {/* ©FDL (원본 유지) */}
+        <text fontFamily={FF} fontSize="7" fill="black" fillOpacity="0.5">
+          <tspan x="188" y="694.55">©FDL</tspan>
         </text>
       </g>
     </svg>
