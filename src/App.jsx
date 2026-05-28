@@ -36,7 +36,7 @@ const PricingPage       = lazy(() => import('./pages/pricing/PricingPage'));
 const CardSharePage     = lazy(() => import('./pages/share/CardSharePage'));
 const PackOpenPage      = lazy(() => import('./pages/packs/PackOpenPage'));
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@fdl.com';
+const ADMIN_EMAIL = 'admin@fdl.com';
 
 function Protected({ children }) {
   const { user, loading } = useAuthStore();
