@@ -51,7 +51,7 @@ export default function CardCreatePage() {
       if (t.length > 0) setDefaultTemplateId(t[0].id);
       setCardInfo(prev => ({
         ...prev,
-        cardLabel: (p.name || '').toUpperCase(),
+        cardLabel: 'SPEED KING',
         jerseyNumber: p.jersey_number ? String(p.jersey_number) : '',
         position: p.position || 'FW',
       }));

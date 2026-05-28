@@ -1,15 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { C, ff } from '../tokens';
-import SvgCardFront from '../components/card/SvgCardFront';
 
-const GRADE_CHIPS = [
-  { name: 'COMMON',  color: '#8A9BB0' },
-  { name: 'RARE',    color: '#4A90D9' },
-  { name: 'EPIC',    color: '#9B59B6' },
-  { name: 'LEGEND',  color: '#C8A951' },
-  { name: 'ICON',    color: '#FF6B35' },
-  { name: 'TOTY',    color: '#00D4FF' },
-  { name: 'MONSTER', color: '#FF0044' },
+const STEPS = [
+  { num: '01', title: '선수 등록', desc: '이름·포지션·사진을 입력하면\n자동으로 프로필이 완성됩니다' },
+  { num: '02', title: '카드 제작', desc: '능력치를 입력하고\n나만의 선수 카드를 만드세요' },
+  { num: '03', title: '레벨 부여', desc: 'COMMON부터 TOTY까지\n7단계 등급으로 선수를 평가하세요' },
 ];
 
 export default function LandingPage() {
@@ -27,7 +22,6 @@ export default function LandingPage() {
       overflowX: 'hidden',
     }}>
       <style>{`
-        @keyframes card-float { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-12px) rotate(-2deg)} }
         @keyframes fade-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
       `}</style>
 
@@ -67,47 +61,36 @@ export default function LandingPage() {
         </h1>
       </div>
 
-      {/* Card showcase */}
+      {/* Steps */}
       <div style={{
-        marginTop: 28, marginBottom: 20,
-        animation: 'card-float 4s ease-in-out infinite',
-        filter: 'drop-shadow(0 20px 40px rgba(41,237,115,0.22))',
-      }}>
-        <SvgCardFront
-          cardType="THE"
-          cardLabel="SPEED KING"
-          jerseyNumber="10"
-          position="FW"
-          playerName="내 선수"
-          academyName="내 팀"
-          age="15"
-          pac={88} dri={85} phy={79}
-          acc={90} tac={72} psy={84}
-          scale={0.62}
-        />
-      </div>
-
-      {/* Grade chips */}
-      <div style={{
-        display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center',
-        padding: '0 24px', marginBottom: 28,
+        width: '100%', maxWidth: 480,
+        padding: '32px 24px 8px',
+        display: 'flex', flexDirection: 'column', gap: 12,
         animation: 'fade-up 0.5s 0.15s ease both',
       }}>
-        {GRADE_CHIPS.map(({ name, color }) => (
-          <div key={name} style={{
-            display: 'flex', alignItems: 'center', gap: 5,
-            background: `${color}14`, border: `1px solid ${color}44`,
-            borderRadius: 20, padding: '4px 10px',
+        {STEPS.map(({ num, title, desc }) => (
+          <div key={num} style={{
+            background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`,
+            borderRadius: 16, padding: '18px 20px',
+            display: 'flex', alignItems: 'flex-start', gap: 16,
           }}>
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: color }} />
-            <span style={{ fontSize: 9, fontWeight: 800, color, letterSpacing: 0.5 }}>{name}</span>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+              background: '#29ED7320', border: '1px solid #29ED7340',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 11, fontWeight: 900, color: '#29ED73', letterSpacing: 0.5,
+            }}>{num}</div>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: C.white, marginBottom: 4 }}>{title}</div>
+              <div style={{ fontSize: 12, color: C.sub, lineHeight: 1.6, whiteSpace: 'pre-line' }}>{desc}</div>
+            </div>
           </div>
         ))}
       </div>
 
       {/* CTA buttons */}
       <div style={{
-        width: '100%', maxWidth: 360, padding: '0 24px',
+        width: '100%', maxWidth: 360, padding: '20px 24px 0',
         display: 'flex', flexDirection: 'column', gap: 12,
         animation: 'fade-up 0.5s 0.3s ease both',
       }}>

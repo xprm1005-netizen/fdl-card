@@ -1,18 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, RotateCcw } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import SvgCardFront from '../../components/card/SvgCardFront';
 import SvgCardBack from '../../components/card/SvgCardBack';
 import StatSlider from '../../components/ui/StatSlider';
 import Btn from '../../components/ui/Btn';
 import { C, ff, radius } from '../../tokens';
-import { calcOverall } from '../../lib/utils';
 
 const POSITIONS = ['GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'CF', 'ST'];
 const STAT_KEYS   = ['pac', 'dri', 'phy', 'acc', 'tac', 'psy'];
 const STAT_LABELS = { pac: '스피드', dri: '드리블', phy: '피지컬', acc: '정확도', tac: '전술이해', psy: '멘탈' };
+const LABEL_PRESETS = ['SPEED KING', 'GOAL MACHINE', 'PLAYMAKER', 'IRON WALL', 'DRIBBLE KING', 'FINISHER', 'ASSIST KING', 'GUARDIAN', 'TEAM PLAYER', 'ROCKET SHOT', 'DIRECT KICK'];
 
-const DEFAULT_FORM  = { name: '내 선수', position: 'ST', age: '10', club: 'FDL FC', height: '165', weight: '58' };
+const DEFAULT_FORM  = { name: '내 선수', position: 'ST', age: '10', club: 'FDL FC', height: '165', weight: '58', cardLabel: 'SPEED KING' };
 const DEFAULT_STATS = { pac: 80, dri: 75, phy: 72, acc: 78, tac: 68, psy: 70 };
 
 const inputStyle = {
@@ -36,12 +36,6 @@ export default function DemoCardPage() {
 
   function setField(key, val) { setForm((f) => ({ ...f, [key]: val })); }
   function setStat(key, val)  { setStats((s) => ({ ...s, [key]: val })); }
-
-  const ovr = calcOverall(stats);
-
-  // cardLabel: first word of name → line2, rest → line3
-  const nameWords = (form.name || '').trim().split(/\s+/).filter(Boolean);
-  const cardLabel = nameWords.slice(0, 2).join(' ') || '내 선수';
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, color: C.white, fontFamily: ff.body }}>
@@ -101,7 +95,7 @@ export default function DemoCardPage() {
             ) : (
               <SvgCardFront
                 cardType="THE"
-                cardLabel={cardLabel}
+                cardLabel={form.cardLabel}
                 position={form.position}
                 playerName={form.name}
                 academyName={form.club}
@@ -114,17 +108,6 @@ export default function DemoCardPage() {
               />
             )}
 
-            {/* OVR 배지 */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              background: C.card, border: `1px solid ${C.border}`,
-              borderRadius: radius.lg, padding: '10px 20px',
-            }}>
-              <span style={{ fontSize: 11, color: C.sub, letterSpacing: 1 }}>OVR</span>
-              <span style={{ fontSize: 40, fontWeight: 900, color: '#29ED73', lineHeight: 1 }}>
-                {ovr}
-              </span>
-            </div>
           </div>
 
           {/* ── 오른쪽: 편집 패널 ── */}
@@ -134,6 +117,12 @@ export default function DemoCardPage() {
             <section>
               <div style={{ fontSize: 13, fontWeight: 700, color: C.white, marginBottom: 10 }}>선수 정보</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div>
+                  <label style={labelStyle}>카드 라벨</label>
+                  <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.cardLabel} onChange={(e) => setField('cardLabel', e.target.value)}>
+                    {LABEL_PRESETS.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
                 <div>
                   <label style={labelStyle}>이름</label>
                   <input style={inputStyle} value={form.name} onChange={(e) => setField('name', e.target.value)} placeholder="선수 이름" maxLength={16} />
@@ -180,27 +169,10 @@ export default function DemoCardPage() {
             </section>
 
             {/* CTA */}
-            <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: radius.xl, padding: 20 }}>
-              <div style={{ fontSize: 12, color: C.sub, letterSpacing: 1, marginBottom: 12 }}>셀프 서비스 가격</div>
-              {[
-                { qty: '1장',  price: '6,900원' },
-                { qty: '5장',  price: '24,900원', badge: '인기' },
-                { qty: '11장', price: '49,900원', badge: 'BEST' },
-                { qty: '20장', price: '89,000원', badge: '최저가' },
-              ].map((p) => (
-                <div key={p.qty} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: `1px solid ${C.border}` }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <span style={{ fontSize: 14, fontWeight: 700 }}>{p.qty}</span>
-                    {p.badge && <span style={{ fontSize: 9, color: '#29ED73', border: `1px solid #29ED7355`, padding: '1px 6px', borderRadius: 10 }}>{p.badge}</span>}
-                  </div>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#29ED73' }}>{p.price}</span>
-                </div>
-              ))}
-              <div style={{ marginTop: 16 }}>
-                <Btn style={{ width: '100%' }} onClick={() => navigate('/signup')}>
-                  회원가입 후 주문하기
-                </Btn>
-              </div>
+            <section>
+              <Btn style={{ width: '100%' }} onClick={() => navigate('/signup')}>
+                회원가입 후 주문하기
+              </Btn>
             </section>
           </div>
         </div>
