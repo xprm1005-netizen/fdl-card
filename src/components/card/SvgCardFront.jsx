@@ -17,7 +17,7 @@ export default function SvgCardFront({
   cardType = 'THE', cardLabel = '', position = 'FW',
   photoUrl = '', academyLogoUrl = '', academyName = '',
   playerName = '', playerNameEn = '',
-  age = '', height = '', weight = '',
+  age = '', height = '', weight = '', foot = '',
   pac = 70, dri = 70, phy = 70,
   acc = 70, tac = 70, psy = 70,
   scale = 1, jerseyNumber, birthDate, nationality,
@@ -28,7 +28,8 @@ export default function SvgCardFront({
   const words = (cardLabel || '').trim().split(/\s+/).filter(Boolean);
   const line2 = words[0] || '';
   const line3 = words.slice(1).join(' ');
-  const hw = [height && `${height}cm`, weight && `${weight}kg`].filter(Boolean).join(' · ');
+  const footLabel = foot === 'left' ? '왼발' : foot === 'right' ? '오른발' : '';
+  const hw = [height && `${height}cm`, weight && `${weight}kg`, footLabel].filter(Boolean).join(' · ');
 
   return (
     <svg width={400 * scale} height={700 * scale} viewBox="0 0 400 700" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -124,14 +125,11 @@ export default function SvgCardFront({
           <tspan x="14" y="583.5">👤 MY STATS</tspan>
         </text>
 
-        {/* Stance icon + Height / Weight */}
+        {/* Height / Weight / Foot */}
         {hw && (
-          <g>
-            <image href="/stance.svg" x="7" y="590" width="12" height="12" />
-            <text fontFamily={FF} fontSize="10" fill="black">
-              <tspan x="22" y="601.636">{hw}</tspan>
-            </text>
-          </g>
+          <text fontFamily={FF} fontSize="10" fill="black">
+            <tspan x="14" y="601.636">{hw}</tspan>
+          </text>
         )}
 
         {/* ROW 1 stats */}

@@ -103,6 +103,7 @@ export default function CardCreatePage() {
       age={player.age}
       height={cardInfo.height}
       weight={cardInfo.weight}
+      foot={player.foot || ''}
       birthDate={player.birth_date || ''}
       nationality={player.nationality || ''}
       pac={stats.pac} dri={stats.dri} phy={stats.phy}

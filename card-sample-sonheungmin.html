@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>FDL Card — 손흥민 샘플</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+      gap: 40px;
+      flex-wrap: wrap;
+      min-height: 100vh;
+    }
+    .card {
+      position: relative;
+      width: 400px;
+      height: 700px;
+      border-radius: 16px;
+      overflow: hidden;
+      flex-shrink: 0;
+      font-family: 'Arial Black', Arial, sans-serif;
+      user-select: none;
+    }
+    .card__bg {
+      position: absolute;
+      inset: 0;
+      width: 400px;
+      height: 700px;
+      display: block;
+      z-index: 0;
+    }
+    .cover { position: absolute; z-index: 2; }
+
+    /* ── 앞면 스타일 ──────────────────────────────────────── */
+    .hd-label {
+      left: 12px; top: 12px;
+      width: 226px; height: 178px;
+      background: #29ED73;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 10px 14px;
+      gap: 3px;
+    }
+    .hd-label__type {
+      font-size: 10px; font-weight: 900;
+      color: rgba(10,10,10,0.6);
+      letter-spacing: 3px; text-transform: uppercase;
+    }
+    .hd-label__name {
+      font-size: 26px; font-weight: 900;
+      color: #0a0a0a; line-height: 1.0;
+      letter-spacing: -0.5px; text-transform: uppercase;
+    }
+    .hd-jersey {
+      right: 6px; top: 4px;
+      width: 168px; height: 192px;
+      background: #29ED73;
+      display: flex; flex-direction: column;
+      align-items: flex-end; justify-content: flex-end;
+      padding: 0 10px 6px;
+    }
+    .hd-jersey__num {
+      font-size: 108px; font-weight: 900;
+      color: #0a0a0a; line-height: 0.88;
+      letter-spacing: -6px;
+    }
+    .hd-jersey__pos {
+      font-size: 13px; font-weight: 900;
+      color: #0a0a0a; letter-spacing: 3px;
+      margin-top: 4px;
+    }
+    .photo-zone {
+      left: 0; top: 130px;
+      width: 400px; height: 320px;
+      z-index: 1; overflow: hidden;
+    }
+    .photo-zone__img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: top center;
+      display: block;
+    }
+    .info-bar {
+      left: 15px; top: 460px;
+      width: 370px; height: 75px;
+      background: #ffffff; border-radius: 8px;
+      overflow: hidden; display: flex; align-items: center;
+    }
+    .info-bar__logo-wrap {
+      width: 71px; height: 75px; flex-shrink: 0;
+      display: flex; align-items: center;
+      justify-content: center; padding: 0 8px;
+    }
+    .info-bar__logo {
+      width: 55px; height: 60px; border-radius: 6px;
+      background: #F2F2F2; object-fit: contain; display: block;
+    }
+    .info-bar__text {
+      flex: 1; min-width: 0; padding: 8px 10px 8px 0;
+    }
+    .info-bar__name {
+      font-size: 21px; font-weight: 900; color: #0a0a0a;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.1;
+    }
+    .info-bar__meta {
+      font-family: Arial, sans-serif;
+      font-size: 10px; font-weight: 700; color: #666;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-top: 4px; letter-spacing: 0.3px;
+    }
+    .stat {
+      display: flex; flex-direction: column;
+      align-items: flex-start;
+      background: #29ED73;
+      padding: 1px 2px 2px;
+    }
+    .stat__value {
+      font-size: 22px; font-weight: 900; color: #0a0a0a; line-height: 1;
+    }
+    .stat__label {
+      font-size: 9px; font-weight: 900;
+      color: rgba(10,10,10,0.75); letter-spacing: 1.5px; margin-top: 1px;
+    }
+    .stat--pac { left: 116px; top: 586px; width: 72px; height: 43px; }
+    .stat--dri { left: 216px; top: 586px; width: 72px; height: 43px; }
+    .stat--phy { left: 316px; top: 586px; width: 72px; height: 43px; }
+    .stat--acc { left: 116px; top: 632px; width: 72px; height: 43px; }
+    .stat--tac { left: 216px; top: 632px; width: 72px; height: 43px; }
+    .stat--psy { left: 316px; top: 632px; width: 72px; height: 43px; }
+    .stat-left {
+      left: 12px; top: 556px; width: 90px; height: 44px;
+      background: #29ED73;
+    }
+
+    /* ── 뒷면 스타일 ──────────────────────────────────────── */
+    .topbar {
+      left: 15px; top: 20px;
+      width: 370px; height: 50px;
+      background: #29ED73; border-radius: 8px;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0 14px; overflow: hidden;
+    }
+    .topbar__season { font-size: 13px; font-weight: 900; color: #0a0a0a; letter-spacing: 1px; }
+    .topbar__right { display: flex; align-items: baseline; gap: 6px; }
+    .topbar__num { font-size: 24px; font-weight: 900; color: #0a0a0a; letter-spacing: -1px; }
+    .topbar__pos { font-size: 11px; font-weight: 900; color: rgba(10,10,10,0.7); letter-spacing: 1px; }
+
+    .statbar {
+      left: 15px; top: 75px;
+      width: 370px; height: 50px;
+      background: #fff; border-radius: 8px;
+      overflow: hidden; display: flex; align-items: center;
+    }
+    .statbar--prev { top: 130px; }
+    .statbar__cell {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      border-right: 1px solid #f0f0f0; height: 100%; gap: 1px;
+    }
+    .statbar__cell:last-child { border-right: none; }
+    .statbar__value { font-size: 18px; font-weight: 900; color: #0a0a0a; line-height: 1; }
+    .statbar__label { font-size: 8px; font-weight: 700; color: #888; letter-spacing: 1px; }
+    .statbar__value--prev { color: #999; }
+    .statbar__badge { font-size: 7px; font-weight: 700; color: #aaa; letter-spacing: 0.5px; }
+
+    .pitch-indicator {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #29ED73; opacity: 0.9;
+      border: 2px solid #0a0a0a;
+      transform: translate(-50%, -50%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pitch-indicator__pos { font-size: 8px; font-weight: 900; color: #0a0a0a; letter-spacing: 0.5px; }
+
+    .player-info {
+      left: 16px; top: 491px;
+      width: 368px; height: 88px;
+      background: #0a0a0a; border: 1.5px solid #29ED73;
+      border-radius: 8px; padding: 12px 14px; overflow: hidden;
+    }
+    .player-info__name { font-size: 16px; font-weight: 900; color: #fff; line-height: 1.1; }
+    .player-info__desc {
+      font-family: Arial, sans-serif;
+      font-size: 10px; color: rgba(255,255,255,0.6);
+      margin-top: 5px; line-height: 1.5;
+    }
+
+    .card-badge {
+      left: 16px; top: 601px;
+      width: 368px; height: 33px;
+      background: #0a0a0a; border: 1.5px solid #29ED73;
+      border-radius: 16px;
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 0 16px; overflow: hidden;
+    }
+    .card-badge__name { font-size: 13px; font-weight: 900; color: #fff; }
+    .card-badge__right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .card-badge__grade { font-size: 10px; font-weight: 900; color: #29ED73; letter-spacing: 1px; }
+    .card-badge__ovr { font-size: 14px; font-weight: 900; color: #fff; }
+
+    .card-footer {
+      left: 16px; top: 652px; width: 368px; height: 40px;
+      background: #0a0a0a;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 4px;
+    }
+    .card-footer__stats { display: flex; gap: 10px; }
+    .card-footer__stat { text-align: center; }
+    .card-footer__stat-label { font-size: 7px; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 1px; display: block; }
+    .card-footer__stat-value { font-size: 12px; font-weight: 900; color: rgba(255,255,255,0.8); }
+    .card-footer__academy { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.4); }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════ 앞면 ══════════ -->
+  <div class="card">
+    <img class="card__bg" src="앞면.svg" alt="">
+
+    <div class="cover photo-zone">
+      <img class="photo-zone__img" src="{{photo_url}}" alt="손흥민">
+    </div>
+
+    <div class="cover hd-label">
+      <span class="hd-label__type">THE</span>
+      <span class="hd-label__name">SPEED KING</span>
+    </div>
+
+    <div class="cover hd-jersey">
+      <span class="hd-jersey__num">7</span>
+      <span class="hd-jersey__pos">FW</span>
+    </div>
+
+    <div class="cover info-bar">
+      <div class="info-bar__logo-wrap">
+        <img class="info-bar__logo" src="{{academy_logo_url}}" alt="FDL FC">
+      </div>
+      <div class="info-bar__text">
+        <div class="info-bar__name">손흥민</div>
+        <div class="info-bar__meta">FDL FC · 16세 · 2010.05.15 · 대한민국</div>
+      </div>
+    </div>
+
+    <div class="cover stat-left"></div>
+
+    <div class="cover stat stat--pac">
+      <span class="stat__value">92</span>
+      <span class="stat__label">PAC</span>
+    </div>
+    <div class="cover stat stat--dri">
+      <span class="stat__value">88</span>
+      <span class="stat__label">DRI</span>
+    </div>
+    <div class="cover stat stat--phy">
+      <span class="stat__value">81</span>
+      <span class="stat__label">PHY</span>
+    </div>
+    <div class="cover stat stat--acc">
+      <span class="stat__value">90</span>
+      <span class="stat__label">ACC</span>
+    </div>
+    <div class="cover stat stat--tac">
+      <span class="stat__value">75</span>
+      <span class="stat__label">TAC</span>
+    </div>
+    <div class="cover stat stat--psy">
+      <span class="stat__value">85</span>
+      <span class="stat__label">PSY</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 뒷면 ══════════ -->
+  <div class="card">
+    <img class="card__bg" src="뒷면.svg" alt="">
+
+    <div class="cover topbar">
+      <span class="topbar__season">2025 S1</span>
+      <div class="topbar__right">
+        <span class="topbar__num">7</span>
+        <span class="topbar__pos">FW</span>
+      </div>
+    </div>
+
+    <div class="cover statbar">
+      <div class="statbar__cell"><span class="statbar__value">92</span><span class="statbar__label">PAC</span></div>
+      <div class="statbar__cell"><span class="statbar__value">88</span><span class="statbar__label">DRI</span></div>
+      <div class="statbar__cell"><span class="statbar__value">81</span><span class="statbar__label">PHY</span></div>
+      <div class="statbar__cell"><span class="statbar__value">90</span><span class="statbar__label">ACC</span></div>
+      <div class="statbar__cell"><span class="statbar__value">75</span><span class="statbar__label">TAC</span></div>
+      <div class="statbar__cell"><span class="statbar__value">85</span><span class="statbar__label">PSY</span></div>
+    </div>
+
+    <div class="cover statbar statbar--prev">
+      <div class="statbar__cell"><span class="statbar__value statbar__value--prev">85</span><span class="statbar__badge">PREV</span></div>
+      <div class="statbar__cell"><span class="statbar__value statbar__value--prev">80</span><span class="statbar__badge">PREV</span></div>
+      <div class="statbar__cell"><span class="statbar__value statbar__value--prev">76</span><span class="statbar__badge">PREV</span></div>
+      <div class="statbar__cell"><span class="statbar__value statbar__value--prev">82</span><span class="statbar__badge">PREV</span></div>
+      <div class="statbar__cell"><span class="statbar__value statbar__value--prev">70</span><span class="statbar__badge">PREV</span></div>
+      <div class="statbar__cell"><span class="statbar__value statbar__value--prev">78</span><span class="statbar__badge">PREV</span></div>
+    </div>
+
+    <!-- 포지션 인디케이터: FW = x=296, y=315 -->
+    <div class="cover pitch-indicator" style="left: 296px; top: 315px;">
+      <span class="pitch-indicator__pos">FW</span>
+    </div>
+
+    <div class="cover player-info">
+      <div class="player-info__name">손흥민</div>
+      <div class="player-info__desc">압도적인 스피드와 왼발 결정력을 겸비한 공격수. 팀의 에이스로 매 경기 헤트트릭을 노리는 득점 본능을 보유.</div>
+    </div>
+
+    <div class="cover card-badge">
+      <span class="card-badge__name">손흥민</span>
+      <div class="card-badge__right">
+        <span class="card-badge__grade">EPIC</span>
+        <span class="card-badge__ovr">85</span>
+      </div>
+    </div>
+
+    <div class="cover card-footer">
+      <div class="card-footer__stats">
+        <div class="card-footer__stat">
+          <span class="card-footer__stat-label">HEIGHT</span>
+          <span class="card-footer__stat-value">178cm</span>
+        </div>
+        <div class="card-footer__stat">
+          <span class="card-footer__stat-label">WEIGHT</span>
+          <span class="card-footer__stat-value">72kg</span>
+        </div>
+      </div>
+      <span class="card-footer__academy">FDL FC</span>
+    </div>
+  </div>
+
+</body>
+</html>

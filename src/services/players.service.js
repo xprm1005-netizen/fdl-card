@@ -20,7 +20,7 @@ export async function getPlayer(id) {
   return data;
 }
 
-export async function createPlayer({ academyId, name, nameEn, position, jerseyNumber, age }) {
+export async function createPlayer({ academyId, name, nameEn, position, jerseyNumber, age, foot }) {
   const payload = {
     academy_id: academyId,
     name,
@@ -31,6 +31,7 @@ export async function createPlayer({ academyId, name, nameEn, position, jerseyNu
   if (age !== undefined && age !== null && age !== '') {
     payload.age = Number(age);
   }
+  if (foot) payload.foot = foot;
 
   const { data, error } = await supabase
     .from('players')

@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { C, ff } from '../tokens';
 
 const STEPS = [
-  { num: '01', title: '선수 등록', desc: '이름·포지션·사진을 입력하면\n자동으로 프로필이 완성됩니다' },
+  { num: '01', title: '선수 등록', desc: '이름·포지션·사진을 입력하면\nAI가 자동으로 누끼 작업까지 완성해드립니다' },
   { num: '02', title: '카드 제작', desc: '능력치를 입력하고\n나만의 선수 카드를 만드세요' },
-  { num: '03', title: '레벨 부여', desc: 'COMMON부터 TOTY까지\n7단계 등급으로 선수를 평가하세요' },
+  { num: '03', title: '실물 카드 배송', desc: '완성된 카드를 인쇄해\n아카데미로 빠르게 배송해드립니다' },
 ];
 
 export default function LandingPage() {
@@ -124,9 +124,9 @@ export default function LandingPage() {
       }}>
         {[
           { icon: '🎴', text: '3초 카드 생성' },
-          { icon: '🏆', text: '7단계 등급' },
-          { icon: '📤', text: '1탭 SNS 공유' },
+          { icon: '🏅', text: 'FDL 인증카드' },
           { icon: '📦', text: '실물 카드 배송' },
+          { icon: '🧪', text: '파일럿 테스트 진행 중' },
         ].map(({ icon, text }) => (
           <div key={text} style={{
             background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`,

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>FDL Card — Front Template</title>
+  <!--
+  ┌─────────────────────────────────────────────────────────────┐
+  │  FDL PLAYER CARD — 앞면 템플릿                              │
+  │  SVG(앞면.svg)를 배경으로 쓰고, 데이터 존마다 커버 오버레이 │
+  │                                                             │
+  │  {{변수}} 목록                                              │
+  │  ─────────────────────────────────────────────────────────  │
+  │  {{card_type}}       카드 타입 레이블 (예: THE)             │
+  │  {{card_label}}      카드 부제 (예: SPEED SPECIAL)          │
+  │  {{jersey_number}}   등번호 (예: 72)                        │
+  │  {{position}}        포지션 (예: CB)                        │
+  │  {{photo_url}}       선수 사진 URL                          │
+  │  {{academy_logo_url}} 아카데미 로고 URL                     │
+  │  {{player_name}}     선수 이름 (예: 손흥민)                 │
+  │  {{academy_name}}    소속 아카데미 (예: FDL FC)             │
+  │  {{age}}             나이 (예: 15)                          │
+  │  {{birth_date}}      생년월일 (예: 2010.05.15)              │
+  │  {{nationality}}     국적 (예: 대한민국)                    │
+  │  {{pac}}             PAC 스탯 (예: 87)                      │
+  │  {{dri}}             DRI 스탯                               │
+  │  {{phy}}             PHY 스탯                               │
+  │  {{acc}}             ACC 스탯                               │
+  │  {{tac}}             TAC 스탯                               │
+  │  {{psy}}             PSY 스탯                               │
+  └─────────────────────────────────────────────────────────────┘
+  -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+      min-height: 100vh;
+    }
+
+    /* ── 카드 래퍼 ───────────────────────────────────────── */
+    .card {
+      position: relative;
+      width: 400px;
+      height: 700px;
+      border-radius: 16px;
+      overflow: hidden;
+      flex-shrink: 0;
+      font-family: 'Arial Black', Arial, sans-serif;
+      user-select: none;
+    }
+
+    /* ── SVG 배경 레이어 ─────────────────────────────────── */
+    .card__bg {
+      position: absolute;
+      inset: 0;
+      width: 400px;
+      height: 700px;
+      display: block;
+      z-index: 0;
+    }
+
+    /* ── 공통 커버 헬퍼 ─────────────────────────────────── */
+    .cover {
+      position: absolute;
+      z-index: 2;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       헤더 존  |  green #29ED73, y = 0 ~ 200px
+       ════════════════════════════════════════════════════════
+
+       SVG 원본 텍스트 경로(paths):
+       · 왼쪽 라벨 (L5)  : x ≈ 20-111, y ≈ 29-110
+       · 등번호 "72" (L6): x ≈ 242-355, y ≈ 41-107
+       · 포지션 "CB" (L7): x ≈ 345-390, y ≈ 85-103
+    */
+
+    /* 헤더 왼쪽 — 카드 라벨 커버 */
+    .hd-label {
+      left: 12px;
+      top: 12px;
+      width: 226px;
+      height: 178px;
+      background: #29ED73;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 10px 14px;
+      gap: 3px;
+    }
+    .hd-label__type {
+      font-size: 10px;
+      font-weight: 900;
+      color: rgba(10,10,10,0.6);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .hd-label__name {
+      font-size: 26px;
+      font-weight: 900;
+      color: #0a0a0a;
+      line-height: 1.0;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+
+    /* 헤더 오른쪽 — 등번호 + 포지션 커버 */
+    .hd-jersey {
+      right: 6px;
+      top: 4px;
+      width: 168px;
+      height: 192px;
+      background: #29ED73;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 0 10px 6px;
+    }
+    .hd-jersey__num {
+      font-size: 108px;
+      font-weight: 900;
+      color: #0a0a0a;
+      line-height: 0.88;
+      letter-spacing: -6px;
+    }
+    .hd-jersey__pos {
+      font-size: 13px;
+      font-weight: 900;
+      color: #0a0a0a;
+      letter-spacing: 3px;
+      margin-top: 4px;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       사진 존  |  y = 130 ~ 450px
+       ════════════════════════════════════════════════════════ */
+    .photo-zone {
+      left: 0;
+      top: 130px;
+      width: 400px;
+      height: 320px;
+      z-index: 1;      /* 헤더보다 아래, 인포바보다 아래 */
+      overflow: hidden;
+    }
+    .photo-zone__img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       인포바  |  white, y = 460 ~ 535px
+       ════════════════════════════════════════════════════════
+
+       SVG 원본:
+       · 흰색 rect   : x=15, y=460, w=370, h=75, rx=8
+       · 로고 플레이스홀더: x=22, y=468, w=55, h=60, rx=6
+       · 텍스트 경로들 (L12-L15): 이름·아카데미·생년월일 등
+    */
+    .info-bar {
+      left: 15px;
+      top: 460px;
+      width: 370px;
+      height: 75px;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    /* 로고 영역 */
+    .info-bar__logo-wrap {
+      width: 71px;
+      height: 75px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+    }
+    .info-bar__logo {
+      width: 55px;
+      height: 60px;
+      border-radius: 6px;
+      background: #F2F2F2;
+      object-fit: contain;
+      display: block;
+    }
+    /* 텍스트 영역 */
+    .info-bar__text {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 10px 8px 0;
+    }
+    .info-bar__name {
+      font-family: 'Arial Black', Arial, sans-serif;
+      font-size: 21px;
+      font-weight: 900;
+      color: #0a0a0a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.1;
+    }
+    .info-bar__meta {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      color: #666666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       스탯 존  |  green #29ED73, y = 550 ~ 700px
+       ════════════════════════════════════════════════════════
+
+       SVG 원본 좌표 분석:
+       아이콘(16×16 블랙 박스) + 오른쪽 값 텍스트 + 아래 라벨 텍스트
+
+       Row 1  (PAC / DRI / PHY):
+         아이콘 y = 591-607  →  값 y ≈ 597-613  라벨 y ≈ 617-625
+       Row 2  (ACC / TAC / PSY):
+         아이콘 y = 636-652  →  값 y ≈ 642-658  라벨 y ≈ 662-670
+
+       Column x:
+         Col1  아이콘 x=100  →  값/라벨 x ≈ 117
+         Col2  아이콘 x=200  →  값/라벨 x ≈ 217
+         Col3  아이콘 x=300  →  값/라벨 x ≈ 317
+
+       커버 박스는 값+라벨 영역을 #29ED73으로 덮고
+       위에 실제 {{변수}} 텍스트를 렌더링
+    */
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      background: #29ED73;  /* 원본 텍스트 경로 덮기 */
+      padding: 1px 2px 2px;
+    }
+    .stat__value {
+      font-family: 'Arial Black', Arial, sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: #0a0a0a;
+      line-height: 1;
+    }
+    .stat__label {
+      font-family: 'Arial Black', Arial, sans-serif;
+      font-size: 9px;
+      font-weight: 900;
+      color: rgba(10,10,10,0.75);
+      letter-spacing: 1.5px;
+      margin-top: 1px;
+    }
+
+    /* Row 1 */
+    .stat--pac { left: 116px; top: 586px; width: 72px; height: 43px; }
+    .stat--dri { left: 216px; top: 586px; width: 72px; height: 43px; }
+    .stat--phy { left: 316px; top: 586px; width: 72px; height: 43px; }
+    /* Row 2 */
+    .stat--acc { left: 116px; top: 632px; width: 72px; height: 43px; }
+    .stat--tac { left: 216px; top: 632px; width: 72px; height: 43px; }
+    .stat--psy { left: 316px; top: 632px; width: 72px; height: 43px; }
+
+    /* 왼쪽 상단 스탯 영역 (SVG L19-L20: x=15-37, y=558-595) */
+    .stat-left {
+      left: 12px;
+      top: 556px;
+      width: 90px;
+      height: 44px;
+      background: #29ED73;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+
+    <!-- ① SVG 배경 (데코 요소: 아이콘 박스, FDL 뱃지 등) -->
+    <img class="card__bg" src="앞면.svg" alt="">
+
+    <!-- ② 사진 (z-index 1) -->
+    <div class="cover photo-zone">
+      <img class="photo-zone__img" src="{{photo_url}}" alt="{{player_name}}">
+    </div>
+
+    <!-- ③ 헤더 왼쪽 — 카드 라벨 -->
+    <div class="cover hd-label">
+      <span class="hd-label__type">{{card_type}}</span>
+      <span class="hd-label__name">{{card_label}}</span>
+    </div>
+
+    <!-- ④ 헤더 오른쪽 — 등번호 + 포지션 -->
+    <div class="cover hd-jersey">
+      <span class="hd-jersey__num">{{jersey_number}}</span>
+      <span class="hd-jersey__pos">{{position}}</span>
+    </div>
+
+    <!-- ⑤ 인포바 -->
+    <div class="cover info-bar">
+      <div class="info-bar__logo-wrap">
+        <img class="info-bar__logo" src="{{academy_logo_url}}" alt="{{academy_name}}">
+      </div>
+      <div class="info-bar__text">
+        <div class="info-bar__name">{{player_name}}</div>
+        <div class="info-bar__meta">{{academy_name}} · {{age}}세 · {{birth_date}} · {{nationality}}</div>
+      </div>
+    </div>
+
+    <!-- ⑥ 왼쪽 스탯 영역 커버 -->
+    <div class="cover stat-left"></div>
+
+    <!-- ⑦ 스탯 6종 -->
+    <div class="cover stat stat--pac">
+      <span class="stat__value">{{pac}}</span>
+      <span class="stat__label">PAC</span>
+    </div>
+    <div class="cover stat stat--dri">
+      <span class="stat__value">{{dri}}</span>
+      <span class="stat__label">DRI</span>
+    </div>
+    <div class="cover stat stat--phy">
+      <span class="stat__value">{{phy}}</span>
+      <span class="stat__label">PHY</span>
+    </div>
+    <div class="cover stat stat--acc">
+      <span class="stat__value">{{acc}}</span>
+      <span class="stat__label">ACC</span>
+    </div>
+    <div class="cover stat stat--tac">
+      <span class="stat__value">{{tac}}</span>
+      <span class="stat__label">TAC</span>
+    </div>
+    <div class="cover stat stat--psy">
+      <span class="stat__value">{{psy}}</span>
+      <span class="stat__label">PSY</span>
+    </div>
+
+  </div>
+</body>
+</html>

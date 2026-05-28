@@ -125,6 +125,7 @@ export default function CardDetailPage() {
               playerName={player?.name || ''}
               academyName={academy?.name || ''}
               age={player?.age || ''}
+              foot={player?.foot || ''}
               pac={stats.pac} dri={stats.dri} phy={stats.phy}
               acc={stats.acc} tac={stats.tac} psy={stats.psy}
               scale={0.82}

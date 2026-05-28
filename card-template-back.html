@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>FDL Card — Back Template</title>
+  <!--
+  ┌─────────────────────────────────────────────────────────────┐
+  │  FDL PLAYER CARD — 뒷면 템플릿                              │
+  │  SVG(뒷면.svg)를 배경으로 쓰고, 데이터 존마다 커버 오버레이 │
+  │                                                             │
+  │  {{변수}} 목록                                              │
+  │  ─────────────────────────────────────────────────────────  │
+  │  {{season_label}}    시즌 라벨 (예: 2025 S1)                │
+  │  {{jersey_number}}   등번호 (예: 72)                        │
+  │  {{position}}        포지션 코드 (예: CB)                   │
+  │  {{pac}}             PAC 스탯                               │
+  │  {{dri}}             DRI 스탯                               │
+  │  {{phy}}             PHY 스탯                               │
+  │  {{acc}}             ACC 스탯                               │
+  │  {{tac}}             TAC 스탯                               │
+  │  {{psy}}             PSY 스탯                               │
+  │  {{pac_prev}}        이전 시즌 PAC (비교용)                 │
+  │  {{dri_prev}}        이전 시즌 DRI                          │
+  │  {{phy_prev}}        이전 시즌 PHY                          │
+  │  {{acc_prev}}        이전 시즌 ACC                          │
+  │  {{tac_prev}}        이전 시즌 TAC                          │
+  │  {{psy_prev}}        이전 시즌 PSY                          │
+  │  {{position_x}}      경기장 내 포지션 X (픽셀, 예: 152)     │
+  │  {{position_y}}      경기장 내 포지션 Y (픽셀, 예: 315)     │
+  │  {{player_name}}     선수 이름                              │
+  │  {{description}}     선수 소개 문구                         │
+  │  {{height}}          키 (예: 178cm)                        │
+  │  {{weight}}          몸무게 (예: 72kg)                      │
+  │  {{academy_name}}    소속 아카데미                          │
+  │  {{card_grade}}      카드 등급 (예: RARE)                   │
+  │  {{overall}}         OVR 점수                               │
+  │                                                             │
+  │  ── 포지션별 경기장 x/y 가이드 ──────────────────────────   │
+  │  GK  : x=74,  y=315   CDM : x=178, y=315                  │
+  │  CB  : x=152, y=315   CM  : x=200, y=315                  │
+  │  LB  : x=148, y=268   CAM : x=218, y=315                  │
+  │  RB  : x=148, y=360   LW  : x=246, y=268                  │
+  │  LWB : x=168, y=268   RW  : x=246, y=360                  │
+  │  RWB : x=168, y=360   CF  : x=270, y=315                  │
+  │                        ST  : x=296, y=315                  │
+  └─────────────────────────────────────────────────────────────┘
+  -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+      min-height: 100vh;
+    }
+
+    /* ── 카드 래퍼 ───────────────────────────────────────── */
+    .card {
+      position: relative;
+      width: 400px;
+      height: 700px;
+      border-radius: 16px;
+      overflow: hidden;
+      flex-shrink: 0;
+      font-family: 'Arial Black', Arial, sans-serif;
+      user-select: none;
+    }
+
+    .card__bg {
+      position: absolute;
+      inset: 0;
+      width: 400px;
+      height: 700px;
+      display: block;
+      z-index: 0;
+    }
+
+    .cover {
+      position: absolute;
+      z-index: 2;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       상단 녹색 바  |  x=15, y=20-70  (#29ED73)
+       ════════════════════════════════════════════════════════
+       SVG 원본:
+       · 왼쪽 텍스트 (L4): x ≈ 30-113, y ≈ 38-55 → {{season_label}}
+       · 오른쪽 "72" (L5): x ≈ 305-334, y ≈ 37-55 → {{jersey_number}}
+    */
+    .topbar {
+      left: 15px;
+      top: 20px;
+      width: 370px;
+      height: 50px;
+      background: #29ED73;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      overflow: hidden;
+    }
+    .topbar__season {
+      font-size: 13px;
+      font-weight: 900;
+      color: #0a0a0a;
+      letter-spacing: 1px;
+    }
+    .topbar__right {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .topbar__num {
+      font-size: 24px;
+      font-weight: 900;
+      color: #0a0a0a;
+      letter-spacing: -1px;
+    }
+    .topbar__pos {
+      font-size: 11px;
+      font-weight: 900;
+      color: rgba(10,10,10,0.7);
+      letter-spacing: 1px;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       스탯 바 1  |  흰색, x=15, y=75-125
+       ════════════════════════════════════════════════════════
+       아이콘 박스(12×13) + 오른쪽 값 + 아래 라벨
+       Column x: 25 / 85 / 145 / 205 / 265 / 325
+
+       커버 전략:
+       각 컬럼마다 흰 배경 커버를 씌우고 값+라벨 표시
+    */
+    .statbar {
+      left: 15px;
+      top: 75px;
+      width: 370px;
+      height: 50px;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    /* 스탯 셀 (6개 균등 분할) */
+    .statbar__cell {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid #f0f0f0;
+      height: 100%;
+      gap: 1px;
+    }
+    .statbar__cell:last-child {
+      border-right: none;
+    }
+    .statbar__value {
+      font-family: 'Arial Black', Arial, sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      color: #0a0a0a;
+      line-height: 1;
+    }
+    .statbar__label {
+      font-family: Arial, sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      color: #888;
+      letter-spacing: 1px;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       스탯 바 2  |  흰색, x=15, y=130-180  (이전 시즌 비교)
+       ════════════════════════════════════════════════════════ */
+    .statbar--prev {
+      top: 130px;
+    }
+    .statbar__value--prev {
+      color: #999;
+    }
+    .statbar__badge {
+      font-size: 7px;
+      font-weight: 700;
+      color: #aaa;
+      letter-spacing: 0.5px;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       경기장 도표  |  y ≈ 195-475
+       ════════════════════════════════════════════════════════
+       포지션 인디케이터 (SVG L45: x=160, y=315, r=14, gray)
+       → {{position_x}}, {{position_y}} 로 중심 좌표 지정
+    */
+    .pitch-indicator {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #29ED73;
+      opacity: 0.9;
+      border: 2px solid #0a0a0a;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pitch-indicator__pos {
+      font-size: 8px;
+      font-weight: 900;
+      color: #0a0a0a;
+      letter-spacing: 0.5px;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       선수 정보 박스  |  x=16, y=491-579  (black + green border)
+       ════════════════════════════════════════════════════════
+       텍스트 경로 (L49-L50): y ≈ 505-555
+    */
+    .player-info {
+      left: 16px;
+      top: 491px;
+      width: 368px;
+      height: 88px;
+      background: #0a0a0a;
+      border: 1.5px solid #29ED73;
+      border-radius: 8px;
+      padding: 12px 14px;
+      overflow: hidden;
+    }
+    .player-info__name {
+      font-size: 16px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .player-info__desc {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.6);
+      margin-top: 5px;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       뱃지  |  x=16, y=601-634  (black + green border, rounded)
+       ════════════════════════════════════════════════════════
+       텍스트 경로 (L52-L55): y ≈ 614-622
+    */
+    .card-badge {
+      left: 16px;
+      top: 601px;
+      width: 368px;
+      height: 33px;
+      background: #0a0a0a;
+      border: 1.5px solid #29ED73;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      overflow: hidden;
+    }
+    .card-badge__name {
+      font-size: 13px;
+      font-weight: 900;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-badge__right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .card-badge__grade {
+      font-size: 10px;
+      font-weight: 900;
+      color: #29ED73;
+      letter-spacing: 1px;
+    }
+    .card-badge__ovr {
+      font-size: 14px;
+      font-weight: 900;
+      color: #ffffff;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       하단 텍스트  |  y ≈ 659-686
+       ════════════════════════════════════════════════════════ */
+    .card-footer {
+      left: 16px;
+      top: 652px;
+      width: 368px;
+      height: 40px;
+      background: #0a0a0a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px;
+    }
+    .card-footer__stats {
+      display: flex;
+      gap: 10px;
+    }
+    .card-footer__stat {
+      text-align: center;
+    }
+    .card-footer__stat-label {
+      font-size: 7px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 1px;
+      display: block;
+    }
+    .card-footer__stat-value {
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.8);
+    }
+    .card-footer__academy {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+
+    <!-- ① SVG 배경 (경기장 도표, 선 등 데코 요소) -->
+    <img class="card__bg" src="뒷면.svg" alt="">
+
+    <!-- ② 상단 녹색 바 — 시즌 라벨 + 등번호 -->
+    <div class="cover topbar">
+      <span class="topbar__season">{{season_label}}</span>
+      <div class="topbar__right">
+        <span class="topbar__num">{{jersey_number}}</span>
+        <span class="topbar__pos">{{position}}</span>
+      </div>
+    </div>
+
+    <!-- ③ 스탯 바 1 — 현 시즌 스탯 -->
+    <div class="cover statbar">
+      <div class="statbar__cell">
+        <span class="statbar__value">{{pac}}</span>
+        <span class="statbar__label">PAC</span>
+      </div>
+      <div class="statbar__cell">
+        <span class="statbar__value">{{dri}}</span>
+        <span class="statbar__label">DRI</span>
+      </div>
+      <div class="statbar__cell">
+        <span class="statbar__value">{{phy}}</span>
+        <span class="statbar__label">PHY</span>
+      </div>
+      <div class="statbar__cell">
+        <span class="statbar__value">{{acc}}</span>
+        <span class="statbar__label">ACC</span>
+      </div>
+      <div class="statbar__cell">
+        <span class="statbar__value">{{tac}}</span>
+        <span class="statbar__label">TAC</span>
+      </div>
+      <div class="statbar__cell">
+        <span class="statbar__value">{{psy}}</span>
+        <span class="statbar__label">PSY</span>
+      </div>
+    </div>
+
+    <!-- ④ 스탯 바 2 — 이전 시즌 비교 -->
+    <div class="cover statbar statbar--prev">
+      <div class="statbar__cell">
+        <span class="statbar__value statbar__value--prev">{{pac_prev}}</span>
+        <span class="statbar__badge">PREV</span>
+      </div>
+      <div class="statbar__cell">
+        <span class="statbar__value statbar__value--prev">{{dri_prev}}</span>
+        <span class="statbar__badge">PREV</span>
+      </div>
+      <div class="statbar__cell">
+        <span class="statbar__value statbar__value--prev">{{phy_prev}}</span>
+        <span class="statbar__badge">PREV</span>
+      </div>
+      <div class="statbar__cell">
+        <span class="statbar__value statbar__value--prev">{{acc_prev}}</span>
+        <span class="statbar__badge">PREV</span>
+      </div>
+      <div class="statbar__cell">
+        <span class="statbar__value statbar__value--prev">{{tac_prev}}</span>
+        <span class="statbar__badge">PREV</span>
+      </div>
+      <div class="statbar__cell">
+        <span class="statbar__value statbar__value--prev">{{psy_prev}}</span>
+        <span class="statbar__badge">PREV</span>
+      </div>
+    </div>
+
+    <!-- ⑤ 경기장 포지션 인디케이터 (SVG 배경 위에 오버레이) -->
+    <!--
+      position_x, position_y = 경기장 내 절대 좌표 (픽셀)
+      CSS transform: translate(-50%, -50%) 으로 중심 기준 배치
+
+      포지션별 추천 좌표:
+        GK=74/315  CB=152/315  LB=148/268  RB=148/360
+        CDM=178/315  CM=200/315  CAM=218/315
+        LW=246/268  RW=246/360  CF=270/315  ST=296/315
+    -->
+    <div class="cover pitch-indicator"
+         style="left: {{position_x}}px; top: {{position_y}}px;">
+      <span class="pitch-indicator__pos">{{position}}</span>
+    </div>
+
+    <!-- ⑥ 선수 정보 박스 -->
+    <div class="cover player-info">
+      <div class="player-info__name">{{player_name}}</div>
+      <div class="player-info__desc">{{description}}</div>
+    </div>
+
+    <!-- ⑦ 뱃지 바 -->
+    <div class="cover card-badge">
+      <span class="card-badge__name">{{player_name}}</span>
+      <div class="card-badge__right">
+        <span class="card-badge__grade">{{card_grade}}</span>
+        <span class="card-badge__ovr">{{overall}}</span>
+      </div>
+    </div>
+
+    <!-- ⑧ 하단 풋터 (키·몸무게·소속) -->
+    <div class="cover card-footer">
+      <div class="card-footer__stats">
+        <div class="card-footer__stat">
+          <span class="card-footer__stat-label">HEIGHT</span>
+          <span class="card-footer__stat-value">{{height}}</span>
+        </div>
+        <div class="card-footer__stat">
+          <span class="card-footer__stat-label">WEIGHT</span>
+          <span class="card-footer__stat-value">{{weight}}</span>
+        </div>
+      </div>
+      <span class="card-footer__academy">{{academy_name}}</span>
+    </div>
+
+  </div>
+</body>
+</html>

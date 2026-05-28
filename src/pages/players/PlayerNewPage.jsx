@@ -40,7 +40,7 @@ function romanizeHangul(str) {
 export default function PlayerNewPage() {
   const { academy } = useAuthStore();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', nameEn: '', position: 'ST', jerseyNumber: '', age: '' });
+  const [form, setForm] = useState({ name: '', nameEn: '', position: 'ST', jerseyNumber: '', age: '', foot: '' });
   const [nameEnManual, setNameEnManual] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
@@ -84,6 +84,7 @@ export default function PlayerNewPage() {
         position: form.position,
         jerseyNumber: Number(form.jerseyNumber),
         age: form.age ? Number(form.age) : null,
+        foot: form.foot || undefined,
       });
       setPlayerId(player.id);
 
@@ -179,6 +180,30 @@ export default function PlayerNewPage() {
               value={form.age}
               onChange={(e) => set('age', e.target.value)}
             />
+          </div>
+
+          {/* 주발 선택 */}
+          <div>
+            <div style={{ fontSize: 11, color: C.sub, letterSpacing: 1, fontWeight: 600, marginBottom: 8, textTransform: 'uppercase' }}>주발</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[{ val: 'left', label: '왼발' }, { val: 'right', label: '오른발' }].map(({ val, label }) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => set('foot', form.foot === val ? '' : val)}
+                  style={{
+                    flex: 1, padding: '10px 0',
+                    background: form.foot === val ? '#29ED73' : 'transparent',
+                    color: form.foot === val ? '#0a0a0a' : C.sub,
+                    border: form.foot === val ? '1px solid #29ED73' : `1px solid ${C.border}`,
+                    borderRadius: 8, fontSize: 13, fontWeight: 700,
+                    cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s',
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {error && (
