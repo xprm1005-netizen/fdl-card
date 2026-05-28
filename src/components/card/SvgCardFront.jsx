@@ -45,11 +45,12 @@ export default function SvgCardFront({
         {/* Card base */}
         <rect width="400" height="700" rx="16" fill="black" />
 
-        {/* Player photo */}
-        {photoUrl
-          ? <image href={photoUrl} x="-5" y="0" width="405" height="500" preserveAspectRatio="xMidYMid slice" />
-          : <text fontFamily={FF} fontSize="16" fill="white" fillOpacity="0.5"><tspan x="153" y="303.318">플레이어 사진</tspan></text>
-        }
+        {/* Player photo (fallback to placeholder SVG) */}
+        <image
+          href={photoUrl || '/player-bg.svg'}
+          x="-5" y="0" width="405" height="500"
+          preserveAspectRatio="xMidYMid slice"
+        />
 
         {/* Green header overlay (x=0, y=20, w=389, h=102) */}
         <rect y="20" width="389" height="102" fill="#29ED73" />
