@@ -16,7 +16,7 @@ const CARDS = [
   },
   {
     id: 'r7',
-    src: '/thumbnails/r7.png',
+    src: '/thumbnails/r7.jpg',
     name: 'MONSTER CLASS',
     desc: '최고 등급 레벨 인증카드',
     badge: '레벨 인증카드',
@@ -26,7 +26,7 @@ const CARDS = [
   },
   {
     id: 'r6',
-    src: '/thumbnails/r6.png',
+    src: '/thumbnails/r6.jpg',
     name: 'TOTY',
     desc: '올해의 팀 레벨 인증카드',
     badge: '레벨 인증카드',
@@ -36,7 +36,7 @@ const CARDS = [
   },
   {
     id: 'r5',
-    src: '/thumbnails/r5.png',
+    src: '/thumbnails/r5.jpg',
     name: 'ICON',
     desc: '아이콘 레벨 인증카드',
     badge: '레벨 인증카드',
@@ -46,7 +46,7 @@ const CARDS = [
   },
   {
     id: 'r4',
-    src: '/thumbnails/r4.png',
+    src: '/thumbnails/r4.jpg',
     name: 'LEGEND',
     desc: '레전드 레벨 인증카드',
     badge: '레벨 인증카드',
@@ -56,7 +56,7 @@ const CARDS = [
   },
   {
     id: 'r3',
-    src: '/thumbnails/r3.png',
+    src: '/thumbnails/r3.jpg',
     name: 'EPIC',
     desc: '에픽 레벨 인증카드',
     badge: '레벨 인증카드',
@@ -66,7 +66,7 @@ const CARDS = [
   },
   {
     id: 'r2',
-    src: '/thumbnails/r2.png',
+    src: '/thumbnails/r2.jpg',
     name: 'RARE',
     desc: '레어 레벨 인증카드',
     badge: '레벨 인증카드',
@@ -76,7 +76,7 @@ const CARDS = [
   },
   {
     id: 'r1',
-    src: '/thumbnails/r1.png',
+    src: '/thumbnails/r1.jpg',
     name: 'COMMON',
     desc: '스탠다드 레벨 인증카드',
     badge: '레벨 인증카드',
