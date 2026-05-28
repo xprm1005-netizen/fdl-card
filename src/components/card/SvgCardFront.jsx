@@ -59,14 +59,6 @@ export default function SvgCardFront({
         <clipPath id={`cc${uid}`}>
           <rect width="400" height="700" rx="16" />
         </clipPath>
-        {/* 흰색→투명 필터: 로고 PNG 배경을 제거해 그린에 스며들게 */}
-        <filter id={`fdlF${uid}`} colorInterpolationFilters="sRGB">
-          <feColorMatrix type="matrix"
-            values="0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 0 0
-                    -1 0 0 0 1" />
-        </filter>
       </defs>
 
       <g clipPath={`url(#cc${uid})`}>
@@ -171,13 +163,12 @@ export default function SvgCardFront({
           </g>
         ))}
 
-        {/* FDL 로고 — 흰색 배지 없이 그린 배경에 직접 스며들게 */}
+        {/* FDL 인증 로고 — 투명 PNG 직접 표시 (그린 배경에 스며듦) */}
         <image
           href="/brand/fdl-logo.png"
           x="8" y="657"
-          width="95" height="36"
+          width="88" height="34"
           preserveAspectRatio="xMidYMid meet"
-          filter={`url(#fdlF${uid})`}
         />
 
         {/* ©FDL (원본 유지) */}
