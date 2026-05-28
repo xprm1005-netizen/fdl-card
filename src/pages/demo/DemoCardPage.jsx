@@ -6,7 +6,7 @@ import { C, ff } from '../../tokens';
 const CARDS = [
   {
     id: 'fdl',
-    src: '/thumbnails/FDL인증카드.jpeg',
+    src: '/thumbnails/fdl-cert.jpeg',
     name: 'FDL 인증카드',
     desc: 'FDL이 직접 발행하는 공식 인증 카드',
     badge: 'PREMIUM',
